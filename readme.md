@@ -47,10 +47,12 @@ Upload public key; *id_rsa.pub*, to Github for authentication
 
 `cis-core-api# php artisan storage:link`
 
+### Install & compile NodeJS dependencies
+
+`cis-core-api# npm install && npm run dev`
+
 ### Local Development Server
 
 `cis-core-api# php artisan serve`
 
-Visit: `http://127.0.0.1:8000`
-
-Or simply: `http://127.0.0.1/cis-core-api/public`
+Visit: [`http://127.0.0.1:8000`](http://127.0.0.1:8000)
