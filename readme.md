@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/mtvbrianking/cis-core-api.svg?branch=master)](https://travis-ci.org/mtvbrianking/cis-core-api)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mtvbrianking/cis-core-api/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/mtvbrianking/cis-core-api/?branch=master)
+[![StyleCI](https://github.styleci.io/repos/204977143/shield?branch=master)](https://github.styleci.io/repos/204977143)
+
 ## Setup
 
 ### [Generate SSH Keys](https://git-scm.com/book/en/v2/Git-on-the-Server-Generating-Your-SSH-Public-Key)
