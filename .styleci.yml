@@ -1,28 +1,21 @@
-php:
-  preset: laravel
+preset: laravel
 
-  # https://docs.styleci.io/standalone-php#risky
-  risky: false
+# https://docs.styleci.io/standalone-php#risky
+risky: false
 
-  enabled:
-    # - single_quote
-    # - phpdoc_summary
+enabled:
+  # - single_quote
+  # - phpdoc_summary
 
-  disabled:
-    # - self_accessor
+disabled:
+  # - self_accessor
 
-  finder:
-    exclude:
-      - "docs"
-      - "public"
-      - "resources"
-    name:
-      - "*.php"
-    not-name:
-      - "*blade.php"
-# js:
-#   finder:
-#     not-name:
-#       - webpack.mix.js
-
-# css: true
+finder:
+  exclude:
+    - "docs"
+    - "public"
+    - "resources"
+  name:
+    - "*.php"
+  not-name:
+    - "*blade.php"
