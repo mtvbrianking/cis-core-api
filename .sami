@@ -1,0 +1,37 @@
+<?php
+
+use Sami\Sami;
+use Symfony\Component\Finder\Finder;
+use Sami\Version\GitVersionCollection;
+use Sami\RemoteRepository\GitHubRemoteRepository;
+
+$dir = __DIR__ . '/app';
+
+$iterator = Finder::create()
+    ->files()
+    ->name('*.php')
+    ->exclude('storage')
+    ->exclude('tests')
+    ->exclude('vendor')
+    ->in($dir);
+
+$versions = GitVersionCollection::create($dir)
+    ->add('master', 'master branch');
+
+$repo = new GitHubRemoteRepository(
+    'mtvbrianking/cis-core-api',
+    dirname($dir),
+    'https://github.com/'
+);
+
+$options = [
+    'theme' => 'default',
+    'versions' => $versions,
+    'title' => 'ECTS API',
+    'build_dir' => __DIR__ . '/docs',
+    'cache_dir' => __DIR__ . '/docs/cache',
+    'remote_repository' => $repo,
+    'default_opened_level' => 2,
+];
+
+return new Sami($iterator, $options);

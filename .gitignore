@@ -5,8 +5,14 @@
 /vendor
 .env
 .env.backup
+.php_cs.cache
 .phpunit.result.cache
+coverage
+coverage.clover
+docs
 Homestead.json
 Homestead.yaml
 npm-debug.log
+phpunit.xml
+sami.phar
 yarn-error.log
