@@ -13,6 +13,7 @@ $finder = PhpCsFixer\Finder::create()
     ->in(__DIR__.'/config')
     // ->in(__DIR__.'/public')
     // ->in(__DIR__.'/resources')
+    ->in(__DIR__.'/database')
     ->in(__DIR__.'/routes')
     ->in(__DIR__.'/tests')
     ->name('*.php')
@@ -25,17 +26,17 @@ return PhpCsFixer\Config::create()
     ->setRules(
         [
             '@PSR2' => true,
-            
+
             // Arrays
-            'array_syntax' => [ 
-                'syntax' => 'short' 
+            'array_syntax' => [
+                'syntax' => 'short'
             ],
             'trim_array_spaces' => true,
             'no_whitespace_before_comma_in_array' => true,
             'whitespace_after_comma_in_array' => true,
             'no_trailing_comma_in_singleline_array' => false,
             'trailing_comma_in_multiline_array' => true,
-            
+
             // General
             'indentation_type' => true,
             'single_quote' => true,
@@ -48,8 +49,8 @@ return PhpCsFixer\Config::create()
             'no_blank_lines_after_class_opening' => true,
             'no_blank_lines_after_phpdoc' => true,
             'cast_spaces' => true,
-            'concat_space' => [ 
-                'spacing' => 'none' 
+            'concat_space' => [
+                'spacing' => 'none'
             ],
             'blank_line_before_statement' => true,
             'method_chaining_indentation' => true,

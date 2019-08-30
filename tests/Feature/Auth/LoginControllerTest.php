@@ -88,11 +88,11 @@ class LoginControllerTest extends TestCase
             'Too many login attempts.',
             collect(
                 $response
-                ->baseResponse
-                ->getSession()
-                ->get('errors')
-                ->getBag('default')
-                ->get('email')
+                    ->baseResponse
+                    ->getSession()
+                    ->get('errors')
+                    ->getBag('default')
+                    ->get('email')
             )->first()
         );
         $this->assertTrue(session()->hasOldInput('email'));

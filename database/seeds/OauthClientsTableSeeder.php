@@ -4,6 +4,7 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Laravel\Passport\Client;
 use Illuminate\Database\Seeder;
+use Laravel\Passport\PersonalAccessClient;
 
 class OauthClientsTableSeeder extends Seeder
 {
@@ -54,5 +55,8 @@ class OauthClientsTableSeeder extends Seeder
         $client->revoked = false;
         $client->save();
 
+        $personal_client = new PersonalAccessClient();
+        $personal_client->client_id = $client->id;
+        $personal_client->save();
     }
 }
