@@ -29,7 +29,7 @@ jobs:
         - curl -O http://get.sensiolabs.org/sami.phar
 
       script:
-       - php sami.phar update --only-version=master --force .sami
+       - php sami.phar update .sami
 
       # https://docs.travis-ci.com/user/deployment/pages/
       deploy:
@@ -39,3 +39,9 @@ jobs:
         local_dir: docs
         on:
           branch: master
+
+# https://docs.travis-ci.com/user/notifications
+notifications:
+  email:
+    on_success: never
+    on_failure: always
