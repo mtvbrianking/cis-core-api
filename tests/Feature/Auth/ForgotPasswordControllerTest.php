@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Auth;
 
-use App\User;
 use Tests\TestCase;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;

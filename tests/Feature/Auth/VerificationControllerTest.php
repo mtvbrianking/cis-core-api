@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Auth;
 
-use App\User;
 use Carbon\Carbon;
 use Tests\TestCase;
+use App\Models\User;
 use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Config;

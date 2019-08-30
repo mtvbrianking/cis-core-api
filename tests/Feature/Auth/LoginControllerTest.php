@@ -2,8 +2,9 @@
 
 namespace Tests\Feature\Auth;
 
-use App\User;
 use Tests\TestCase;
+use App\Models\User;
+use Ramsey\Uuid\Uuid;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -127,7 +128,7 @@ class LoginControllerTest extends TestCase
         $password = 'gJrFhC2B-!Y!4CTk';
 
         $user = factory(User::class)->create([
-            'id' => \Ramsey\Uuid\Uuid::uuid4()->toString(),
+            'id' => Uuid::uuid4()->toString(),
             'password' => Hash::make($password),
         ]);
 
