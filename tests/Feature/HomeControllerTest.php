@@ -29,8 +29,6 @@ class HomeControllerTest extends TestCase
 
     public function test_can_see_application_routes()
     {
-        $this->withoutExceptionHandling();
-
         $user = factory(User::class)->create();
 
         $response = $this->actingAs($user)->get('/routes');
