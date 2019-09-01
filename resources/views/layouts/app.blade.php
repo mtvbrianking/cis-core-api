@@ -4,25 +4,24 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- CSRF Token -->
+    {{-- CSRF Token --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'CIS Core API') }}</title>
 
-    <!-- Scripts -->
-    <script src="{{ asset('js/app.js') }}" defer></script>
-
-    <!-- Fonts -->
+    {{-- Fonts --}}
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
 
-    <!-- Styles -->
+    {{-- Styles --}}
     <link href="{{ asset('css/bootstrap.css') }}" rel="stylesheet">
+
+    @yield('extra-css')
 </head>
-<body>
+<body style="padding-top: 70px;">
     <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
-            <div class="container">
+        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm fixed-top">
+            <div class="container-fluid">
                 <a class="navbar-brand" href="{{ url('/') }}">
                     {{ config('app.name', 'Laravel') }}
                 </a>
@@ -31,14 +30,14 @@
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <!-- Left Side Of Navbar -->
+                    {{-- Left Side Of Navbar --}}
                     <ul class="navbar-nav mr-auto">
 
                     </ul>
 
-                    <!-- Right Side Of Navbar -->
+                    {{-- Right Side Of Navbar --}}
                     <ul class="navbar-nav ml-auto">
-                        <!-- Authentication Links -->
+                        {{-- Authentication Links --}}
                         @guest
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
@@ -76,5 +75,10 @@
             @yield('content')
         </main>
     </div>
+
+    {{-- Scripts --}}
+    <script src="{{ asset('js/app.js') }}"></script>
+
+    @stack('extra-js')
 </body>
 </html>

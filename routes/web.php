@@ -36,3 +36,5 @@ Route::group(['namespace' => 'Auth', 'prefix' => '', 'as' => ''], function () {
 });
 
 Route::get('/', 'HomeController@index')->name('home');
+
+Route::get('/routes', 'HomeController@showApplicationRoutes')->name('routes');
