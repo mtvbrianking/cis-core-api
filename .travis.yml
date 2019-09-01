@@ -1,27 +1,25 @@
+# https://docs.travis-ci.com/user/build-stages
+
 language: php
+
+php:
+  - 7.2
+  - 7.3
 
 cache:
   directories:
     - $HOME/.composer/cache/files
 
-# https://docs.travis-ci.com/user/build-stages
+before_script:
+  - travis_retry composer self-update
+  - travis_retry composer update --prefer-lowest --no-ansi --no-interaction --no-progress --no-scripts
+
+script:
+  - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
 
 jobs:
 
   include:
-
-    - stage: test
-
-      name: "Unit tests"
-
-      php: 7.2
-
-      before_script:
-        - travis_retry composer self-update
-        - travis_retry composer update --prefer-lowest --no-ansi --no-interaction --no-progress --no-scripts
-
-      script:
-        - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
 
     - stage: deploy
 
