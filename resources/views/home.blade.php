@@ -69,7 +69,7 @@
                 <a href="#">API</a>
                 <a href="#">Clients</a>
                 <a href="#">Docs</a>
-                <a href="#">Routes</a>
+                <a href="{{ route('routes') }}">Routes</a>
             </div>
         </div>
     </div>

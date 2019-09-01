@@ -9,6 +9,9 @@ require('./bootstrap');
 require('datatables.net');
 require('datatables.net-bs4');
 
+require('datatables.net-buttons')(window, window.$);
+require('datatables.net-buttons-bs4')(window.$);
+
 window.Vue = require('vue');
 
 /**

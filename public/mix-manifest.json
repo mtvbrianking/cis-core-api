@@ -1,4 +1,6 @@
 {
     "/js/app.js": "/js/app.js",
-    "/css/bootstrap.css": "/css/bootstrap.css"
+    "/css/bootstrap.css": "/css/bootstrap.css",
+    "/vendor/datatables.net-buttons/js/buttons.html5.min.js": "/vendor/datatables.net-buttons/js/buttons.html5.min.js",
+    "/vendor/jszip/dist/jszip.min.js": "/vendor/jszip/dist/jszip.min.js"
 }

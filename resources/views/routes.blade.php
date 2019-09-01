@@ -1,9 +1,13 @@
 @extends('layouts.app')
 
 @push('extra-js')
+{{-- Excel; html5 + jszip --}}
+<script src="{{ asset('vendor/dataTables.net-buttons/js/buttons.html5.min.js') }}"></script>
+<script src="{{ asset('vendor/jszip/dist/jszip.min.js') }}"></script>
+
 <script type="text/javascript">
     $(document).ready(function () {
-        $('#tbl_routes').DataTable({
+        var routes_dt = $('table[id=routes]').DataTable({
             pageLength: 10,
             language: {
                 emptyTable: "No routes available",
@@ -16,33 +20,43 @@
             },
             order: [
                 [1, 'asc'],
+            ],
+            buttons: [
+                {
+                    extend: 'excel',
+                    className: 'btn btn-sm',
+                    text: '<i class="fa fa-file-excel-o"></i> Excel',
+                    exportOptions: {
+                        columns: [0,1,2,3,4]
+                    }
+                }
             ]
         });
+
+        routes_dt.buttons().container().appendTo('.export-btns');
     });
 </script>
 @endpush
 
 @section('content')
     <div class="container-fluid">
-
         <div class="row justify-content-center">
-
             <div class="col-lg-12">
                 <div class="card">
-
                     <div class="card-header">
-                        <div class="row">
-                            <div class="col-sm-3">
+                        <div class="d-flex justify-content-between">
+                            <div class="">
                                 Application Routes
+                            </div>
+                            <div class="export-btns">
                             </div>
                         </div>
                     </div>
-
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-12">
+                            <div class="col">
                                 <div class="table-responsive">
-                                    <table id="tbl_routes" class="table table-hover table-sm" style="width: 100%">
+                                    <table id="routes" class="table table-hover table-sm" style="width: 100%">
                                         <thead>
                                             <tr>
                                                 <th>Method</th>

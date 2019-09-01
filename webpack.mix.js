@@ -29,3 +29,14 @@ mix.sass('resources/sass/bootstrap.scss', 'public/css/bootstrap.css');
 //         tailwindcss('tailwind.config.js')
 //     ],
 // });
+
+// mix.copy('node_modules/datatables.net-buttons', 'public/vendor/datatables.net-buttons');
+mix.copy(
+    'node_modules/datatables.net-buttons/js/buttons.html5.min.js',
+    'public/vendor/datatables.net-buttons/js/buttons.html5.min.js'
+);
+
+mix.copy(
+    'node_modules/jszip/dist/jszip.min.js',
+    'public/vendor/jszip/dist/jszip.min.js'
+);
