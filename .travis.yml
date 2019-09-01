@@ -1,3 +1,5 @@
+language: php
+
 # https://docs.travis-ci.com/user/build-stages
 
 jobs:
