@@ -16,16 +16,16 @@ let postcssImport = require('postcss-import');
 
 mix.js('resources/js/app.js', 'public/js');
 
-// mix.sass('resources/sass/bootstrap.scss', 'public/css/bootstrap.css');
+mix.sass('resources/sass/bootstrap.scss', 'public/css/bootstrap.css');
 
 // mix.postCss('resources/css/tailwind.css', 'public/css/tailwind.css', [
 //     postcssImport(),
 //     tailwindcss('tailwind.config.js'),
 // ]);
 
-mix.sass('resources/sass/tailwind.scss', 'public/css/tailwind.css').options({
-    processCssUrls: false,
-    postCss: [
-        tailwindcss('tailwind.config.js')
-    ],
-});
+// mix.sass('resources/sass/tailwind.scss', 'public/css/tailwind.css').options({
+//     processCssUrls: false,
+//     postCss: [
+//         tailwindcss('tailwind.config.js')
+//     ],
+// });
