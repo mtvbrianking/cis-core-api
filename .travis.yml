@@ -1,5 +1,9 @@
 language: php
 
+cache:
+  directories:
+    - $HOME/.composer/cache/files
+
 # https://docs.travis-ci.com/user/build-stages
 
 jobs:
@@ -10,11 +14,13 @@ jobs:
 
       name: "Unit test"
 
-      php: 7.2
+      php:
+        - 7.2
+        - 7.3
 
       before_script:
         - travis_retry composer self-update
-        - travis_retry composer install --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
+        - travis_retry composer update --prefer-lowest --no-ansi --no-interaction --no-progress --no-scripts
 
       script:
         - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
