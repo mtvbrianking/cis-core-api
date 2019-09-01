@@ -26,4 +26,13 @@ class HomeControllerTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function test_can_see_application_routes()
+    {
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user)->get('/routes');
+
+        $response->assertStatus(200);
+    }
 }
