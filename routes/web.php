@@ -32,7 +32,7 @@ Route::group(['namespace' => 'Auth', 'prefix' => '', 'as' => ''], function () {
     // Email Verification Routes...
     Route::get('email/verify', 'VerificationController@show')->name('verification.notice');
     Route::get('email/verify/{id}/{hash}', 'VerificationController@verify')->name('verification.verify');
-    Route::get('email/resend', 'VerificationController@resend')->name('verification.resend');
+    Route::post('email/resend', 'VerificationController@resend')->name('verification.resend');
 });
 
 Route::get('/', 'HomeController@index')->name('home');

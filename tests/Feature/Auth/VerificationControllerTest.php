@@ -140,7 +140,7 @@ class VerificationControllerTest extends TestCase
 
     public function test_cant_request_resend_email_verification_link_when_unauthenticated()
     {
-        $response = $this->get(route('verification.resend'));
+        $response = $this->post(route('verification.resend'));
 
         $response->assertRedirect(route('login'));
     }
@@ -151,7 +151,7 @@ class VerificationControllerTest extends TestCase
             'email_verified_at' => now(),
         ]);
 
-        $response = $this->actingAs($user)->get(route('verification.resend'));
+        $response = $this->actingAs($user)->post(route('verification.resend'));
 
         $response->assertRedirect(route('home'));
     }
@@ -165,7 +165,7 @@ class VerificationControllerTest extends TestCase
 
         $response = $this->actingAs($user)
             ->from(route('verification.notice'))
-            ->get(route('verification.resend'));
+            ->post(route('verification.resend'));
 
         Notification::assertSentTo($user, VerifyEmail::class);
 
