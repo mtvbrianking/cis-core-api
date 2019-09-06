@@ -11,6 +11,8 @@
 |
 */
 
+Route::pattern('client', '^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){1}$');
+
 Route::group(['namespace' => 'Auth', 'prefix' => '', 'as' => ''], function () {
 
     // Registration Routes...
@@ -39,4 +41,5 @@ Route::get('/', 'HomeController@index')->name('home');
 
 Route::get('/routes', 'HomeController@showApplicationRoutes')->name('routes');
 
-Route::get('/clients', 'ClientController@index');
+Route::get('/clients', 'ClientController@index')->name('clients.index');
+Route::get('/clients/{client}', 'ClientController@show')->name('clients.show');

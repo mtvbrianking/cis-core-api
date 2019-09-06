@@ -11,7 +11,8 @@
 
     {{-- Fonts --}}
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+    {{-- <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet"> --}}
+    <link href="https://fonts.googleapis.com/css?family=Nunito:300,400,600&display=swap" rel="stylesheet">
 
     {{-- Styles --}}
     <link href="{{ asset('css/bootstrap.css') }}" rel="stylesheet">
@@ -71,7 +72,7 @@
             </div>
         </nav>
 
-        <main class="py-4">
+        <main class="py-2">
             @yield('content')
         </main>
     </div>

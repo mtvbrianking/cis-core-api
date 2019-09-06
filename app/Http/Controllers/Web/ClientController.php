@@ -25,9 +25,9 @@ class ClientController extends Controller
      */
     public function index()
     {
-        $clients = Passport::client()->get();
-
-        // return response()->json($clients);
+        $clients = Passport::client()
+            // ->where('user_id', $userId)
+            ->get();
 
         return view('clients.index', ['clients' => $clients]);
     }
@@ -57,19 +57,21 @@ class ClientController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param int $id
+     * @param string $id
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\View\View
      */
     public function show($id)
     {
-        //
+        $client = Passport::client()->findOrFail($id);
+
+        return view('clients.show', ['client' => $client]);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param int $id
+     * @param string $id
      *
      * @return \Illuminate\Http\Response
      */
@@ -94,7 +96,7 @@ class ClientController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param int $id
+     * @param string $id
      *
      * @return \Illuminate\Http\Response
      */
