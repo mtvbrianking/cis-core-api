@@ -10,3 +10,14 @@
 @import '~font-awesome/scss/font-awesome.scss';
 
 @import "~datatables.net-bs4/css/dataTables.bootstrap4.min.css";
+
+// Project specific customizations...
+
+// Navigation
+@import 'nav';
+
+// Forms
+@import 'forms';
+
+// Tables
+@import 'tables';

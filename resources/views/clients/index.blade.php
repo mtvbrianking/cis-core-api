@@ -1,27 +1,5 @@
 @extends('layouts.app')
 
-@section('extra-css')
-<style type="text/css">
-    .breadcrumb {
-        padding: 0;
-        background-color: transparent;
-    }
-
-    .breadcrumb-item + .breadcrumb-item::before {
-        content: "/";
-    }
-
-    th.center, td.center {
-        text-align: center;
-    }
-
-    td.actions > i {
-        cursor: pointer;
-        padding: 0 3px;
-    }
-</style>
-@endsection
-
 @push('extra-js')
 <script type="text/javascript">
     $('#myModal').on('shown.bs.modal', function () {

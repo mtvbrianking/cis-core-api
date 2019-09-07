@@ -1,36 +1,5 @@
 @extends('layouts.app')
 
-@section('extra-css')
-<style type="text/css">
-    .breadcrumb {
-        padding: 0;
-        background-color: transparent;
-    }
-
-    .breadcrumb-item + .breadcrumb-item::before {
-        content: "/";
-    }
-
-    span.caption {
-        margin-top: 2px;
-        font-size: 16px;
-    }
-
-    div.vrow {
-        margin-top: 0.5rem;
-        border-bottom: 1px solid rgba(128,128,128,.1);
-    }
-
-    label.vlabel {
-        font-weight: 400;
-    }
-
-    label.vvalue {
-        font-weight: 600;
-    }
-</style>
-@endsection
-
 @section('content')
     <div class="container-fluid">
         <div class="row">
