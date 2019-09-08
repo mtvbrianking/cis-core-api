@@ -1,3 +1,8 @@
+form label.required::after {
+    color: #e3342f;
+    content: " *";
+}
+
 div.vrow {
     margin-top: 0.5rem;
     border-bottom: 1px solid rgba(128,128,128,.1);

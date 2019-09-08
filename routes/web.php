@@ -11,7 +11,7 @@
 |
 */
 
-Route::pattern('client', '^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){1}$');
+$uuid = '^([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}){1}$';
 
 Route::group(['namespace' => 'Auth', 'prefix' => '', 'as' => ''], function () {
 
@@ -41,5 +41,18 @@ Route::get('/', 'HomeController@index')->name('home');
 
 Route::get('/routes', 'HomeController@showApplicationRoutes')->name('routes');
 
-Route::get('/clients', 'ClientController@index')->name('clients.index');
-Route::get('/clients/{client}', 'ClientController@show')->name('clients.show');
+Route::pattern('client', $uuid);
+
+Route::group(['prefix' => 'clients', 'as' => 'clients.'], function () {
+    // List, show, view all
+    Route::get('/', 'ClientController@index')->name('index');
+    Route::get('/{client}', 'ClientController@show')->name('show');
+    // Add new
+    Route::get('/create', 'ClientController@create')->name('create');
+    Route::post('/', 'ClientController@store')->name('store');
+    // Update, edit existing
+    Route::get('/{client}/edit', 'ClientController@edit')->name('edit');
+    Route::put('/{client}', 'ClientController@update')->name('update');
+    // Delete, remove
+    Route::delete('/{client}', 'ClientController@destroy')->name('destroy');
+});
