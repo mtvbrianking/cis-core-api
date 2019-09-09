@@ -1,3 +1,4 @@
-vendor/
-fonts/vendor/
-
+css
+fonts
+js
+vendor
