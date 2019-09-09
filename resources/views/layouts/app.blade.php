@@ -79,6 +79,32 @@
 
     {{-- Scripts --}}
     <script src="{{ asset('js/app.js') }}"></script>
+    <script type="text/javascript">
+        var app = '{{ config('app.url') }}';
+
+        window.$.ajaxSetup({
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': 'Bearer {{ session('api_token') }}',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        $('div.alert').not('.alert-danger, .alert-important').delay(5000).fadeOut(500);
+
+        var modal = $('.modal');
+
+        modal.on('shown.bs.modal', function () {
+            $(this).find('[autofocus]').focus();
+        });
+
+        modal.on('hidden.bs.modal', function () {
+            // Source: https://stackoverflow.com/a/35079811
+            // $(this).find('form').trigger('reset');
+            $(this).find('form')[0].reset();
+        });
+    </script>
 
     @stack('extra-js')
 </body>
