@@ -14,7 +14,7 @@ let postcssImport = require('postcss-import');
  |
  */
 
-mix.js('resources/js/app.js', 'public/js');
+mix.js('resources/js/app.js', 'public/js'); // .version();
 
 mix.sass('resources/sass/bootstrap.scss', 'public/css/bootstrap.css');
 
@@ -40,3 +40,15 @@ mix.copy(
     'node_modules/jszip/dist/jszip.min.js',
     'public/vendor/jszip/dist/jszip.min.js'
 );
+
+// --------------------------------------------------------------------
+// Page specific assets
+// --------------------------------------------------------------------
+
+// mix.copyDirectory('resources/js/pages', 'public/js/pages'); <- Copy, No minify
+
+mix.js('resources/js/pages/routes.js', 'public/js/pages/routes.js');
+
+mix.js('resources/js/pages/clients/create.js', 'public/js/pages/clients/create.js');
+mix.js('resources/js/pages/clients/edit.js', 'public/js/pages/clients/edit.js');
+mix.js('resources/js/pages/clients/index.js', 'public/js/pages/clients/index.js');
