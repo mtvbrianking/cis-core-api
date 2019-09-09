@@ -64,7 +64,7 @@ class ClientController extends Controller
 
         $validator->validate();
 
-        if (!$request->password_client && !$request->personal_access_client && !$request->redirect) {
+        if (! $request->password_client && ! $request->personal_access_client && ! $request->redirect) {
             $validator->getMessageBag()->add('redirect', 'Redirect URI is required for Authorization Code Client.');
 
             return redirect()->back()->withInput()->withErrors($validator);
@@ -133,7 +133,7 @@ class ClientController extends Controller
 
         $validator->validate();
 
-        if (!$request->password_client && !$request->personal_access_client && !$request->redirect) {
+        if (! $request->password_client && ! $request->personal_access_client && ! $request->redirect) {
             $validator->getMessageBag()->add('redirect', 'Redirect URI is required for Authorization Code Client.');
 
             return redirect()->back()->withInput()->withErrors($validator);

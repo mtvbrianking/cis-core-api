@@ -36,6 +36,7 @@ return PhpCsFixer\Config::create()
             'whitespace_after_comma_in_array' => true,
             'no_trailing_comma_in_singleline_array' => false,
             'trailing_comma_in_multiline_array' => true,
+            'not_operator_with_successor_space' => true,
 
             // General
             'indentation_type' => true,
