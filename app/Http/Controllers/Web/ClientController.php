@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Web;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Laravel\Passport\Passport;
-use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -65,7 +64,7 @@ class ClientController extends Controller
 
         $validator->validate();
 
-        if(!$request->password_client && !$request->personal_access_client && !$request->redirect) {
+        if (!$request->password_client && !$request->personal_access_client && !$request->redirect) {
             $validator->getMessageBag()->add('redirect', 'Redirect URI is required for Authorization Code Client.');
 
             return redirect()->back()->withInput()->withErrors($validator);
@@ -134,7 +133,7 @@ class ClientController extends Controller
 
         $validator->validate();
 
-        if(!$request->password_client && !$request->personal_access_client && !$request->redirect) {
+        if (!$request->password_client && !$request->personal_access_client && !$request->redirect) {
             $validator->getMessageBag()->add('redirect', 'Redirect URI is required for Authorization Code Client.');
 
             return redirect()->back()->withInput()->withErrors($validator);
@@ -142,7 +141,7 @@ class ClientController extends Controller
 
         $client = Passport::client()->find($id);
 
-        if($request->regenerate_secret) {
+        if ($request->regenerate_secret) {
             $client->secret = Str::random(40);
         }
 
