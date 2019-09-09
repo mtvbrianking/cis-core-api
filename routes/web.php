@@ -54,5 +54,7 @@ Route::group(['prefix' => 'clients', 'as' => 'clients.'], function () {
     Route::get('/{client}/edit', 'ClientController@edit')->name('edit');
     Route::put('/{client}', 'ClientController@update')->name('update');
     // Delete, remove
+    Route::put('/{client}/revoke', 'ClientController@revoke')->name('revoke');
+    Route::put('/{client}/restore', 'ClientController@restore')->name('restore');
     Route::delete('/{client}', 'ClientController@destroy')->name('destroy');
 });

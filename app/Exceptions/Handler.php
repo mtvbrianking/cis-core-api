@@ -3,7 +3,6 @@
 namespace App\Exceptions;
 
 use Exception;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
@@ -52,10 +51,6 @@ class Handler extends ExceptionHandler
     {
         // Usually JS: Ajax, Axios requests to the API.
         if ($request->expectsJson() || $request->ajax()) {
-            if ($exception instanceof NotFoundHttpException) {
-                return response()->json(['error' => 'Unknown route.'], $exception->getStatusCode());
-            }
-
             if ($exception instanceof HttpExceptionInterface) {
                 return response()->json(['error' => $exception->getMessage()], $exception->getStatusCode());
             }
