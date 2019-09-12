@@ -18,11 +18,16 @@
         </div>
         <div class="row">
             <div class="col">
+                @include('flash::message')
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
                 @include('layouts.partials.js-alert')
             </div>
         </div>
         <div class="row justify-content-center">
-            <div class="col-lg-12">
+            <div class="col">
                 <div class="card">
                     <div class="card-header">
                         <div class="d-flex justify-content-between">

@@ -82,6 +82,8 @@ class ClientController extends Controller
 
         $client->save();
 
+        flash("Registered {$request->name}.")->success();
+
         return redirect()->route('clients.show', $client->id);
     }
 
@@ -139,7 +141,7 @@ class ClientController extends Controller
             return redirect()->back()->withInput()->withErrors($validator);
         }
 
-        $client = Passport::client()->find($id);
+        $client = Passport::client()->findOrFail($id);
 
         if ($request->regenerate_secret) {
             $client->secret = Str::random(40);
@@ -150,6 +152,8 @@ class ClientController extends Controller
         $client->password_client = (bool) $request->password_client;
         $client->redirect = (string) $request->redirect;
         $client->save();
+
+        flash("Updated {$request->name}.")->success();
 
         return redirect()->route('clients.show', $id);
     }
@@ -163,7 +167,7 @@ class ClientController extends Controller
      */
     public function revoke($id)
     {
-        $client = Passport::client()->find($id);
+        $client = Passport::client()->findOrFail($id);
         $client->revoked = true;
         $client->save();
 
@@ -179,7 +183,7 @@ class ClientController extends Controller
      */
     public function restore($id)
     {
-        $client = Passport::client()->find($id);
+        $client = Passport::client()->findOrFail($id);
         $client->revoked = false;
         $client->save();
 
@@ -195,7 +199,7 @@ class ClientController extends Controller
      */
     public function destroy($id)
     {
-        $client = Passport::client()->find($id);
+        $client = Passport::client()->findOrFail($id);
         $client->delete();
 
         return response()->json(null, 204);

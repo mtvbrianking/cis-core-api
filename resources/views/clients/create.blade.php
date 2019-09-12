@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @push('extra-js')
-<script src="{{ asset('js/pages/clients/edit.js') }}"></script>
+<script src="{{ asset('js/pages/clients/create.js') }}"></script>
 @endpush
 
 @section('content')
@@ -15,6 +15,11 @@
                         <li class="breadcrumb-item active" aria-current="page">Register</li>
                     </ol>
                 </nav>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6 col-md-9 col-sm-12">
+                @include('flash::message')
             </div>
         </div>
         <div class="row justify-content-start">
@@ -79,7 +84,7 @@
                                             value="1">
 
                                         <label class="form-check-label" for="password_client">
-                                            {{ __('Personal access client') }}
+                                            {{ __('Password access client') }}
                                         </label>
 
                                         @error('password_client')

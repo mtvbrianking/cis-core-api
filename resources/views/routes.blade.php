@@ -4,7 +4,7 @@
 {{-- Excel; html5 + jszip --}}
 <script src="{{ asset('vendor/dataTables.net-buttons/js/buttons.html5.min.js') }}"></script>
 <script src="{{ asset('vendor/jszip/dist/jszip.min.js') }}"></script>
-<script src="{{ asset('js/pages/routes.min.js') }}"></script>
+<script src="{{ asset('js/pages/routes.js') }}"></script>
 @endpush
 
 @section('content')
