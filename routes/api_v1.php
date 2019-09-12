@@ -1,6 +1,6 @@
 <?php
 
-use Illuminate\Http\Request;
+$slug = '/^[a-z\d\-]+$/';
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +13,14 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::pattern('module', $slug);
+
+Route::group(['prefix' => 'modules', 'as' => 'modules.'], function () {
+    Route::get('/', 'ModuleController@index')->name('index');
+    Route::get('/{module}', 'ModuleController@show')->name('show');
+    Route::post('/', 'ModuleController@store')->name('store');
+    Route::put('/{module}', 'ModuleController@update')->name('update');
+    Route::put('/{module}/revoke', 'ModuleController@revoke')->name('revoke');
+    Route::put('/{module}/restore', 'ModuleController@restore')->name('restore');
+    Route::delete('/{module}', 'ModuleController@destroy')->name('destroy');
 });
