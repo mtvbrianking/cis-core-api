@@ -7,32 +7,25 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Modules model.
+ * Permissions model.
  */
-class Module extends Model
+class Permission extends Model
 {
     use SoftDeletes;
-
-    /**
-     * The table associated with the model.
-     *
-     * @var string
-     */
-    protected $table = 'modules';
 
     /**
      * The primary key for the model.
      *
      * @var string
      */
-    protected $primaryKey = 'name';
+    protected $primaryKey = 'id';
 
     /**
      * Indicates if the IDs are auto-incrementing.
      *
      * @var bool
      */
-    public $incrementing = false;
+    public $incrementing = true;
 
     /**
      * Indicates if the model should be timestamped.
@@ -48,15 +41,6 @@ class Module extends Model
      */
     protected $fillable = [
         'name',
-    ];
-
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = [
-        'deleted_at',
     ];
 
     /**
@@ -77,10 +61,19 @@ class Module extends Model
 
     ];
 
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = [
+        'deleted_at',
+    ];
+
     // Mutators
 
     /**
-     * Set the module name - as slug.
+     * Set the permission name; slug-case.
      *
      * @param string $value
      *
@@ -88,18 +81,18 @@ class Module extends Model
      */
     public function setNameAttribute($value)
     {
-        $this->attributes['name'] = Str::slug(Str::plural($value));
+        $this->attributes['name'] = Str::slug($value);
     }
 
     // Relationships
 
     /**
-     * Permissions belonging to this module.
+     * Module to which this permission belongs.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function permissions()
+    public function module()
     {
-        return $this->hasMany(Permission::class, 'module_name', 'name');
+        return $this->belongsTo(Module::class, 'module_name', 'name');
     }
 }

@@ -1,6 +1,8 @@
 <?php
 
-$slug = '/^[a-z\d\-]+$/';
+$int = '^\d+$';
+$slug = '^[a-z\d]+(?:-[a-z\d]+)*$';
+$uuid = '^[a-fA-F\d]{8}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{12}$';
 
 /*
 |--------------------------------------------------------------------------
@@ -16,11 +18,23 @@ $slug = '/^[a-z\d\-]+$/';
 Route::pattern('module', $slug);
 
 Route::group(['prefix' => 'modules', 'as' => 'modules.'], function () {
-    Route::get('/', 'ModuleController@index')->name('index');
-    Route::get('/{module}', 'ModuleController@show')->name('show');
-    Route::post('/', 'ModuleController@store')->name('store');
-    Route::put('/{module}', 'ModuleController@update')->name('update');
-    Route::put('/{module}/revoke', 'ModuleController@revoke')->name('revoke');
-    Route::put('/{module}/restore', 'ModuleController@restore')->name('restore');
-    Route::delete('/{module}', 'ModuleController@destroy')->name('destroy');
+    Route::get('/', 'ModuleController@index');
+    Route::get('/{module}', 'ModuleController@show');
+    Route::get('/{module}/permissions', 'ModuleController@permissions');
+    Route::post('/', 'ModuleController@store');
+    Route::put('/{module}', 'ModuleController@update');
+    Route::put('/{module}/revoke', 'ModuleController@revoke');
+    Route::put('/{module}/restore', 'ModuleController@restore');
+    Route::delete('/{module}', 'ModuleController@destroy');
+});
+
+Route::pattern('permission', $int);
+
+Route::group(['prefix' => 'permissions'], function () {
+    Route::get('/', 'PermissionController@index');
+    Route::get('/{permission}', 'PermissionController@show');
+    Route::get('/{permission}/module', 'PermissionController@module');
+    Route::post('/', 'PermissionController@store');
+    Route::put('/{permission}', 'PermissionController@update');
+    Route::delete('/{permission}', 'PermissionController@destroy');
 });
