@@ -56,10 +56,9 @@ class ClientController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:50',
-            'personal_access_client' => 'sometimes|bool',
-            'password_client' => 'sometimes|bool',
+            'personal_access_client' => 'required|bool',
+            'password_client' => 'required|bool',
             'redirect' => 'nullable|url',
-            'regenerate_secret' => 'sometimes',
         ]);
 
         $validator->validate();
@@ -147,7 +146,7 @@ class ClientController extends Controller
             $client->secret = Str::random(40);
         }
 
-        $client->name = Str::title($request->name);
+        $client->name = $request->name;
         $client->personal_access_client = (bool) $request->personal_access_client;
         $client->password_client = (bool) $request->password_client;
         $client->redirect = (string) $request->redirect;
