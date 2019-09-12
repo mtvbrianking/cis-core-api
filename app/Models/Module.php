@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Modules model.
- *
- * @package App\Models
  */
 class Module extends Model
 {
@@ -79,24 +77,17 @@ class Module extends Model
 
     ];
 
-    #region: mutators
+    // Mutators
 
     /**
      * Set the module name - as slug.
      *
-     * @param  string $value
+     * @param string $value
+     *
      * @return void
      */
     public function setNameAttribute($value)
     {
         $this->attributes['name'] = Str::slug(Str::plural($value));
     }
-
-    #endregion
-
-    #region: relationships
-
-    // ...
-
-    #endregion
 }

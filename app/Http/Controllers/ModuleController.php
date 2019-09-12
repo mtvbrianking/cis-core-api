@@ -28,7 +28,8 @@ class ModuleController extends Controller
     /**
      * Register new module.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
@@ -39,7 +40,8 @@ class ModuleController extends Controller
     /**
      * Get specific module.
      *
-     * @param  string $name
+     * @param string $name
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function show($name)
@@ -50,8 +52,9 @@ class ModuleController extends Controller
     /**
      * Update specific module.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string $name
+     * @param \Illuminate\Http\Request $request
+     * @param string                   $name
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, $name)
@@ -62,7 +65,8 @@ class ModuleController extends Controller
     /**
      * Temporarily delete (ban) the specific module.
      *
-     * @param  string $name
+     * @param string $name
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function trash($name)
@@ -73,7 +77,8 @@ class ModuleController extends Controller
     /**
      * Restore the specific banned module.
      *
-     * @param  string $name
+     * @param string $name
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function restore($name)
@@ -84,7 +89,8 @@ class ModuleController extends Controller
     /**
      * Permanently delete the specific module.
      *
-     * @param  string $name
+     * @param string $name
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($name)
