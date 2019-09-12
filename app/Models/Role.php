@@ -2,14 +2,25 @@
 
 namespace App\Models;
 
+use App\Traits\Uuids;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Permissions model.
+ * Roles model.
  */
-class Permission extends Model
+class Role extends Model
 {
+    use SoftDeletes, Uuids;
+
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'roles';
+
     /**
      * The primary key for the model.
      *
@@ -22,7 +33,7 @@ class Permission extends Model
      *
      * @var bool
      */
-    public $incrementing = true;
+    public $incrementing = false;
 
     /**
      * Indicates if the model should be timestamped.
@@ -58,19 +69,10 @@ class Permission extends Model
 
     ];
 
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = [
-        'deleted_at',
-    ];
-
     // Mutators
 
     /**
-     * Set the permission name; slug-case.
+     * Set the role name - Title Case.
      *
      * @param string $value
      *
@@ -78,28 +80,28 @@ class Permission extends Model
      */
     public function setNameAttribute($value)
     {
-        $this->attributes['name'] = Str::slug($value);
+        $this->attributes['name'] = Str::title($value);
     }
 
-    // Relationships
+    // relationships
 
     /**
-     * Module to which this permission belongs.
+     * Users having this role.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function module()
+    public function users()
     {
-        return $this->belongsTo(Module::class, 'module_name', 'name');
+        return $this->hasMany(User::class, 'role_id', 'id');
     }
 
     /**
-     * Roles having this permissions.
+     * Permissions assigned to this role.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function roles()
+    public function permissions()
     {
-        return $this->BelongsToMany(Role::class, 'role_permission', 'permission_id', 'role_id', 'id');
+        return $this->BelongsToMany(Permission::class, 'role_permission', 'role_id', 'permission_id', 'id');
     }
 }

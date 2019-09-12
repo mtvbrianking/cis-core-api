@@ -38,3 +38,19 @@ Route::group(['prefix' => 'permissions'], function () {
     Route::put('/{permission}', 'PermissionController@update');
     Route::delete('/{permission}', 'PermissionController@destroy');
 });
+
+Route::pattern('role', $uuid);
+
+Route::group(['prefix' => 'roles'], function () {
+    Route::get('/', 'RoleController@index');
+    Route::get('/{role}', 'RoleController@show');
+    Route::get('/{role}/users', 'RoleController@users');
+    Route::get('/{role}/permissions', 'RoleController@permissions');
+    Route::put('/{role}/permissions', 'RoleController@sync_permissions');
+    Route::get('/{role}/permissions/granted', 'RoleController@permissions_granted');
+    Route::post('/', 'RoleController@store');
+    Route::put('/{role}', 'RoleController@update');
+    Route::put('/{role}/revoke', 'RoleController@revoke');
+    Route::put('/{role}/restore', 'RoleController@restore');
+    Route::delete('/{role}', 'RoleController@destroy');
+});

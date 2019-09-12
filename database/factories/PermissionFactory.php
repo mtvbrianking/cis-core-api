@@ -1,6 +1,6 @@
 <?php
 
-use \App\Models\Module;
+use App\Models\Module;
 use App\Models\Permission;
 use Faker\Generator as Faker;
 
