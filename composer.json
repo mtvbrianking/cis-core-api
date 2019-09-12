@@ -31,7 +31,8 @@
     "extra": {
         "laravel": {
             "dont-discover": [
-                "laravel/passport"
+                "laravel/passport",
+                "laracasts/flash"
             ]
         }
     },
