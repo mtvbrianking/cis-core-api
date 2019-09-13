@@ -4,7 +4,6 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class Handler extends ExceptionHandler
 {
@@ -49,22 +48,6 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        // Usually JS: Ajax, Axios requests to the API.
-        if ($request->expectsJson() || $request->ajax()) {
-            if ($exception instanceof HttpExceptionInterface) {
-                return response()->json(['error' => $exception->getMessage()], $exception->getStatusCode());
-            }
-
-            return response()->json([
-                'error' => [
-                    'class' => get_class($exception),
-                    'message' => $exception->getMessage(),
-                    'file' => $exception->getFile(),
-                    'line' => $exception->getLine(),
-                ],
-            ], $exception->getStatusCode());
-        }
-
         return parent::render($request, $exception);
     }
 }
