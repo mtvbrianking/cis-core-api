@@ -18,7 +18,7 @@ trait HasRolePermissions
      *
      * @return bool
      */
-    public function hasRole(... $roles) : bool
+    public function hasRole(...$roles) : bool
     {
         if (! $user_role = $this->role) {
             return false;
@@ -160,7 +160,7 @@ trait HasRolePermissions
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeHasRoles($query, ... $roles)
+    public function scopeHasRoles($query, ...$roles)
     {
         return $query->whereHas('role', function ($query) use ($roles) {
             $query->where(function ($query) use ($roles) {
