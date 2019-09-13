@@ -167,6 +167,7 @@ return [
          */
         \Laravel\Passport\PassportServiceProvider::class,
         \Laracasts\Flash\FlashServiceProvider::class,
+        \App\Providers\PermissionServiceProvider::class,
 
         /*
          * Application Service Providers...
