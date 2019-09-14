@@ -20,7 +20,7 @@ trait HasRolePermissions
      */
     public function hasRole(...$roles): bool
     {
-        if (!$user_role = $this->role) {
+        if (! $user_role = $this->role) {
             return false;
         }
 
@@ -42,7 +42,7 @@ trait HasRolePermissions
      */
     public function hasPermission($permission): bool
     {
-        if (!$role = $this->role) {
+        if (! $role = $this->role) {
             return false;
         }
 
@@ -59,7 +59,7 @@ trait HasRolePermissions
      */
     public function hasPermissionTo($permission, $module): bool
     {
-        if (!$role = $this->role) {
+        if (! $role = $this->role) {
             return false;
         }
 
@@ -75,7 +75,7 @@ trait HasRolePermissions
      */
     public function hasAnyPermissionOn($module): bool
     {
-        if (!$role = $this->role) {
+        if (! $role = $this->role) {
             return false;
         }
 
@@ -92,7 +92,7 @@ trait HasRolePermissions
      */
     public function hasAnyPermissionOf(array $permissions, $module): bool
     {
-        if (!$role = $this->role) {
+        if (! $role = $this->role) {
             return false;
         }
 
