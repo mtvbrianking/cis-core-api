@@ -18,9 +18,9 @@ trait HasRolePermissions
      *
      * @return bool
      */
-    public function hasRole(...$roles) : bool
+    public function hasRole(...$roles): bool
     {
-        if (! $user_role = $this->role) {
+        if (!$user_role = $this->role) {
             return false;
         }
 
@@ -40,9 +40,9 @@ trait HasRolePermissions
      *
      * @return bool
      */
-    public function hasPermission($permission) : bool
+    public function hasPermission($permission): bool
     {
-        if (! $role = $this->role) {
+        if (!$role = $this->role) {
             return false;
         }
 
@@ -57,9 +57,9 @@ trait HasRolePermissions
      *
      * @return bool
      */
-    public function hasPermissionTo($permission, $module) : bool
+    public function hasPermissionTo($permission, $module): bool
     {
-        if (! $role = $this->role) {
+        if (!$role = $this->role) {
             return false;
         }
 
@@ -73,9 +73,9 @@ trait HasRolePermissions
      *
      * @return bool
      */
-    public function hasAnyPermissionOn($module) : bool
+    public function hasAnyPermissionOn($module): bool
     {
-        if (! $role = $this->role) {
+        if (!$role = $this->role) {
             return false;
         }
 
@@ -90,13 +90,13 @@ trait HasRolePermissions
      *
      * @return bool
      */
-    public function hasAnyPermissionOf(array $permissions, $module) : bool
+    public function hasAnyPermissionOf(array $permissions, $module): bool
     {
-        if (! $role = $this->role) {
+        if (!$role = $this->role) {
             return false;
         }
 
-        return (bool) $role->permissions->where('module_name', $module)->whereIn('name', $permission)->count();
+        return (bool) $role->permissions->where('module_name', $module)->whereIn('name', $permissions)->count();
     }
 
     /**
@@ -112,7 +112,7 @@ trait HasRolePermissions
      *
      * @return array
      */
-    protected function convertToPermissionModels($permissions, $module = null)  : array
+    protected function convertToPermissionModels($permissions, $module = null): array
     {
         if ($permissions instanceof Collection) {
             $permissions = $permissions->all();
