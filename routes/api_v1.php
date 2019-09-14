@@ -17,7 +17,7 @@ $uuid = '^[a-fA-F\d]{8}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{12}
 
 Route::pattern('module', $slug);
 
-Route::group(['prefix' => 'modules', 'as' => 'modules.'], function () {
+Route::group(['prefix' => 'modules'], function () {
     Route::get('/', 'ModuleController@index');
     Route::get('/{module}', 'ModuleController@show');
     Route::get('/{module}/permissions', 'ModuleController@permissions');

@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
-class ClientController extends Controller
+class AuthCodeClientController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -29,10 +29,11 @@ class ClientController extends Controller
     public function index()
     {
         $clients = Passport::client()
-            // ->where('user_id', $userId)
+            ->where('user_id', Auth::user()->id)
+            ->where('personal_access_client', false)
             ->get();
 
-        return view('clients.index', ['clients' => $clients]);
+        return view('auth-code-clients.index', ['clients' => $clients]);
     }
 
     /**
@@ -42,7 +43,7 @@ class ClientController extends Controller
      */
     public function create()
     {
-        return view('clients.create');
+        return view('auth-code-clients.create');
     }
 
     /**
@@ -56,26 +57,18 @@ class ClientController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:50',
-            'personal_access_client' => 'required|bool',
-            'password_client' => 'required|bool',
-            'redirect' => 'nullable|url',
+            'redirect' => 'required|url',
         ]);
 
         $validator->validate();
-
-        if (! $request->password_client && ! $request->personal_access_client && ! $request->redirect) {
-            $validator->getMessageBag()->add('redirect', 'Redirect URI is required for Authorization Code Client.');
-
-            return redirect()->back()->withInput()->withErrors($validator);
-        }
 
         $client = Passport::client()->forceFill([
             'user_id' => Auth::user()->id,
             'name' => $request->name,
             'secret' => Str::random(40),
-            'redirect' => (string) $request->redirect,
-            'personal_access_client' => (bool) $request->personal_access_client,
-            'password_client' => (bool) $request->password_client,
+            'redirect' => $request->redirect,
+            'personal_access_client' => false,
+            'password_client' => false,
             'revoked' => false,
         ]);
 
@@ -95,9 +88,12 @@ class ClientController extends Controller
      */
     public function show($id)
     {
-        $client = Passport::client()->findOrFail($id);
+        $client = Passport::client()
+            ->where('user_id', Auth::user()->id)
+            ->where('personal_access_client', false)
+            ->findOrFail($id);
 
-        return view('clients.show', ['client' => $client]);
+        return view('auth-code-clients.show', ['client' => $client]);
     }
 
     /**
@@ -109,9 +105,12 @@ class ClientController extends Controller
      */
     public function edit($id)
     {
-        $client = Passport::client()->findOrFail($id);
+        $client = Passport::client()
+            ->where('user_id', Auth::user()->id)
+            ->where('personal_access_client', false)
+            ->findOrFail($id);
 
-        return view('clients.edit', ['client' => $client]);
+        return view('auth-code-clients.edit', ['client' => $client]);
     }
 
     /**
@@ -126,29 +125,24 @@ class ClientController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:50',
-            'personal_access_client' => 'sometimes|bool',
-            'password_client' => 'bool|required_without:personal_access_client',
-            'redirect' => 'nullable|url',
+            'redirect' => 'required|url',
             'regenerate_secret' => 'sometimes',
         ]);
 
         $validator->validate();
 
-        if (! $request->password_client && ! $request->personal_access_client && ! $request->redirect) {
-            $validator->getMessageBag()->add('redirect', 'Redirect URI is required for Authorization Code Client.');
-
-            return redirect()->back()->withInput()->withErrors($validator);
-        }
-
-        $client = Passport::client()->findOrFail($id);
+        $client = Passport::client()
+            ->where('user_id', Auth::user()->id)
+            ->where('personal_access_client', false)
+            ->findOrFail($id);
 
         if ($request->regenerate_secret) {
             $client->secret = Str::random(40);
         }
 
         $client->name = $request->name;
-        $client->personal_access_client = (bool) $request->personal_access_client;
-        $client->password_client = (bool) $request->password_client;
+        $client->personal_access_client = false;
+        $client->password_client = false;
         $client->redirect = (string) $request->redirect;
         $client->save();
 
@@ -166,7 +160,11 @@ class ClientController extends Controller
      */
     public function revoke($id)
     {
-        $client = Passport::client()->findOrFail($id);
+        $client = Passport::client()
+            ->where('user_id', Auth::user()->id)
+            ->where('personal_access_client', false)
+            ->findOrFail($id);
+
         $client->revoked = true;
         $client->save();
 
@@ -182,7 +180,11 @@ class ClientController extends Controller
      */
     public function restore($id)
     {
-        $client = Passport::client()->findOrFail($id);
+        $client = Passport::client()
+            ->where('user_id', Auth::user()->id)
+            ->where('personal_access_client', false)
+            ->findOrFail($id);
+
         $client->revoked = false;
         $client->save();
 
@@ -198,7 +200,11 @@ class ClientController extends Controller
      */
     public function destroy($id)
     {
-        $client = Passport::client()->findOrFail($id);
+        $client = Passport::client()
+            ->where('user_id', Auth::user()->id)
+            ->where('personal_access_client', false)
+            ->findOrFail($id);
+
         $client->delete();
 
         return response()->json(null, 204);

@@ -45,16 +45,16 @@ Route::pattern('client', $uuid);
 
 Route::group(['prefix' => 'clients', 'as' => 'clients.'], function () {
     // List, show, view all
-    Route::get('/', 'ClientController@index')->name('index');
-    Route::get('/{client}', 'ClientController@show')->name('show');
+    Route::get('/', 'AuthCodeClientController@index')->name('index');
+    Route::get('/{client}', 'AuthCodeClientController@show')->name('show');
     // Add new
-    Route::get('/create', 'ClientController@create')->name('create');
-    Route::post('/', 'ClientController@store')->name('store');
+    Route::get('/create', 'AuthCodeClientController@create')->name('create');
+    Route::post('/', 'AuthCodeClientController@store')->name('store');
     // Update, edit existing
-    Route::get('/{client}/edit', 'ClientController@edit')->name('edit');
-    Route::put('/{client}', 'ClientController@update')->name('update');
+    Route::get('/{client}/edit', 'AuthCodeClientController@edit')->name('edit');
+    Route::put('/{client}', 'AuthCodeClientController@update')->name('update');
     // Delete, remove
-    Route::put('/{client}/revoke', 'ClientController@revoke')->name('revoke');
-    Route::put('/{client}/restore', 'ClientController@restore')->name('restore');
-    Route::delete('/{client}', 'ClientController@destroy')->name('destroy');
+    Route::put('/{client}/revoke', 'AuthCodeClientController@revoke')->name('revoke');
+    Route::put('/{client}/restore', 'AuthCodeClientController@restore')->name('restore');
+    Route::delete('/{client}', 'AuthCodeClientController@destroy')->name('destroy');
 });

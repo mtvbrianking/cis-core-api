@@ -96,11 +96,13 @@ trait HasRolePermissions
             return false;
         }
 
-        return (bool) $role->permissions->where('module_name', $module)->whereIn('name', $permission)->count();
+        return (bool) $role->permissions->where('module_name', $module)->whereIn('name', $permissions)->count();
     }
 
     /**
      * Convert to Permission models.
+     *
+     * @deprecated Not yet used.
      *
      * ```php
      * convertToPermissionModels('create');

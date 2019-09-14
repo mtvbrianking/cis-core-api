@@ -8,9 +8,9 @@ use Laravel\Passport\Passport;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 /**
- * @see \App\Http\Controllers\Web\ClientController
+ * @see \App\Http\Controllers\Web\AuthCodeClientController
  */
-class ClientControllerTest extends TestCase
+class AuthCodeClientControllerTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -38,56 +38,6 @@ class ClientControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_can_register_personal_client()
-    {
-        $user = factory(User::class)->create();
-
-        $response = $this->actingAs($user)
-            ->from(route('clients.create'))
-            ->post(route('clients.store'), [
-                'name' => 'Personal Access Client',
-                'password_client' => false,
-                'personal_access_client' => true,
-            ]);
-
-        $this->assertDatabaseHas(Passport::client()->getTable(), [
-            'user_id' => $user->id,
-            'name' => 'Personal Access Client',
-            'password_client' => false,
-            'personal_access_client' => true,
-            'revoked' => false,
-        ]);
-
-        $client = Passport::client()->first();
-
-        $response->assertRedirect(route('clients.show', $client->id));
-    }
-
-    public function test_can_register_password_client()
-    {
-        $user = factory(User::class)->create();
-
-        $response = $this->actingAs($user)
-            ->from(route('clients.create'))
-            ->post(route('clients.store'), [
-                'name' => 'Password Client',
-                'password_client' => true,
-                'personal_access_client' => false,
-            ]);
-
-        $this->assertDatabaseHas(Passport::client()->getTable(), [
-            'user_id' => $user->id,
-            'name' => 'Password Client',
-            'password_client' => true,
-            'personal_access_client' => false,
-            'revoked' => false,
-        ]);
-
-        $client = Passport::client()->first();
-
-        $response->assertRedirect(route('clients.show', $client->id));
-    }
-
     public function test_can_register_authorization_code_client()
     {
         $user = factory(User::class)->create();
@@ -96,8 +46,6 @@ class ClientControllerTest extends TestCase
             ->from(route('clients.create'))
             ->post(route('clients.store'), [
                 'name' => 'Authorization Code Client',
-                'password_client' => false,
-                'personal_access_client' => false,
                 'redirect' => 'http://example/callback',
             ]);
 
@@ -166,8 +114,6 @@ class ClientControllerTest extends TestCase
             ->from(route('clients.edit', $client->id))
             ->put(route('clients.update', $client->id), [
                 'name' => 'New OAuth Client',
-                'password_client' => false,
-                'personal_access_client' => false,
                 'redirect' => 'http://example/callback',
             ]);
 

@@ -49,6 +49,4 @@ mix.copy(
 
 mix.js('resources/js/pages/routes.js', 'public/js/pages/routes.js');
 
-mix.js('resources/js/pages/clients/create.js', 'public/js/pages/clients/create.js');
-mix.js('resources/js/pages/clients/edit.js', 'public/js/pages/clients/edit.js');
-mix.js('resources/js/pages/clients/index.js', 'public/js/pages/clients/index.js');
+mix.js('resources/js/pages/auth-code-clients/index.js', 'public/js/pages/auth-code-clients/index.js');
