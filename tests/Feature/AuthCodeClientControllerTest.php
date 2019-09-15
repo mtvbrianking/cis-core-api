@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\User;
-use Laravel\Passport\Passport;
+use App\Models\Client;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 /**
@@ -16,8 +16,6 @@ class AuthCodeClientControllerTest extends TestCase
 
     public function test_can_visit_index()
     {
-        $this->withoutExceptionHandling();
-
         $user = factory(User::class)->create();
 
         $response = $this->actingAs($user)->get(route('clients.index'));
@@ -29,7 +27,7 @@ class AuthCodeClientControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $client = factory(get_class(Passport::client()))->create([
+        $client = factory(Client::class)->create([
             'user_id' => $user->id,
         ]);
 
@@ -49,7 +47,7 @@ class AuthCodeClientControllerTest extends TestCase
                 'redirect' => 'http://example/callback',
             ]);
 
-        $this->assertDatabaseHas(Passport::client()->getTable(), [
+        $this->assertDatabaseHas((new Client)->getTable(), [
             'user_id' => $user->id,
             'name' => 'Authorization Code Client',
             'redirect' => 'http://example/callback',
@@ -58,7 +56,7 @@ class AuthCodeClientControllerTest extends TestCase
             'revoked' => false,
         ]);
 
-        $client = Passport::client()->first();
+        $client = Client::first();
 
         $response->assertRedirect(route('clients.show', $client->id));
     }
@@ -76,7 +74,7 @@ class AuthCodeClientControllerTest extends TestCase
                 'redirect' => null,
             ]);
 
-        $this->assertEquals(0, Passport::client()->count());
+        $this->assertEquals(0, Client::count());
 
         $response->assertRedirect(route('clients.create'));
         $response->assertSessionHasErrors('redirect');
@@ -91,7 +89,7 @@ class AuthCodeClientControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $client = factory(get_class(Passport::client()))->create([
+        $client = factory(Client::class)->create([
             'user_id' => $user->id,
         ]);
 
@@ -106,7 +104,7 @@ class AuthCodeClientControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $client = factory(get_class(Passport::client()))->create([
+        $client = factory(Client::class)->create([
             'user_id' => $user->id,
         ]);
 
@@ -117,7 +115,7 @@ class AuthCodeClientControllerTest extends TestCase
                 'redirect' => 'http://example/callback',
             ]);
 
-        $this->assertDatabaseHas(Passport::client()->getTable(), [
+        $this->assertDatabaseHas((new Client)->getTable(), [
             'user_id' => $user->id,
             'name' => 'New OAuth Client',
             'password_client' => false,
@@ -132,7 +130,7 @@ class AuthCodeClientControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $client = factory(get_class(Passport::client()))->create([
+        $client = factory(Client::class)->create([
             'user_id' => $user->id,
             'revoked' => false,
         ]);
@@ -141,7 +139,7 @@ class AuthCodeClientControllerTest extends TestCase
             ->from(route('clients.index'))
             ->put(route('clients.revoke', $client->id), []);
 
-        $this->assertDatabaseHas(Passport::client()->getTable(), [
+        $this->assertDatabaseHas((new Client)->getTable(), [
             'id' => $client->id,
             'revoked' => true,
         ]);
@@ -164,7 +162,7 @@ class AuthCodeClientControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $client = factory(get_class(Passport::client()))->create([
+        $client = factory(Client::class)->create([
             'user_id' => $user->id,
             'revoked' => true,
         ]);
@@ -173,7 +171,7 @@ class AuthCodeClientControllerTest extends TestCase
             ->from(route('clients.index'))
             ->put(route('clients.restore', $client->id), []);
 
-        $this->assertDatabaseHas(Passport::client()->getTable(), [
+        $this->assertDatabaseHas((new Client)->getTable(), [
             'id' => $client->id,
             'revoked' => false,
         ]);
@@ -196,7 +194,7 @@ class AuthCodeClientControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $client = factory(get_class(Passport::client()))->create([
+        $client = factory(Client::class)->create([
             'user_id' => $user->id,
         ]);
 
@@ -204,7 +202,7 @@ class AuthCodeClientControllerTest extends TestCase
             ->from(route('clients.index'))
             ->delete(route('clients.destroy', $client->id), []);
 
-        $this->assertDatabaseMissing(Passport::client()->getTable(), [
+        $this->assertDatabaseMissing((new Client)->getTable(), [
             'id' => $client->id,
         ]);
 

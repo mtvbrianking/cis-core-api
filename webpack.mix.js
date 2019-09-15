@@ -50,3 +50,4 @@ mix.copy(
 mix.js('resources/js/pages/routes.js', 'public/js/pages/routes.js');
 
 mix.js('resources/js/pages/auth-code-clients/index.js', 'public/js/pages/auth-code-clients/index.js');
+mix.js('resources/js/pages/personal-clients/index.js', 'public/js/pages/personal-clients/index.js');

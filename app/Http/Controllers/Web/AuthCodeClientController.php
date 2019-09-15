@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Models\Client;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use Laravel\Passport\Passport;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -28,10 +28,10 @@ class AuthCodeClientController extends Controller
      */
     public function index()
     {
-        $clients = Passport::client()
-            ->where('user_id', Auth::user()->id)
-            ->where('personal_access_client', false)
-            ->get();
+        $query = Client::query();
+        $query->where('user_id', Auth::user()->id);
+        $query->where('personal_access_client', false);
+        $clients = $query->get();
 
         return view('auth-code-clients.index', ['clients' => $clients]);
     }
@@ -62,7 +62,8 @@ class AuthCodeClientController extends Controller
 
         $validator->validate();
 
-        $client = Passport::client()->forceFill([
+        $client = new Client();
+        $client->forceFill([
             'user_id' => Auth::user()->id,
             'name' => $request->name,
             'secret' => Str::random(40),
@@ -71,7 +72,6 @@ class AuthCodeClientController extends Controller
             'password_client' => false,
             'revoked' => false,
         ]);
-
         $client->save();
 
         flash("Registered {$request->name}.")->success();
@@ -88,10 +88,10 @@ class AuthCodeClientController extends Controller
      */
     public function show($id)
     {
-        $client = Passport::client()
-            ->where('user_id', Auth::user()->id)
-            ->where('personal_access_client', false)
-            ->findOrFail($id);
+        $query = Client::query();
+        $query->where('user_id', Auth::user()->id);
+        $query->where('personal_access_client', false);
+        $client = $query->findOrFail($id);
 
         return view('auth-code-clients.show', ['client' => $client]);
     }
@@ -105,10 +105,10 @@ class AuthCodeClientController extends Controller
      */
     public function edit($id)
     {
-        $client = Passport::client()
-            ->where('user_id', Auth::user()->id)
-            ->where('personal_access_client', false)
-            ->findOrFail($id);
+        $query = Client::query();
+        $query->where('user_id', Auth::user()->id);
+        $query->where('personal_access_client', false);
+        $client = $query->findOrFail($id);
 
         return view('auth-code-clients.edit', ['client' => $client]);
     }
@@ -131,10 +131,10 @@ class AuthCodeClientController extends Controller
 
         $validator->validate();
 
-        $client = Passport::client()
-            ->where('user_id', Auth::user()->id)
-            ->where('personal_access_client', false)
-            ->findOrFail($id);
+        $query = Client::query();
+        $query->where('user_id', Auth::user()->id);
+        $query->where('personal_access_client', false);
+        $client = $query->findOrFail($id);
 
         if ($request->regenerate_secret) {
             $client->secret = Str::random(40);
@@ -160,10 +160,10 @@ class AuthCodeClientController extends Controller
      */
     public function revoke($id)
     {
-        $client = Passport::client()
-            ->where('user_id', Auth::user()->id)
-            ->where('personal_access_client', false)
-            ->findOrFail($id);
+        $query = Client::query();
+        $query->where('user_id', Auth::user()->id);
+        $query->where('personal_access_client', false);
+        $client = $query->findOrFail($id);
 
         $client->revoked = true;
         $client->save();
@@ -180,10 +180,10 @@ class AuthCodeClientController extends Controller
      */
     public function restore($id)
     {
-        $client = Passport::client()
-            ->where('user_id', Auth::user()->id)
-            ->where('personal_access_client', false)
-            ->findOrFail($id);
+        $query = Client::query();
+        $query->where('user_id', Auth::user()->id);
+        $query->where('personal_access_client', false);
+        $client = $query->findOrFail($id);
 
         $client->revoked = false;
         $client->save();
@@ -200,10 +200,10 @@ class AuthCodeClientController extends Controller
      */
     public function destroy($id)
     {
-        $client = Passport::client()
-            ->where('user_id', Auth::user()->id)
-            ->where('personal_access_client', false)
-            ->findOrFail($id);
+        $query = Client::query();
+        $query->where('user_id', Auth::user()->id);
+        $query->where('personal_access_client', false);
+        $client = $query->findOrFail($id);
 
         $client->delete();
 
