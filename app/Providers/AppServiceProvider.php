@@ -2,11 +2,8 @@
 
 namespace App\Providers;
 
-use Ramsey\Uuid\Uuid;
-use Laravel\Passport\Client;
 use Laravel\Passport\Passport;
 use Illuminate\Support\ServiceProvider;
-use Laravel\Passport\PersonalAccessClient;
 
 class AppServiceProvider extends ServiceProvider
 {
