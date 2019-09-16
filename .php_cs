@@ -55,6 +55,9 @@ return PhpCsFixer\Config::create()
             ],
             'blank_line_before_statement' => true,
             'method_chaining_indentation' => true,
+            'ordered_imports' => [
+                'sort_algorithm' => 'length',
+            ],
             // null coalesc requires php v7.X
             // 'ternary_to_null_coalescing' => true,
 
