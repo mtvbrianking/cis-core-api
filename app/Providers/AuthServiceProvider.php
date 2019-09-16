@@ -33,6 +33,13 @@ class AuthServiceProvider extends ServiceProvider
 
         // ...
 
+        Passport::tokensCan([
+            // 'scope' => 'Scope description',
+            'place-orders' => 'Place orders',
+        ]);
+
+        // ...
+
         Passport::useTokenModel(Token::class);
         Passport::useClientModel(Client::class);
         Passport::useAuthCodeModel(AuthCode::class);

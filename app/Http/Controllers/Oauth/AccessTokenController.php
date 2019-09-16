@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Oauth;
 
 use App\Models\Token;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
+use App\Http\Controllers\Controller;
 use Zend\Diactoros\Response as Psr7Response;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Exception\OAuthServerException;
 
-class TokenController extends Controller
+class AccessTokenController extends Controller
 {
     /**
      * The authorization server instance.
@@ -37,7 +38,7 @@ class TokenController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function issue(Request $request)
+    public function issueToken(Request $request)
     {
         $this->validate($request, [
             'client_id' => 'required|uuid',
@@ -52,10 +53,6 @@ class TokenController extends Controller
             'password' => 'required_if:grant_type,password',
             'scopes' => 'sometimes|array',
         ]);
-
-        // $serverRequest = new \Zend\Diactoros\ServerRequest([], [], null, null, 'php://input', [
-        //     'Authorization' => $request->header('Authorization')
-        // ]);
 
         $serverRequest = new \Zend\Diactoros\ServerRequest();
 
@@ -83,17 +80,5 @@ class TokenController extends Controller
             $serverResponse->getStatusCode(),
             $serverResponse->getHeaders()
         );
-    }
-
-    /**
-     * Refresh existing access token.
-     *
-     * @param \Illuminate\Http\Request $request
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function refresh(Request $request)
-    {
-        //
     }
 }
