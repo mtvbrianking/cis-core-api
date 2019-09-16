@@ -15,6 +15,13 @@ $uuid = '^[a-fA-F\d]{8}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{12}
 |
 */
 
+// Route::pattern('token', $slug);
+
+Route::group(['prefix' => 'tokens'], function () {
+    Route::post('/', 'TokenController@issue');
+    Route::post('/refresh', 'TokenController@refresh');
+});
+
 Route::pattern('module', $slug);
 
 Route::group(['prefix' => 'modules'], function () {

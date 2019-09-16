@@ -31,6 +31,35 @@ $(document).ready(function () {
         }
     }
 
+    $('#create-token-modal').on('show.bs.modal', function () {
+        var currentRow = $(event.target).closest('tr');
+        var rowData = clients_dt.row(currentRow).data();
+        $(this).find('input[name=id]').val(rowData[0]);
+    });
+
+    $('form#create-token').on('submit', function (event) {
+        event.preventDefault();
+        var form = $(this);
+        var client_id = form.find('input[name=id]').val();
+        var token_tx = form.find('textarea[name=token]');
+
+        window.$.ajax({
+            type: 'POST',
+            url: app + 'clients/personal/'+client_id+'/token',
+            success: function (token) {
+                console.log(token);
+                token_tx.val(token['access_token']);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                console.log({
+                    xhr: xhr,
+                    textStatus: textStatus,
+                    errorThrown: errorThrown
+                });
+            }
+        });
+    });
+
     $('#delete-client-modal').on('show.bs.modal', function () {
         var currentRow = $(event.target).closest('tr');
         var rowData = clients_dt.row(currentRow).data();
@@ -46,7 +75,7 @@ $(document).ready(function () {
         window.$.ajax({
             type: 'DELETE',
             url: app + 'clients/personal/' + client_id,
-            success: function (user) {
+            success: function () {
                 var alert = $.param({
                     ftype: 'danger',
                     fmessage: 'Client has been deleted.',
@@ -56,11 +85,6 @@ $(document).ready(function () {
                 window.location = app + 'clients/personal?'+alert;
             },
             error: function (xhr, textStatus, errorThrown) {
-                console.log({
-                    xhr: xhr,
-                    textStatus: textStatus,
-                    errorThrown: errorThrown
-                });
                 show_errors(xhr, form);
             }
         });

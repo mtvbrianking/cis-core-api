@@ -99,7 +99,8 @@
                                                     <td>{{ $personal->client->updated_at }}</td>
                                                     <td class="actions center">
                                                         <a href="#">
-                                                            <i class="fa fa-key text-primary" title="Tokens"></i>
+                                                            <i class="fa fa-key text-primary" title="Tokens"
+                                                                data-toggle="modal" data-target="#create-token-modal"></i>
                                                         </a>
                                                         <a href="{{ route('clients.personal.edit', $personal->id) }}">
                                                             <i class="fa fa-pencil text-info" title="Edit"></i>
@@ -117,6 +118,36 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    {{-- Create Token Modal --}}
+    <div class="modal fade" id="create-token-modal" tabindex="-1" role="dialog"
+        aria-labelledby="Create Token Modal" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form id="create-token" action="" method="POST">
+                @csrf
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Create</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="id">
+                        <p class="text-danger">This will overriden any token if any, that's associated with this client.</p>
+                        <textarea name="token" style="width: 100%"></textarea>
+                        <p class="text-muted">This token is displayed only once.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-sm btn-success">
+                            <i class="fa fa-retweet"></i>&nbsp;Generate
+                        </button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 

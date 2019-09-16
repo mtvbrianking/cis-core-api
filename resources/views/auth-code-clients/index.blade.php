@@ -109,9 +109,6 @@
                                                             <i class="fa fa-trash text-danger" title="Delete"
                                                                 data-toggle="modal" data-target="#delete-client-modal"></i>
                                                         @else
-                                                            <a href="#">
-                                                                <i class="fa fa-key text-primary" title="Tokens"></i>
-                                                            </a>
                                                             <a href="{{ route('clients.edit', $client->id) }}">
                                                                 <i class="fa fa-pencil text-info" title="Edit"></i>
                                                             </a>

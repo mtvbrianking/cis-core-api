@@ -28,6 +28,8 @@ class AuthCodeClientController extends Controller
      */
     public function index()
     {
+        return view('clients');
+
         $query = Client::query();
         $query->where('user_id', Auth::user()->id);
         $query->where('personal_access_client', false);

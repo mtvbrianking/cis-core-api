@@ -72,5 +72,7 @@ Route::group(['prefix' => '/clients', 'as' => 'clients.'], function () {
         Route::put('/{client}/revoke', 'PersonalAccessClientController@revoke')->name('revoke');
         Route::put('/{client}/restore', 'PersonalAccessClientController@restore')->name('restore');
         Route::delete('/{client}', 'PersonalAccessClientController@destroy')->name('destroy');
+        // Generate token
+        Route::post('/{client}/token', 'PersonalAccessClientController@token')->name('token');
     });
 });
