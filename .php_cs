@@ -34,7 +34,7 @@ return PhpCsFixer\Config::create()
             'trim_array_spaces' => true,
             'no_whitespace_before_comma_in_array' => true,
             'whitespace_after_comma_in_array' => true,
-            'no_trailing_comma_in_singleline_array' => false,
+            'no_trailing_comma_in_singleline_array' => true,
             'trailing_comma_in_multiline_array' => true,
             'not_operator_with_successor_space' => true,
 
@@ -55,6 +55,9 @@ return PhpCsFixer\Config::create()
             ],
             'blank_line_before_statement' => true,
             'method_chaining_indentation' => true,
+            'ordered_imports' => [
+                'sort_algorithm' => 'length',
+            ],
             // null coalesc requires php v7.X
             // 'ternary_to_null_coalescing' => true,
 

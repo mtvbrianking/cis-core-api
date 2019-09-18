@@ -1,9 +1,5 @@
 @extends('layouts.app')
 
-@push('extra-js')
-<script src="{{ asset('js/pages/clients/create.js') }}"></script>
-@endpush
-
 @section('content')
     <div class="container-fluid">
         <div class="row">
@@ -54,59 +50,15 @@
                                 </div>
                             </div>
 
-                            <div class="form-group row">
-                                <div class="col-lg-9 offset-lg-3 col-md-8 offset-md-4 col-sm-7 offset-sm-5">
-                                    <div class="form-check">
-                                        <input type="checkbox" id="personal_access_client" name="personal_access_client"
-                                            class="form-check-input" {{ old('personal_access_client') ? 'checked' : '' }}
-                                            value="1">
-
-                                        <label class="form-check-label" for="personal_access_client">
-                                            {{ __('Personal access client') }}
-                                        </label>
-
-                                        @error('personal_access_client')
-                                            {{ $message }}
-                                        @enderror
-                                    </div>
-
-                                    <div class="form-text small text-muted">
-                                        Should only be used for testing purposes during development.
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <div class="col-lg-9 offset-lg-3 col-md-8 offset-md-4 col-sm-7 offset-sm-5">
-                                    <div class="form-check">
-                                        <input type="checkbox" id="password_client" name="password_client"
-                                            class="form-check-input" {{ old('password_client') ? 'checked' : '' }}
-                                            value="1">
-
-                                        <label class="form-check-label" for="password_client">
-                                            {{ __('Password access client') }}
-                                        </label>
-
-                                        @error('password_client')
-                                            {{ $message }}
-                                        @enderror
-                                    </div>
-
-                                    <div class="form-text small text-muted">
-                                        Should only be used for first party applications.
-                                    </div>
-                                </div>
-                            </div>
-
                             <div class="form-group row redirect-uri-wrapper">
-                                <label for="redirect" class="col-lg-3 col-md-4 col-sm-5">
+                                <label for="redirect" class="col-lg-3 col-md-4 col-sm-5 required">
                                     {{ __('Redirect URI') }}
                                 </label>
 
                                 <div class="col-lg-9 col-md-8 col-sm-7">
                                     <input type="url" id="redirect" name="redirect"
                                         class="form-control @error('redirect') is-invalid @enderror"
-                                        value="{{ old('redirect') }}">
+                                        value="{{ old('redirect') }}" required>
 
                                     @error('redirect')
                                         <div class="invalid-feedback" role="alert">{{ $message }}</div>

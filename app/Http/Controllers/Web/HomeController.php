@@ -28,6 +28,16 @@ class HomeController extends Controller
     }
 
     /**
+     * Show API usage documentation.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function showApiUsageDoc()
+    {
+        return view('api-usage');
+    }
+
+    /**
      * Show application routes.
      *
      * @return \Illuminate\View\View

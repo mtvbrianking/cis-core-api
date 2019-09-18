@@ -56,30 +56,6 @@
                         </div>
                         <div class="row vrow">
                             <label class="control-label vlabel col-md-4 col-sm-5 col-xs-12">
-                                Personal Access Client?
-                            </label>
-                            <label class="control-label vvalue col-md-8 col-sm-7 col-xs-12">
-                                @if($client->personal_access_client)
-                                    <span class="badge badge-success">Yes</span>
-                                @else
-                                    <span class="badge badge-danger">No</span>
-                                @endif
-                            </label>
-                        </div>
-                        <div class="row vrow">
-                            <label class="control-label vlabel col-md-4 col-sm-5 col-xs-12">
-                                Password Grant Client?
-                            </label>
-                            <label class="control-label vvalue col-md-8 col-sm-7 col-xs-12">
-                                @if($client->password_client)
-                                    <span class="badge badge-success">Yes</span>
-                                @else
-                                    <span class="badge badge-danger">No</span>
-                                @endif
-                            </label>
-                        </div>
-                        <div class="row vrow">
-                            <label class="control-label vlabel col-md-4 col-sm-5 col-xs-12">
                                 Redirect URI
                             </label>
                             <label class="control-label vvalue col-md-8 col-sm-7 col-xs-12">
