@@ -48,7 +48,7 @@ class AccessTokenController extends Controller
             'grant_type' => ['required', Rule::in(['authorization_code', 'client_credentials', 'password', 'refresh_token'])],
             'code' => 'required_if:grant_type,authorization_code',
             'redirect_uri' => 'nullable|url',
-            'refresh_token' => 'required_if:grant_type,refresh_token|size:100',
+            'refresh_token' => 'required_if:grant_type,refresh_token',
             'username' => 'required_if:grant_type,password',
             'password' => 'required_if:grant_type,password',
             'scopes' => 'sometimes|array',

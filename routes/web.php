@@ -41,6 +41,8 @@ Route::get('/', 'HomeController@index')->name('home');
 
 Route::get('/routes', 'HomeController@showApplicationRoutes')->name('routes');
 
+Route::get('/usage', 'HomeController@showApiUsageDoc')->name('doc.usage');
+
 Route::pattern('client', $uuid);
 
 Route::group(['prefix' => '/clients', 'as' => 'clients.'], function () {

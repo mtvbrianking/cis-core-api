@@ -5,5 +5,7 @@
     "/js/pages/personal-clients/index.js": "/js/pages/personal-clients/index.js",
     "/js/pages/routes.js": "/js/pages/routes.js",
     "/vendor/datatables.net-buttons/js/buttons.html5.min.js": "/vendor/datatables.net-buttons/js/buttons.html5.min.js",
-    "/vendor/jszip/dist/jszip.min.js": "/vendor/jszip/dist/jszip.min.js"
+    "/vendor/jszip/dist/jszip.min.js": "/vendor/jszip/dist/jszip.min.js",
+    "/vendor/redoc/bundles/redoc.standalone.js": "/vendor/redoc/bundles/redoc.standalone.js",
+    "/js/api-usage.json": "/js/api-usage.json"
 }
