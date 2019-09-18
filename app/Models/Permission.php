@@ -11,6 +11,13 @@ use Illuminate\Database\Eloquent\Model;
 class Permission extends Model
 {
     /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'permissions';
+
+    /**
      * The primary key for the model.
      *
      * @var string
@@ -18,18 +25,18 @@ class Permission extends Model
     protected $primaryKey = 'id';
 
     /**
+     * The "type" of the primary key ID.
+     *
+     * @var string
+     */
+    protected $keyType = 'int';
+
+    /**
      * Indicates if the IDs are auto-incrementing.
      *
      * @var bool
      */
     public $incrementing = true;
-
-    /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
-    public $timestamps = true;
 
     /**
      * The attributes that are mass assignable.

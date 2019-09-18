@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\Client;
-use Illuminate\Support\Str;
 use Faker\Generator as Faker;
+use App\Models\PersonalAccessClient;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,14 +15,12 @@ use Faker\Generator as Faker;
 |
 */
 
-$factory->define(Client::class, function (Faker $faker) {
+$factory->define(PersonalAccessClient::class, function (Faker $faker) {
     return [
-        'user_id' => $faker->uuid,
-        'name' => $faker->name,
-        'secret' => Str::random(40),
-        'redirect' => '',
-        'personal_access_client' => false,
-        'password_client' => false,
-        'revoked' => false,
+        'client_id' => function () {
+            return factory(Client::class)->create([
+                'personal_access_client' => true,
+            ])->id;
+        },
     ];
 });

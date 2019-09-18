@@ -102,6 +102,8 @@ trait HasRolePermissions
     /**
      * Convert to Permission models.
      *
+     * @deprecated Not yet used.
+     *
      * ```php
      * convertToPermissionModels('create');
      * convertToPermissionModels('create', 'App\Models\User');

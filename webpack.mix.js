@@ -41,14 +41,20 @@ mix.copy(
     'public/vendor/jszip/dist/jszip.min.js'
 );
 
+mix.copy(
+    'node_modules/redoc/bundles/redoc.standalone.js',
+    'public/vendor/redoc/bundles/redoc.standalone.js'
+);
+
 // --------------------------------------------------------------------
 // Page specific assets
 // --------------------------------------------------------------------
 
 // mix.copyDirectory('resources/js/pages', 'public/js/pages'); <- Copy, No minify
 
+mix.copy('resources/js/api-usage.json', 'public/js/api-usage.json');
+
 mix.js('resources/js/pages/routes.js', 'public/js/pages/routes.js');
 
-mix.js('resources/js/pages/clients/create.js', 'public/js/pages/clients/create.js');
-mix.js('resources/js/pages/clients/edit.js', 'public/js/pages/clients/edit.js');
-mix.js('resources/js/pages/clients/index.js', 'public/js/pages/clients/index.js');
+mix.js('resources/js/pages/auth-code-clients/index.js', 'public/js/pages/auth-code-clients/index.js');
+mix.js('resources/js/pages/personal-clients/index.js', 'public/js/pages/personal-clients/index.js');

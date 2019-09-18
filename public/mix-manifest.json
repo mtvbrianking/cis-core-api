@@ -1,10 +1,11 @@
 {
     "/js/app.js": "/js/app.js",
     "/css/bootstrap.css": "/css/bootstrap.css",
-    "/js/pages/clients/create.js": "/js/pages/clients/create.js",
-    "/js/pages/clients/edit.js": "/js/pages/clients/edit.js",
-    "/js/pages/clients/index.js": "/js/pages/clients/index.js",
+    "/js/pages/auth-code-clients/index.js": "/js/pages/auth-code-clients/index.js",
+    "/js/pages/personal-clients/index.js": "/js/pages/personal-clients/index.js",
     "/js/pages/routes.js": "/js/pages/routes.js",
     "/vendor/datatables.net-buttons/js/buttons.html5.min.js": "/vendor/datatables.net-buttons/js/buttons.html5.min.js",
-    "/vendor/jszip/dist/jszip.min.js": "/vendor/jszip/dist/jszip.min.js"
+    "/vendor/jszip/dist/jszip.min.js": "/vendor/jszip/dist/jszip.min.js",
+    "/vendor/redoc/bundles/redoc.standalone.js": "/vendor/redoc/bundles/redoc.standalone.js",
+    "/js/api-usage.json": "/js/api-usage.json"
 }

@@ -29,6 +29,13 @@ class Role extends Model
     protected $primaryKey = 'id';
 
     /**
+     * The "type" of the primary key ID.
+     *
+     * @var string
+     */
+    protected $keyType = 'string';
+
+    /**
      * Indicates if the IDs are auto-incrementing.
      *
      * @var bool
@@ -66,7 +73,7 @@ class Role extends Model
      * @var array
      */
     protected $casts = [
-
+        // 'id' => 'string',
     ];
 
     // Mutators

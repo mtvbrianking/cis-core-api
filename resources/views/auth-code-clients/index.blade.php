@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @push('extra-js')
-<script src="{{ asset('js/pages/clients/index.js') }}"></script>
+<script src="{{ asset('js/pages/auth-code-clients/index.js') }}"></script>
 @endpush
 
 @section('content')
@@ -32,9 +32,17 @@
                     <div class="card-header">
                         <div class="d-flex justify-content-between">
                             <span>OAuth Clients</span>
-                            <a href="{{ route('clients.create') }}" class="btn btn-sm btn-dark">
-                                <i class="fa fa-plus"></i>&nbsp;Register
-                            </a>
+                            <div>
+                                <a href="{{ route('clients.personal.index') }}" class="btn btn-sm btn-light">
+                                    <i class="fa fa-list"></i>&nbsp;Personal Clients
+                                </a>
+                                <a href="#" class="btn btn-sm btn-light">
+                                    <i class="fa fa-list"></i>&nbsp;Authorized Clients
+                                </a>
+                                <a href="{{ route('clients.create') }}" class="btn btn-sm btn-dark">
+                                    <i class="fa fa-plus"></i>&nbsp;Register
+                                </a>
+                            </div>
                         </div>
                     </div>
                     <div class="card-body">
@@ -73,17 +81,23 @@
                                                     </td>
                                                     <td class="center">
                                                         @if($client->personal_access_client)
-                                                            <i class="fa fa-check-circle text-default"></i>
+                                                            <span class="badge badge-success">Yes</span>
+                                                        @else
+                                                            <span class="badge badge-warning">No</span>
                                                         @endif
                                                     </td>
                                                     <td class="center">
                                                         @if($client->password_client)
-                                                            <i class="fa fa-check-circle text-success"></i>
+                                                            <span class="badge badge-success">Yes</span>
+                                                        @else
+                                                            <span class="badge badge-warning">No</span>
                                                         @endif
                                                     </td>
                                                     <td class="center">
                                                         @if($client->revoked)
-                                                            <i class="fa fa-check-circle text-danger"></i>
+                                                            <span class="badge badge-danger">Yes</span>
+                                                        @else
+                                                            <span class="badge badge-success">No</span>
                                                         @endif
                                                     </td>
                                                     <td>{{ $client->created_at }}</td>
@@ -95,9 +109,6 @@
                                                             <i class="fa fa-trash text-danger" title="Delete"
                                                                 data-toggle="modal" data-target="#delete-client-modal"></i>
                                                         @else
-                                                            <a href="#">
-                                                                <i class="fa fa-key text-primary" title="Tokens"></i>
-                                                            </a>
                                                             <a href="{{ route('clients.edit', $client->id) }}">
                                                                 <i class="fa fa-pencil text-info" title="Edit"></i>
                                                             </a>

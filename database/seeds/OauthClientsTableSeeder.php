@@ -1,10 +1,10 @@
 <?php
 
 use App\Models\User;
+use App\Models\Client;
 use Illuminate\Support\Str;
-use Laravel\Passport\Client;
 use Illuminate\Database\Seeder;
-use Laravel\Passport\PersonalAccessClient;
+use App\Models\PersonalAccessClient;
 
 class OauthClientsTableSeeder extends Seeder
 {
@@ -19,11 +19,11 @@ class OauthClientsTableSeeder extends Seeder
 
         $user = User::first();
 
-        // Client credentials grant client
+        // Authorization Code grant client
 
         $client = new Client();
-        $client->user_id = null;
-        $client->name = 'dev-client-grant-client';
+        $client->user_id = $user->id;
+        $client->name = 'dev-auth-code-grant-client';
         $client->secret = Str::random('40');
         $client->redirect = '';
         $client->personal_access_client = false;
@@ -34,7 +34,7 @@ class OauthClientsTableSeeder extends Seeder
         // Password grant client
 
         $client = new Client();
-        $client->user_id = null;
+        $client->user_id = $user->id;
         $client->name = 'dev-password-grant-client';
         $client->secret = Str::random('40');
         $client->redirect = '';
@@ -56,7 +56,7 @@ class OauthClientsTableSeeder extends Seeder
         $client->save();
 
         $personal_client = new PersonalAccessClient();
-        $personal_client->client_id = $client->id;
-        $personal_client->save();
+        $personal_client->client()->associate($client);
+        $client->save();
     }
 }
