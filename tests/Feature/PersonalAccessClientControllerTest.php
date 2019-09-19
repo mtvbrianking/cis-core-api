@@ -28,6 +28,22 @@ class PersonalAccessClientControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
+    public function test_can_not_see_clients_created_by_others()
+    {
+        $this->withExceptionHandling();
+
+        $this->actingAs(factory(User::class)->create());
+
+        $client = factory(Client::class)->create(['personal_access_client' => true]);
+
+        $this->from(route('clients.index'))
+            ->get(route('clients.personal.index'))
+            ->assertDontSee($client->id)
+            ->assertStatus(200);
+
+        $this->get(route('clients.personal.show', $client->id))->assertStatus(404);
+    }
+
     public function test_can_see_client_details()
     {
         $user = factory(User::class)->create();
