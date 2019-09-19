@@ -56,15 +56,15 @@ $(document).ready(function() {
 
         window.$.ajax({
             type: "PUT",
-            url: "/clients/" + client_id + "/revoke",
+            url: `/clients/${client_id}/revoke`,
             success: function(user) {
                 var alert = $.param({
                     ftype: "warning",
-                    fmessage: "Client: " + user.name + " has been revoked.",
+                    fmessage: `Client: ${user.name} has been revoked.`,
                     fimportant: false
                 });
 
-                window.location = "/clients?" + alert;
+                window.location = `/clients?${alert}`;
             },
             error: function(xhr, textStatus, errorThrown) {
                 console.log({
@@ -93,15 +93,15 @@ $(document).ready(function() {
 
         window.$.ajax({
             type: "PUT",
-            url: "/clients/" + client_id + "/restore",
+            url: `/clients/${client_id}/restore`,
             success: function(user) {
                 var alert = $.param({
                     ftype: "success",
-                    fmessage: "Client: " + user.name + " has been restored.",
+                    fmessage: `Client: ${user.name} has been restored.`,
                     fimportant: false
                 });
 
-                window.location = "/clients?" + alert;
+                window.location = `/clients?${alert}`;
             },
             error: function(xhr, textStatus, errorThrown) {
                 console.log({
@@ -130,7 +130,7 @@ $(document).ready(function() {
 
         window.$.ajax({
             type: "DELETE",
-            url: "/clients/" + client_id,
+            url: `/clients/${client_id}`,
             success: function(user) {
                 var alert = $.param({
                     ftype: "danger",
@@ -138,7 +138,7 @@ $(document).ready(function() {
                     fimportant: false
                 });
 
-                window.location = "/clients?" + alert;
+                window.location = `/clients?${alert}`;
             },
             error: function(xhr, textStatus, errorThrown) {
                 console.log({
