@@ -56,7 +56,7 @@ $(document).ready(function() {
 
         window.$.ajax({
             type: "POST",
-            url: `/clients/personal/${client_id}/token`,
+            url: `${app}/clients/personal/${client_id}/token`,
             success: function(token) {
                 console.log(token);
                 token_tx.val(token["access_token"]);
@@ -87,7 +87,7 @@ $(document).ready(function() {
 
         window.$.ajax({
             type: "DELETE",
-            url: `/clients/personal/${client_id}`,
+            url: `${app}/clients/personal/${client_id}`,
             success: function() {
                 var alert = $.param({
                     ftype: "danger",
@@ -95,7 +95,7 @@ $(document).ready(function() {
                     fimportant: false
                 });
 
-                window.location = `clients/personal?${alert}`;
+                window.location = `${app}/clients/personal?${alert}`;
             },
             error: function(xhr, textStatus, errorThrown) {
                 show_errors(xhr, form);

@@ -56,7 +56,7 @@ $(document).ready(function() {
 
         window.$.ajax({
             type: "PUT",
-            url: `/clients/${client_id}/revoke`,
+            url: `${app}/clients/${client_id}/revoke`,
             success: function(user) {
                 var alert = $.param({
                     ftype: "warning",
@@ -64,7 +64,7 @@ $(document).ready(function() {
                     fimportant: false
                 });
 
-                window.location = `/clients?${alert}`;
+                window.location = `${app}/clients?${alert}`;
             },
             error: function(xhr, textStatus, errorThrown) {
                 console.log({
@@ -93,7 +93,7 @@ $(document).ready(function() {
 
         window.$.ajax({
             type: "PUT",
-            url: `/clients/${client_id}/restore`,
+            url: `${app}/clients/${client_id}/restore`,
             success: function(user) {
                 var alert = $.param({
                     ftype: "success",
@@ -101,7 +101,7 @@ $(document).ready(function() {
                     fimportant: false
                 });
 
-                window.location = `/clients?${alert}`;
+                window.location = `${app}/clients?${alert}`;
             },
             error: function(xhr, textStatus, errorThrown) {
                 console.log({
@@ -130,7 +130,7 @@ $(document).ready(function() {
 
         window.$.ajax({
             type: "DELETE",
-            url: `/clients/${client_id}`,
+            url: `${app}/clients/${client_id}`,
             success: function(user) {
                 var alert = $.param({
                     ftype: "danger",
@@ -138,7 +138,7 @@ $(document).ready(function() {
                     fimportant: false
                 });
 
-                window.location = `/clients?${alert}`;
+                window.location = `${app}/clients?${alert}`;
             },
             error: function(xhr, textStatus, errorThrown) {
                 console.log({
