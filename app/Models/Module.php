@@ -71,18 +71,14 @@ class Module extends Model
      *
      * @var array
      */
-    protected $hidden = [
-
-    ];
+    protected $hidden = [];
 
     /**
      * The attributes that should be cast to native types.
      *
      * @var array
      */
-    protected $casts = [
-
-    ];
+    protected $casts = [];
 
     // Mutators
 
@@ -108,5 +104,10 @@ class Module extends Model
     public function permissions()
     {
         return $this->hasMany(Permission::class, 'module_name', 'name');
+    }
+
+    public function addPermission($attributes)
+    {
+        return $this->permissions->create($attributes);
     }
 }
