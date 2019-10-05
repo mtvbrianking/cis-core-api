@@ -40,7 +40,7 @@ class ModuleController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
+            'name' => 'required|max:20',
             'description' => 'sometimes|max:25',
         ]);
 

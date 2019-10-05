@@ -45,6 +45,21 @@ Route::group(['namespace' => '\Laravel\Passport\Http\Controllers', 'prefix' => '
 });
 */
 
+Route::pattern('facility', $uuid);
+
+Route::group(['prefix' => 'facilities'], function () {
+    Route::get('/', 'FacilityController@index');
+    Route::get('/{facility}', 'FacilityController@show');
+    Route::get('/{facility}/modules', 'FacilityController@modules');
+    Route::get('/{facility}/roles', 'FacilityController@roles');
+    Route::get('/{facility}/users', 'FacilityController@users');
+    Route::post('/', 'FacilityController@store');
+    Route::put('/{facility}', 'FacilityController@update');
+    Route::put('/{facility}/revoke', 'FacilityController@revoke');
+    Route::put('/{facility}/restore', 'FacilityController@restore');
+    Route::delete('/{facility}', 'FacilityController@destroy');
+});
+
 Route::pattern('module', $slug);
 
 Route::group(['prefix' => 'modules'], function () {

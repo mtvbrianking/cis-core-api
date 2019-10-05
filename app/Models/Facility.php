@@ -2,30 +2,27 @@
 
 namespace App\Models;
 
-use Illuminate\Support\Str;
+use App\Traits\Uuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-/**
- * Modules model.
- */
-class Module extends Model
+class Facility extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Uuids;
 
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'modules';
+    protected $table = 'facilities';
 
     /**
      * The primary key for the model.
      *
      * @var string
      */
-    protected $primaryKey = 'name';
+    protected $primaryKey = 'id';
 
     /**
      * The "type" of the primary key ID.
@@ -42,28 +39,17 @@ class Module extends Model
     public $incrementing = false;
 
     /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
-    public $timestamps = true;
-
-    /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
         'name',
-    ];
-
-    /**
-     * The attributes that should be mutated to dates.
-     *
-     * @var array
-     */
-    protected $dates = [
-        'deleted_at',
+        'description',
+        'address',
+        'email',
+        'website',
+        'phone',
     ];
 
     /**
@@ -72,7 +58,7 @@ class Module extends Model
      * @var array
      */
     protected $hidden = [
-
+        // ...
     ];
 
     /**
@@ -81,42 +67,48 @@ class Module extends Model
      * @var array
      */
     protected $casts = [
-
+        // ...
     ];
-
-    // Mutators
-
-    /**
-     * Set the module name - as slug.
-     *
-     * @param string $value
-     *
-     * @return void
-     */
-    public function setNameAttribute($value)
-    {
-        $this->attributes['name'] = Str::slug(Str::plural($value));
-    }
 
     // Relationships
 
     /**
-     * Permissions belonging to this module.
+     * User that created this facility.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function permissions()
+    public function creator()
     {
-        return $this->hasMany(Permission::class, 'module_name', 'name');
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
     /**
-     * Facilities assigned this facility.
+     * Users belonging to this facility.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function users()
+    {
+        return $this->hasMany(User::class, 'user_id', 'id');
+    }
+
+    /**
+     * User roles belonging to this facility.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function roles()
+    {
+        return $this->hasMany(Role::class, 'role_id', 'id');
+    }
+
+    /**
+     * Modules assigned to this facility.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function facilities()
+    public function modules()
     {
-        return $this->belongsToMany(Facility::class, 'facility_module', 'module_name', 'facility_id');
+        return $this->belongsToMany(Module::class, 'facility_module', 'facility_id', 'module_name');
     }
 }

@@ -14,7 +14,7 @@ class CreateModulesTable extends Migration
     public function up()
     {
         Schema::create('modules', function (Blueprint $table) {
-            $table->string('name');
+            $table->string('name', 20);
             $table->string('description', 25)->nullable();
             $table->timestamps();
             $table->softDeletes();
