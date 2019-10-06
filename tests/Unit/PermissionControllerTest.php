@@ -2,19 +2,18 @@
 
 namespace Tests\Unit;
 
+use Tests\TestCase;
+use App\Models\User;
 use App\Models\Module;
 use App\Models\Permission;
-use App\Models\User;
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 /**
  * @see \App\Http\Controllers\PermissionController
  */
 class PermissionControllerTest extends TestCase
 {
-
     use RefreshDatabase;
 
     public function test_can_get_permissions()
@@ -35,7 +34,7 @@ class PermissionControllerTest extends TestCase
                     'created_at',
                     'updated_at',
                 ],
-            ]
+            ],
         ]);
     }
 
@@ -49,7 +48,6 @@ class PermissionControllerTest extends TestCase
             'name' => $name,
             'description' => 'Users permission.',
         ]);
-
 
         $response = $this->actingAs($user, 'api')->json('GET', "api/v1/permissions/{$permission->id}");
 
