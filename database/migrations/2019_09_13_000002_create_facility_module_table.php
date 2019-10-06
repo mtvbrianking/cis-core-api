@@ -14,8 +14,10 @@ class CreateFacilityModuleTable extends Migration
     public function up()
     {
         Schema::create('facility_module', function (Blueprint $table) {
-            $table->integer('facility_id')->unsigned();
+            $table->uuid('facility_id');
             $table->string('module_name', 20);
+
+            $table->primary(['facility_id', 'module_name']);
 
             $table->foreign('facility_id')->references('id')->on('facilities')->onDelete('cascade');
             $table->foreign('module_name')->references('name')->on('modules')->onDelete('cascade');

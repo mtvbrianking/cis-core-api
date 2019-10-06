@@ -79,4 +79,29 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsTo(Role::class, 'role_id', 'id');
     }
+
+    /**
+     * Facility for this user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function facility()
+    {
+        return $this->belongsTo(Facility::class, 'facility_id', 'id');
+    }
+
+    // Scopes
+
+    /**
+     * Scope - only those belonging to my facility.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param \App\Models\User                      $user
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeOnlyRelated($query, $user)
+    {
+        return $query->where('facility_id', $user->facility_id);
+    }
 }

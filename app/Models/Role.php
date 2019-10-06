@@ -93,6 +93,16 @@ class Role extends Model
     // relationships
 
     /**
+     * Facility for this user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function facility()
+    {
+        return $this->belongsTo(Facility::class, 'facility_id', 'id');
+    }
+
+    /**
      * Users having this role.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -110,5 +120,20 @@ class Role extends Model
     public function permissions()
     {
         return $this->BelongsToMany(Permission::class, 'role_permission', 'role_id', 'permission_id', 'id');
+    }
+
+    // Scopes
+
+    /**
+     * Scope - only those belonging to my facility.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param \App\Models\User                      $user
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeOnlyRelated($query, $user)
+    {
+        return $query->where('facility_id', $user->facility_id);
     }
 }

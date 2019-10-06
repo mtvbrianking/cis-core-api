@@ -2,6 +2,7 @@
 
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Facility;
 use App\Models\Permission;
 use Illuminate\Database\Seeder;
 
@@ -14,8 +15,11 @@ class RolesTableSeeder extends Seeder
      */
     public function run()
     {
+        $facility = Facility::first();
+
         $role = new Role();
         $role->name = 'Developer';
+        $role->facility()->associate($facility);
         $role->save();
 
         // Assign all permissions to this role.
