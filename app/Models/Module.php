@@ -105,9 +105,4 @@ class Module extends Model
     {
         return $this->hasMany(Permission::class, 'module_name', 'name');
     }
-
-    public function addPermission($attributes)
-    {
-        return $this->permissions->create($attributes);
-    }
 }

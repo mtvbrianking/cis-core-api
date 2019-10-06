@@ -80,9 +80,9 @@ class PermissionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function show($name)
+    public function show($id)
     {
-        $permission = Permission::findOrFail($name);
+        $permission = Permission::findOrFail($id);
 
         return response($permission);
     }
