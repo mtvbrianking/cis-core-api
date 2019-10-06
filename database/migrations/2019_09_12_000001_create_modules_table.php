@@ -15,11 +15,14 @@ class CreateModulesTable extends Migration
     {
         Schema::create('modules', function (Blueprint $table) {
             $table->string('name', 20);
+            $table->uuid('user_id')->nullable();
             $table->string('description', 25)->nullable();
             $table->timestamps();
             $table->softDeletes();
 
             $table->primary('name');
+
+            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
         });
     }
 
@@ -30,6 +33,10 @@ class CreateModulesTable extends Migration
      */
     public function down()
     {
+        Schema::table('modules', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+        });
+
         Schema::dropIfExists('modules');
     }
 }

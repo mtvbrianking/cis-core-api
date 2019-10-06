@@ -15,6 +15,7 @@ class CreatePermissionsTable extends Migration
     {
         Schema::create('permissions', function (Blueprint $table) {
             $table->increments('id');
+            $table->uuid('user_id')->nullable();
             $table->string('module_name');
             $table->string('name');
             $table->string('description')->nullable();
@@ -23,6 +24,7 @@ class CreatePermissionsTable extends Migration
             $table->unique(['module_name', 'name']);
 
             $table->foreign('module_name')->references('name')->on('modules')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
         });
     }
 
@@ -35,6 +37,7 @@ class CreatePermissionsTable extends Migration
     {
         Schema::table('permissions', function (Blueprint $table) {
             $table->dropForeign(['module_name']);
+            $table->dropForeign(['user_id']);
         });
 
         Schema::dropIfExists('permissions');

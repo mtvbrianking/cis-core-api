@@ -30,11 +30,11 @@ class FacilityController extends Controller
     {
         $this->validate($request, [
             'name' => 'required|max:100',
-            'description' => 'sometimes|max:100',
-            'address' => 'sometimes|max:50',
+            'description' => 'nullable|max:100',
+            'address' => 'required|max:50',
             'email' => 'required|email|max:50',
-            'website' => 'required|url|max:50',
-            'phone' => 'required|tel|max:25',
+            'website' => 'nullable|url|max:50',
+            'phone' => 'nullable|tel|max:25',
         ]);
 
         $user = Auth::guard('api')->user();
@@ -46,7 +46,7 @@ class FacilityController extends Controller
         $facility->email = $request->email;
         $facility->website = $request->website;
         $facility->phone = $request->phone;
-        $facility->creator->associate($user);
+        $facility->creator()->associate($user);
         $facility->save();
 
         $facility->refresh();
@@ -79,21 +79,21 @@ class FacilityController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'name' => 'required|max:100',
-            'description' => 'sometimes|max:100',
+            'name' => 'sometimes|max:100',
+            'description' => 'nullable|max:100',
             'address' => 'sometimes|max:50',
-            'email' => 'required|email|max:50',
-            'website' => 'required|url|max:50',
-            'phone' => 'required|tel|max:25',
+            'email' => 'sometimes|email|max:50',
+            'website' => 'nullable|url|max:50',
+            'phone' => 'nullable|tel|max:25',
         ]);
 
         $user = Auth::guard('api')->user();
 
         $facility = Facility::findOrFail($id);
-        $facility->name = $request->name;
+        $facility->name = $request->input('name', $facility->name);
         $facility->description = $request->description;
-        $facility->address = $request->address;
-        $facility->email = $request->email;
+        $facility->address = $request->input('address', $facility->address);
+        $facility->email = $request->input('email', $facility->email);
         $facility->website = $request->website;
         $facility->phone = $request->phone;
         $facility->creator->associate($user);
