@@ -76,7 +76,6 @@ class PermissionController extends Controller
      * Get specific permission.
      *
      * @param string $id
-     * @param mixed  $name
      *
      * @return \Illuminate\Http\Response
      */

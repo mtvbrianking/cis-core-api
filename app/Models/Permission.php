@@ -91,6 +91,16 @@ class Permission extends Model
     // Relationships
 
     /**
+     * User that created this facility.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    /**
      * Module to which this permission belongs.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
