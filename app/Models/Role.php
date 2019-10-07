@@ -90,7 +90,17 @@ class Role extends Model
         $this->attributes['name'] = Str::title($value);
     }
 
-    // relationships
+    // Relationships
+
+    /**
+     * User that created this facility.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
 
     /**
      * Facility for this user.
