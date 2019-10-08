@@ -50,7 +50,7 @@ Route::pattern('facility', $uuid);
 Route::group(['prefix' => 'facilities'], function () {
     Route::get('/', 'FacilityController@index');
     Route::get('/{facility}', 'FacilityController@show');
-    Route::get('/{facility}/modules', 'FacilityController@modules');
+    Route::put('/{facility}/modules', 'FacilityController@sync_modules');
     Route::get('/{facility}/roles', 'FacilityController@roles');
     Route::get('/{facility}/users', 'FacilityController@users');
     Route::post('/', 'FacilityController@store');

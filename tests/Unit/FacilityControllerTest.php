@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use Tests\TestCase;
 use App\Models\User;
+use App\Models\Module;
 use App\Models\Facility;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -254,5 +255,47 @@ class FacilityControllerTest extends TestCase
         $this->assertDatabaseMissing('facilities', [
             'id' => $facility->id,
         ]);
+    }
+
+    public function test_can_reassign_facility_module_access()
+    {
+        $user = factory(User::class)->create();
+
+        $facility = factory(Facility::class)->create();
+
+        $modules = factory(Module::class, 2)->create();
+
+        $available_mods = $modules->map(function ($module) {
+            return $module->name;
+        })->all();
+
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/facilities/{$facility->id}/modules", [
+            'modules' => $available_mods,
+        ]);
+
+        $response->assertJsonStructure([
+            'id',
+            'user_id',
+            'name',
+            'description',
+            'address',
+            'email',
+            'website',
+            'phone',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+            'modules' => [
+                '*' => [
+                    'name',
+                    'description',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                ],
+            ],
+        ]);
+
+        $this->assertEquals(2, $facility->modules->count());
     }
 }
