@@ -64,7 +64,7 @@ class Role extends Model
      * @var array
      */
     protected $hidden = [
-
+        'pivot',
     ];
 
     /**
@@ -73,7 +73,7 @@ class Role extends Model
      * @var array
      */
     protected $casts = [
-        // 'id' => 'string',
+        // ..
     ];
 
     // Mutators
