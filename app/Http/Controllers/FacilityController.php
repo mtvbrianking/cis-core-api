@@ -2,11 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Rules\Tel;
 use App\Models\Facility;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class FacilityController extends Controller
 {
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
+
     /**
      * Get all facilities.
      *
@@ -34,7 +44,7 @@ class FacilityController extends Controller
             'address' => 'required|max:50',
             'email' => 'required|email|max:50',
             'website' => 'nullable|url|max:50',
-            'phone' => 'nullable|tel|max:25',
+            'phone' => ['nullable', new Tel, 'max:25'],
         ]);
 
         $user = Auth::guard('api')->user();
@@ -84,7 +94,7 @@ class FacilityController extends Controller
             'address' => 'sometimes|max:50',
             'email' => 'sometimes|email|max:50',
             'website' => 'nullable|url|max:50',
-            'phone' => 'nullable|tel|max:25',
+            'phone' => ['nullable', new Tel, 'max:25'],
         ]);
 
         $user = Auth::guard('api')->user();
@@ -96,7 +106,6 @@ class FacilityController extends Controller
         $facility->email = $request->input('email', $facility->email);
         $facility->website = $request->website;
         $facility->phone = $request->phone;
-        $facility->creator->associate($user);
         $facility->save();
 
         $facility->refresh();
