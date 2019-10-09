@@ -17,7 +17,9 @@ class Tel implements Rule
     }
 
     /**
-     * Determine if the validation rule passes.
+     * Validate telephone number format.
+     *
+     * Must start with the country zip; like +256785951456
      *
      * @param string $attribute
      * @param mixed  $value
