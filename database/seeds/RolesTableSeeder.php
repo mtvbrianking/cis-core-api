@@ -26,11 +26,5 @@ class RolesTableSeeder extends Seeder
 
         $permissions = range(1, Permission::count());
         $role->permissions()->attach($permissions);
-
-        // Assign role to default user.
-
-        $user = User::first();
-        $user->role()->associate($role);
-        $user->save();
     }
 }
