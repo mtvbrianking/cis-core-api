@@ -2,7 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
@@ -39,7 +46,10 @@ class UserController extends Controller
     {
         $user = Auth::guard('api')->user();
 
-        $user = User::onlyRelated($user)->withTrashed()->findOrFail($id);
+        $user = User::with(['role', 'facility'])
+            ->onlyRelated($user)
+            ->withTrashed()
+            ->findOrFail($id);
 
         return response($user);
     }
@@ -49,6 +59,8 @@ class UserController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
+     * @throws \Illuminate\Validation\ValidationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -56,8 +68,10 @@ class UserController extends Controller
         $this->validate($request, [
             'name' => 'required|max:25',
             'alias' => 'required|unique:users,alias',
-            'email' => 'required|unique:email,alias',
-            'role' => 'nullable|uuid',
+            'email' => 'required|unique:users,email',
+            // 'password' => 'nullable|min:6|confirmed',
+            // 'email_verified_at' => 'nullable|date_format:Y-m-d H:i:s',
+            'role' => 'required|uuid',
         ]);
 
         $creator = Auth::guard('api')->user();
@@ -75,6 +89,9 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->alias = $request->alias;
         $user->email = $request->email;
+        // $user->email_verified_at = $request->email_verified_at;
+        // $user->password = Hash::make($request->input('password', Str::random(10)));
+        $user->password = Hash::make(Str::random(10));
         $user->creator()->associate($creator);
         $user->facility()->associate($creator->facility);
         $user->role()->associate($role);
@@ -92,6 +109,8 @@ class UserController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
+     *
+     * @throws \Illuminate\Validation\ValidationException
      *
      * @return \Illuminate\Http\Response
      */
