@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddFacilityToUsersTable extends Migration
+class AddRoleToUsersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,9 +14,9 @@ class AddFacilityToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->uuid('facility_id')->nullable();
+            $table->uuid('role_id')->after('facility_id');
 
-            $table->foreign('facility_id')->references('id')->on('facilities')->onUpdate('cascade')->onDelete('set null');
+            $table->foreign('role_id')->references('id')->on('roles');
         });
     }
 
@@ -28,9 +28,9 @@ class AddFacilityToUsersTable extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['facility_id']);
+            $table->dropForeign(['role_id']);
 
-            $table->dropColumn('facility_id');
+            $table->dropColumn('role_id');
         });
     }
 }

@@ -23,7 +23,7 @@ class CreateModulesTable extends Migration
 
             $table->primary('name');
 
-            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
         });
     }
 

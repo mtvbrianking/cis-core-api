@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Role;
-use App\Models\User;
 use App\Models\Facility;
 use App\Models\Permission;
 use Illuminate\Database\Seeder;
@@ -26,11 +25,5 @@ class RolesTableSeeder extends Seeder
 
         $permissions = range(1, Permission::count());
         $role->permissions()->attach($permissions);
-
-        // Assign role to default user.
-
-        $user = User::first();
-        $user->role()->associate($role);
-        $user->save();
     }
 }

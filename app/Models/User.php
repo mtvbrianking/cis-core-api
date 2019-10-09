@@ -3,15 +3,17 @@
 namespace App\Models;
 
 use App\Traits\Uuids;
+use Illuminate\Support\Str;
 use App\Traits\HasRolePermissions;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasApiTokens, HasRolePermissions, Notifiable, Uuids;
+    use HasApiTokens, HasRolePermissions, Notifiable, SoftDeletes, Uuids;
 
     /**
      * The table associated with the model.
@@ -47,7 +49,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'alias', 'name', 'email', 'password',
     ];
 
     /**
@@ -65,8 +67,23 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array
      */
     protected $casts = [
+        'deleted_at' => 'datetime',
         'email_verified_at' => 'datetime',
     ];
+
+    // Mutators
+
+    /**
+     * Set the user alias - as slug.
+     *
+     * @param string $value
+     *
+     * @return void
+     */
+    public function setAliasAttribute($value)
+    {
+        $this->attributes['alias'] = Str::slug($value, '');
+    }
 
     // Relationships
 

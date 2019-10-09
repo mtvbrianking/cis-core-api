@@ -23,8 +23,8 @@ class CreatePermissionsTable extends Migration
 
             $table->unique(['module_name', 'name']);
 
-            $table->foreign('module_name')->references('name')->on('modules')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
+            $table->foreign('module_name')->references('name')->on('modules');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
         });
     }
 

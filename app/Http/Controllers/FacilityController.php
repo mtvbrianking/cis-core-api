@@ -27,7 +27,7 @@ class FacilityController extends Controller
      */
     public function index()
     {
-        $facilities = Facility::get();
+        $facilities = Facility::withTrashed()->get();
 
         return response(['facilities' => $facilities]);
     }
@@ -76,7 +76,7 @@ class FacilityController extends Controller
      */
     public function show($id)
     {
-        $facility = Facility::findOrFail($id);
+        $facility = Facility::withTrashed()->findOrFail($id);
 
         return response($facility);
     }

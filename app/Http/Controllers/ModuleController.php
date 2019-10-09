@@ -25,7 +25,7 @@ class ModuleController extends Controller
      */
     public function index()
     {
-        $modules = Module::get();
+        $modules = Module::withTrashed()->get();
 
         return response(['modules' => $modules]);
     }
@@ -77,7 +77,7 @@ class ModuleController extends Controller
      */
     public function show($name)
     {
-        $module = Module::findOrFail($name);
+        $module = Module::withTrashed()->findOrFail($name);
 
         return response($module);
     }
