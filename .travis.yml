@@ -25,16 +25,16 @@ jobs:
       script:
         - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
 
-    - stage: test
-      # php: 7.3
+    # - stage: test
+    # php: 7.3
 
-      # before_script:
-      #   - psql -c 'create database travis_ci_test;' -U postgres
-      #   - travis_retry composer self-update
-      #   - travis_retry composer update --prefer-lowest --no-ansi --no-interaction --no-progress --no-scripts
+    # before_script:
+    #   - psql -c 'create database travis_ci_test;' -U postgres
+    #   - travis_retry composer self-update
+    #   - travis_retry composer update --prefer-lowest --no-ansi --no-interaction --no-progress --no-scripts
 
-      # script:
-      #   - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
+    # script:
+    #   - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
     - stage: deploy
 
       if: branch = master
