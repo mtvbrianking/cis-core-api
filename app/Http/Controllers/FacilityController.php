@@ -2,11 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Rules\Tel;
+use App\Models\Module;
 use App\Models\Facility;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class FacilityController extends Controller
 {
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+    }
+
     /**
      * Get all facilities.
      *
@@ -34,7 +47,7 @@ class FacilityController extends Controller
             'address' => 'required|max:50',
             'email' => 'required|email|max:50',
             'website' => 'nullable|url|max:50',
-            'phone' => 'nullable|tel|max:25',
+            'phone' => ['nullable', new Tel, 'max:25'],
         ]);
 
         $user = Auth::guard('api')->user();
@@ -84,7 +97,7 @@ class FacilityController extends Controller
             'address' => 'sometimes|max:50',
             'email' => 'sometimes|email|max:50',
             'website' => 'nullable|url|max:50',
-            'phone' => 'nullable|tel|max:25',
+            'phone' => ['nullable', new Tel, 'max:25'],
         ]);
 
         $user = Auth::guard('api')->user();
@@ -96,7 +109,6 @@ class FacilityController extends Controller
         $facility->email = $request->input('email', $facility->email);
         $facility->website = $request->website;
         $facility->phone = $request->phone;
-        $facility->creator->associate($user);
         $facility->save();
 
         $facility->refresh();
@@ -154,5 +166,44 @@ class FacilityController extends Controller
         $facility->forceDelete();
 
         return response(null, 204);
+    }
+
+    /**
+     * Update facility module access.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param string                   $roleId
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function sync_modules(Request $request, $roleId)
+    {
+        $facility = Facility::findOrFail($roleId);
+
+        $this->validate($request, [
+            'modules' => 'required|array',
+            'modules.*' => 'required',
+        ]);
+
+        $available_mods = Module::get()->map(function ($module) {
+            return $module->name;
+        })->all();
+
+        $unknown_mods = array_values(array_diff((array) $request->modules, $available_mods));
+
+        if ($unknown_mods) {
+            $validator = Validator::make([], []);
+            $validator->errors()->add('modules', 'Unknown modules: '.implode(', ', $unknown_mods));
+
+            throw new ValidationException($validator);
+        }
+
+        // Sync modules...
+        $facility->modules()->sync($request->modules, true);
+        $facility->save();
+
+        $facility = Facility::with('modules')->find($roleId);
+
+        return response($facility);
     }
 }
