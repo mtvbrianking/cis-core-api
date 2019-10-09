@@ -172,24 +172,24 @@ class FacilityController extends Controller
      * Update facility module access.
      *
      * @param \Illuminate\Http\Request $request
-     * @param string                   $roleId
+     * @param string                   $id
      *
      * @return \Illuminate\Http\Response
      */
-    public function sync_modules(Request $request, $roleId)
+    public function sync_modules(Request $request, $id)
     {
-        $facility = Facility::findOrFail($roleId);
+        $facility = Facility::findOrFail($id);
 
         $this->validate($request, [
             'modules' => 'required|array',
-            'modules.*' => 'required',
+            'modules.*' => 'required|string',
         ]);
 
         $available_mods = Module::get()->map(function ($module) {
             return $module->name;
-        })->all();
+        })->toArray();
 
-        $unknown_mods = array_values(array_diff((array) $request->modules, $available_mods));
+        $unknown_mods = array_values(array_diff($request->modules, $available_mods));
 
         if ($unknown_mods) {
             $validator = Validator::make([], []);
@@ -202,7 +202,7 @@ class FacilityController extends Controller
         $facility->modules()->sync($request->modules, true);
         $facility->save();
 
-        $facility = Facility::with('modules')->find($roleId);
+        $facility = Facility::with('modules')->find($id);
 
         return response($facility);
     }
