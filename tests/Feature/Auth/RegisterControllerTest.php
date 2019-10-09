@@ -117,7 +117,7 @@ class RegisterControllerTest extends TestCase
      */
     public function test_can_register_with_valid_info()
     {
-        $this->withoutExceptionHandling();
+        $this->markTestSkipped('Disable self registration.');
 
         // Illuminate\Tests\Integration\Events\EventFakeTest
         $initialDispatcher = Event::getFacadeRoot();
