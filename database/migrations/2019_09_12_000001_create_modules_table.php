@@ -14,7 +14,8 @@ class CreateModulesTable extends Migration
     public function up()
     {
         Schema::create('modules', function (Blueprint $table) {
-            $table->string('name', 20);
+            $table->string('name', 25);
+            $table->enum('category', ['uncategorized'])->default('uncategorized');
             $table->uuid('user_id')->nullable();
             $table->string('description', 50)->nullable();
             $table->timestamps();

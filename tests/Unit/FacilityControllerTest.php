@@ -263,14 +263,12 @@ class FacilityControllerTest extends TestCase
 
         $facility = factory(Facility::class)->create();
 
-        $modules = factory(Module::class, 2)->create();
-
-        $available_mods = $modules->map(function ($module) {
-            return $module->name;
-        })->all();
+        $module = factory(Module::class)->create();
 
         $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/facilities/{$facility->id}/modules", [
-            'modules' => $available_mods,
+            'modules' => [
+                $module->name,
+            ],
         ]);
 
         $response->assertJsonStructure([
@@ -296,6 +294,9 @@ class FacilityControllerTest extends TestCase
             ],
         ]);
 
-        $this->assertEquals(2, $facility->modules->count());
+        $this->assertDatabaseHas('facility_module', [
+            'facility_id' => $facility->id,
+            'module_name' => $module->name,
+        ]);
     }
 }
