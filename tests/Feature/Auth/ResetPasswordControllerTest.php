@@ -108,10 +108,14 @@ class ResetPasswordControllerTest extends TestCase
         $this->assertGuest();
     }
 
+    /**
+     * @see https://stackoverflow.com/a/54817274/2732184
+     */
     public function test_can_reset_password_with_valid_token()
     {
-        Event::fake();
         $user = factory(User::class)->create();
+
+        Event::fake();
 
         $response = $this->post(route('password.update'), [
             'token' => $this->getResetToken($user),
