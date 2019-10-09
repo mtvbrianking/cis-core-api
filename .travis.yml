@@ -1,5 +1,10 @@
 language: php
 
+# https://docs.travis-ci.com/user/database-setup/#postgresql
+
+services:
+  - postgresql
+
 cache:
   directories:
     - $HOME/.composer/cache/files
@@ -15,6 +20,7 @@ jobs:
       php: 7.2
 
       before_script:
+        - psql -c 'create database travis_ci_test;' -U postgres
         - travis_retry composer self-update
         - travis_retry composer update --prefer-lowest --no-ansi --no-interaction --no-progress --no-scripts
 
@@ -26,6 +32,7 @@ jobs:
       php: 7.3
 
       before_script:
+        - psql -c 'create database travis_ci_test;' -U postgres
         - travis_retry composer self-update
         - travis_retry composer update --prefer-lowest --no-ansi --no-interaction --no-progress --no-scripts
 
