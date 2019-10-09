@@ -14,8 +14,6 @@ class AddFacilityToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->uuid('facility_id')->after('id');
-
             $table->foreign('facility_id')->references('id')->on('facilities');
         });
     }
@@ -29,8 +27,6 @@ class AddFacilityToUsersTable extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropForeign(['facility_id']);
-
-            $table->dropColumn('facility_id');
         });
     }
 }

@@ -2,8 +2,8 @@ language: php
 
 # https://docs.travis-ci.com/user/database-setup/#postgresql
 
-services:
-  - postgresql
+# services:
+# - postgresql
 
 cache:
   directories:
@@ -12,33 +12,29 @@ cache:
 # https://docs.travis-ci.com/user/build-stages
 
 jobs:
-
   include:
-
     - stage: test
 
       php: 7.2
 
       before_script:
-        - psql -c 'create database travis_ci_test;' -U postgres
+        # - psql -c 'create database travis_ci_test;' -U postgres
         - travis_retry composer self-update
         - travis_retry composer update --prefer-lowest --no-ansi --no-interaction --no-progress --no-scripts
 
       script:
         - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
 
-    - stage: test
+    # - stage: test
+    # php: 7.3
 
-      php: 7.3
+    # before_script:
+    #   - psql -c 'create database travis_ci_test;' -U postgres
+    #   - travis_retry composer self-update
+    #   - travis_retry composer update --prefer-lowest --no-ansi --no-interaction --no-progress --no-scripts
 
-      before_script:
-        - psql -c 'create database travis_ci_test;' -U postgres
-        - travis_retry composer self-update
-        - travis_retry composer update --prefer-lowest --no-ansi --no-interaction --no-progress --no-scripts
-
-      script:
-        - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
-
+    # script:
+    #   - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
     - stage: deploy
 
       if: branch = master
@@ -51,7 +47,7 @@ jobs:
         - curl -O http://get.sensiolabs.org/sami.phar
 
       script:
-       - php sami.phar update .sami
+        - php sami.phar update .sami
 
       # https://docs.travis-ci.com/user/deployment/pages/
       deploy:
