@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -24,13 +25,21 @@ class UserController extends Controller
     /**
      * Get users.
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        $user = Auth::guard('api')->user();
+        $this->authorize('viewAny', [User::class]);
 
-        $users = User::onlyRelated($user)->withTrashed()->get();
+        // if (Gate::denies('view-users')) {
+        //     abort(403);
+        // }
+
+        $consumer = Auth::guard('api')->user();
+
+        $users = User::onlyRelated($consumer)->withTrashed()->get();
 
         return response(['users' => $users]);
     }
@@ -40,14 +49,18 @@ class UserController extends Controller
      *
      * @param string $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        $user = Auth::guard('api')->user();
+        $this->authorize('view', [User::class, $id]);
+
+        $consumer = Auth::guard('api')->user();
 
         $user = User::with(['role', 'facility'])
-            ->onlyRelated($user)
+            ->onlyRelated($consumer)
             ->withTrashed()
             ->findOrFail($id);
 
@@ -60,11 +73,14 @@ class UserController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @throws \Illuminate\Validation\ValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
+        $this->authorize('create', [User::class]);
+
         $this->validate($request, [
             'name' => 'required|max:25',
             'alias' => 'required|unique:users,alias',
@@ -109,11 +125,14 @@ class UserController extends Controller
      * @param string                   $id
      *
      * @throws \Illuminate\Validation\ValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
+        $this->authorize('update', [User::class, $id]);
+
         $creator = Auth::guard('api')->user();
 
         $user = User::onlyRelated($creator)->findOrFail($id);
@@ -157,10 +176,14 @@ class UserController extends Controller
      *
      * @param string $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function revoke($id)
     {
+        $this->authorize('softDelete', [User::class, $id]);
+
         $user = Auth::guard('api')->user();
 
         $user = User::onlyRelated($user)->findOrFail($id);
@@ -177,10 +200,14 @@ class UserController extends Controller
      *
      * @param string $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function restore($id)
     {
+        $this->authorize('restore', [User::class, $id]);
+
         $user = Auth::guard('api')->user();
 
         $user = User::onlyRelated($user)->onlyTrashed()->findOrFail($id);
@@ -197,10 +224,14 @@ class UserController extends Controller
      *
      * @param string $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
+        $this->authorize('forceDelete', [User::class, $id]);
+
         $user = Auth::guard('api')->user();
 
         $user = User::onlyRelated($user)->onlyTrashed()->findOrFail($id);
