@@ -42,7 +42,7 @@ class ModulePolicy
      */
     public function create(User $user)
     {
-        return $user->hasPermissionTo('update', 'modules');
+        return $user->hasPermissionTo('create', 'modules');
     }
 
     /**
@@ -91,5 +91,17 @@ class ModulePolicy
     public function forceDelete(User $user)
     {
         return $user->hasPermissionTo('force-delete', 'modules');
+    }
+
+    /**
+     * Determine whether the user can assign modules to facilities.
+     *
+     * @param \App\Models\User $user
+     *
+     * @return bool
+     */
+    public function assignModules(User $user)
+    {
+        return $user->hasPermissionTo('assign-modules', 'modules');
     }
 }

@@ -58,38 +58,26 @@ class PermissionPolicy
     }
 
     /**
-     * Determine whether the user can delete the permission.
-     *
-     * @param \App\Models\User $user
-     *
-     * @return bool
-     */
-    public function softDelete(User $user)
-    {
-        return $user->hasPermissionTo('soft-delete', 'permissions');
-    }
-
-    /**
-     * Determine whether the user can restore the permission.
-     *
-     * @param \App\Models\User $user
-     *
-     * @return bool
-     */
-    public function restore(User $user)
-    {
-        return $user->hasPermissionTo('restore', 'permissions');
-    }
-
-    /**
      * Determine whether the user can permanently delete the permission.
      *
      * @param \App\Models\User $user
      *
      * @return bool
      */
-    public function forceDelete(User $user)
+    public function delete(User $user)
     {
-        return $user->hasPermissionTo('force-delete', 'permissions');
+        return $user->hasPermissionTo('delete', 'permissions');
+    }
+
+    /**
+     * Determine whether the user can assign permissions to roles.
+     *
+     * @param \App\Models\User $user
+     *
+     * @return bool
+     */
+    public function assignPermissions(User $user)
+    {
+        return $user->hasPermissionTo('assign-permissions', 'permissions');
     }
 }

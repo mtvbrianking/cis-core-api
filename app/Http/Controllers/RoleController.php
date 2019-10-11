@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Role;
+use App\Models\User;
 use App\Models\Permission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -22,10 +23,14 @@ class RoleController extends Controller
     /**
      * Get roles.
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
+        $this->authorize('viewAny', [Role::class]);
+
         $user = Auth::guard('api')->user();
 
         $roles = Role::onlyRelated($user)->withTrashed()->get();
@@ -39,11 +44,14 @@ class RoleController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @throws ValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
+        $this->authorize('create', [Role::class]);
+
         $this->validate($request, [
             'name' => 'required|max:25',
             'description' => 'sometimes|max:50',
@@ -68,10 +76,14 @@ class RoleController extends Controller
      *
      * @param string $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
+        $this->authorize('view', [Role::class, $id]);
+
         $user = Auth::guard('api')->user();
 
         $role = Role::onlyRelated($user)->withTrashed()->findOrFail($id);
@@ -86,11 +98,14 @@ class RoleController extends Controller
      * @param string                   $id
      *
      * @throws ValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
+        $this->authorize('update', [Role::class]);
+
         $user = Auth::guard('api')->user();
 
         $role = Role::onlyRelated($user)->findOrFail($id);
@@ -114,10 +129,14 @@ class RoleController extends Controller
      *
      * @param string $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function revoke($id)
     {
+        $this->authorize('softDelete', [Role::class]);
+
         $user = Auth::guard('api')->user();
 
         $role = Role::onlyRelated($user)->findOrFail($id);
@@ -134,10 +153,14 @@ class RoleController extends Controller
      *
      * @param string $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function restore($id)
     {
+        $this->authorize('restore', [Role::class]);
+
         $user = Auth::guard('api')->user();
 
         $role = Role::onlyRelated($user)->onlyTrashed()->findOrFail($id);
@@ -154,10 +177,14 @@ class RoleController extends Controller
      *
      * @param string $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
+        $this->authorize('forceDelete', [Role::class]);
+
         $user = Auth::guard('api')->user();
 
         $role = Role::onlyRelated($user)->onlyTrashed()->findOrFail($id);
@@ -178,6 +205,8 @@ class RoleController extends Controller
      */
     public function users($id)
     {
+        $this->authorize('viewAny', [User::class]);
+
         $user = Auth::guard('api')->user();
 
         $role = Role::onlyRelated($user)->findOrFail($id);
@@ -190,10 +219,14 @@ class RoleController extends Controller
      *
      * @param string $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function permissions($id)
     {
+        $this->authorize('viewPermissions', [Role::class]);
+
         $user = Auth::guard('api')->user();
 
         $role = Role::onlyRelated($user)->findOrFail($id);
@@ -206,10 +239,14 @@ class RoleController extends Controller
      *
      * @param string $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function permissions_granted($id)
     {
+        $this->authorize('viewPermissions', [Role::class]);
+
         $user = Auth::guard('api')->user();
 
         $role = Role::onlyRelated($user)->findOrFail($id);
@@ -249,11 +286,14 @@ class RoleController extends Controller
      * @param string                   $id
      *
      * @throws ValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
     public function sync_permissions(Request $request, $id)
     {
+        $this->authorize('assignPermissions', [Permission::class]);
+
         $role = Role::findOrFail($id);
 
         $this->validate($request, [

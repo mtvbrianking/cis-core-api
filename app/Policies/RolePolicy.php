@@ -19,7 +19,7 @@ class RolePolicy
      */
     public function viewAny(User $user)
     {
-        return $user->hasPermissionTo('update', 'roles');
+        return $user->hasPermissionTo('view-any', 'roles');
     }
 
     /**
@@ -70,7 +70,7 @@ class RolePolicy
      *
      * @return bool
      */
-    public function delete(User $user)
+    public function softDelete(User $user)
     {
         return $user->hasPermissionTo('soft-delete', 'roles');
     }
@@ -97,5 +97,17 @@ class RolePolicy
     public function forceDelete(User $user)
     {
         return $user->hasPermissionTo('force-delete', 'roles');
+    }
+
+    /**
+     * Determine whether the user can view any permissions on this role.
+     *
+     * @param \App\Models\User $user
+     *
+     * @return bool
+     */
+    public function viewPermissions(User $user)
+    {
+        return $user->hasPermissionTo('view-permissions', 'roles');
     }
 }
