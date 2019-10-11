@@ -71,12 +71,12 @@ class UserController extends Controller
             'email' => 'required|unique:users,email',
             // 'password' => 'nullable|min:6|confirmed',
             // 'email_verified_at' => 'nullable|date_format:Y-m-d H:i:s',
-            'role' => 'required|uuid',
+            'role_id' => 'required|uuid',
         ]);
 
         $creator = Auth::guard('api')->user();
 
-        $role = Role::onlyRelated($creator)->find($request->role);
+        $role = Role::onlyRelated($creator)->find($request->role_id);
 
         if (! $role) {
             $validator = Validator::make([], []);
@@ -96,8 +96,6 @@ class UserController extends Controller
         $user->facility()->associate($creator->facility);
         $user->role()->associate($role);
         $user->save();
-
-        // Create UserRegistered event
 
         $user->refresh();
 
@@ -124,11 +122,11 @@ class UserController extends Controller
             'name' => 'sometimes|max:25',
             'alias' => "sometimes|unique:users,alias,{$id},id",
             'email' => "sometimes|unique:users,email,{$id},id",
-            'role' => 'nullable|uuid',
+            'role_id' => 'nullable|uuid',
         ]);
 
-        if ($request->filled('role')) {
-            $role = Role::onlyRelated($creator)->find($request->role);
+        if ($request->filled('role_id')) {
+            $role = Role::onlyRelated($creator)->find($request->role_id);
 
             if (! $role) {
                 $validator = Validator::make([], []);
