@@ -20,6 +20,14 @@ class UserControllerTest extends TestCase
 
         $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/users');
 
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view-any', 'users');
+
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/users');
+
         $response->assertStatus(200);
 
         $response->assertJsonStructure([
@@ -41,7 +49,61 @@ class UserControllerTest extends TestCase
         ]);
     }
 
-    public function test_can_get_specified_user()
+    public function test_can_user_can_get_their_info()
+    {
+        $attrs = [
+            'alias' => 'jdoe',
+            'name' => 'John Doe',
+            'email' => 'jdoe@example.com',
+        ];
+
+        $consumer = factory(User::class)->create($attrs);
+
+        $response = $this->actingAs($consumer, 'api')->json('GET', "api/v1/users/{$consumer->id}");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'id',
+            'facility_id',
+            'role_id',
+            'user_id',
+            'alias',
+            'name',
+            'email',
+            'email_verified_at',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+            'facility' => [
+                'id',
+                'user_id',
+                'name',
+                'description',
+                'address',
+                'email',
+                'website',
+                'phone',
+                'created_at',
+                'updated_at',
+                'deleted_at',
+            ],
+            'role' => [
+                'id',
+                'facility_id',
+                'user_id',
+                'name',
+                'description',
+                'created_at',
+                'updated_at',
+                'deleted_at',
+            ],
+        ]);
+
+        $response->assertJson($attrs);
+    }
+
+    public function test_can_get_any_user_info()
     {
         $attrs = [
             'alias' => 'jdoe',
@@ -51,7 +113,22 @@ class UserControllerTest extends TestCase
 
         $user = factory(User::class)->create($attrs);
 
-        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/users/{$user->id}");
+        // ...
+
+        $consumer = factory(User::class)->create();
+
+        $response = $this->actingAs($consumer, 'api')->json('GET', "api/v1/users/{$user->id}");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $consumer = $this->getAuthorizedUser('view', 'users');
+
+        $user->facility()->associate($consumer->facility);
+        $user->save();
+
+        $response = $this->actingAs($consumer, 'api')->json('GET', "api/v1/users/{$user->id}");
 
         $response->assertStatus(200);
 
@@ -97,10 +174,18 @@ class UserControllerTest extends TestCase
 
     public function test_can_create_a_user()
     {
-        $user = factory(User::class)->create();
+        $consumer = factory(User::class)->create();
+
+        $response = $this->actingAs($consumer, 'api')->json('POST', 'api/v1/users', []);
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $consumer = $this->getAuthorizedUser('create', 'users');
 
         $role = factory(Role::class)->create([
-            'facility_id' => $user->facility_id,
+            'facility_id' => $consumer->facility_id,
         ]);
 
         $attrs = [
@@ -110,7 +195,7 @@ class UserControllerTest extends TestCase
             'role_id' => $role->id,
         ];
 
-        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/users', $attrs);
+        $response = $this->actingAs($consumer, 'api')->json('POST', 'api/v1/users', $attrs);
 
         $response->assertStatus(201);
 
@@ -167,9 +252,59 @@ class UserControllerTest extends TestCase
         $response->assertJson($attrs);
     }
 
-    public function test_can_update_specified_user()
+    public function test_can_update_user_their_details()
     {
+        $consumer = factory(User::class)->create();
+
+        $role = factory(Role::class)->create([
+            'facility_id' => $consumer->facility_id,
+        ]);
+
+        $attrs = [
+            'alias' => 'jdoe',
+            'name' => 'John Doe',
+            'email' => 'jdoe@example.com',
+            'role_id' => $role->id,
+        ];
+
+        $response = $this->actingAs($consumer, 'api')->json('PUT', "api/v1/users/{$consumer->id}", $attrs);
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'id',
+            'facility_id',
+            'role_id',
+            'user_id',
+            'alias',
+            'name',
+            'email',
+            'email_verified_at',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+        ]);
+
+        $response->assertJson($attrs);
+    }
+
+    public function test_can_update_any_user_details()
+    {
+        $consumer = factory(User::class)->create();
+
         $user = factory(User::class)->create();
+
+        $response = $this->actingAs($consumer, 'api')->json('PUT', "api/v1/users/{$user->id}");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $consumer = $this->getAuthorizedUser('update', 'users');
+
+        $user = factory(User::class)->create([
+            'facility_id' => $consumer->facility_id,
+        ]);
 
         $role = factory(Role::class)->create([
             'facility_id' => $user->facility_id,
@@ -182,7 +317,7 @@ class UserControllerTest extends TestCase
             'role_id' => $role->id,
         ];
 
-        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/users/{$user->id}", $attrs);
+        $response = $this->actingAs($consumer, 'api')->json('PUT', "api/v1/users/{$user->id}", $attrs);
 
         $response->assertStatus(200);
 
@@ -205,9 +340,13 @@ class UserControllerTest extends TestCase
 
     public function test_can_revoke_specified_user()
     {
-        $user = factory(User::class)->create();
+        $consumer = $this->getAuthorizedUser('soft-delete', 'users');
 
-        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/users/{$user->id}/revoke");
+        $user = factory(User::class)->create([
+            'facility_id' => $consumer->facility_id,
+        ]);
+
+        $response = $this->actingAs($consumer, 'api')->json('PUT', "api/v1/users/{$user->id}/revoke");
 
         // what happens when a user is soft deleted?
         // api - revoke associated access tokens
@@ -236,9 +375,14 @@ class UserControllerTest extends TestCase
 
     public function test_cant_restore_non_revoked_role()
     {
-        $user = factory(User::class)->create();
+        $consumer = $this->getAuthorizedUser('restore', 'users');
 
-        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/users/{$user->id}/restore");
+        $user = factory(User::class)->create([
+            'facility_id' => $consumer->facility_id,
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($consumer, 'api')->json('PUT', "api/v1/users/{$user->id}/restore");
 
         $response->assertStatus(404);
 
@@ -249,7 +393,10 @@ class UserControllerTest extends TestCase
 
     public function test_can_restore_revoked_role()
     {
+        $consumer = $this->getAuthorizedUser('restore', 'users');
+
         $user = factory(User::class)->create([
+            'facility_id' => $consumer->facility_id,
             'deleted_at' => date('Y-m-d H:i:s'),
         ]);
 
@@ -257,7 +404,7 @@ class UserControllerTest extends TestCase
         // This should return 401 since the user is soft deleted
         // Can a revoke user login?
 
-        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/users/{$user->id}/restore");
+        $response = $this->actingAs($consumer, 'api')->json('PUT', "api/v1/users/{$user->id}/restore");
 
         $response->assertStatus(200);
 
@@ -283,9 +430,14 @@ class UserControllerTest extends TestCase
 
     public function test_cant_delete_non_revoked_user()
     {
-        $user = factory(User::class)->create();
+        $consumer = $this->getAuthorizedUser('force-delete', 'users');
 
-        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/users/{$user->id}");
+        $user = factory(User::class)->create([
+            'facility_id' => $consumer->facility_id,
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($consumer, 'api')->json('DELETE', "api/v1/users/{$user->id}");
 
         $response->assertStatus(404);
 
@@ -296,11 +448,14 @@ class UserControllerTest extends TestCase
 
     public function test_can_delete_revoked_user()
     {
+        $consumer = $this->getAuthorizedUser('force-delete', 'users');
+
         $user = factory(User::class)->create([
+            'facility_id' => $consumer->facility_id,
             'deleted_at' => date('Y-m-d H:i:s'),
         ]);
 
-        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/users/{$user->id}");
+        $response = $this->actingAs($consumer, 'api')->json('DELETE', "api/v1/users/{$user->id}");
 
         $response->assertStatus(204);
 
