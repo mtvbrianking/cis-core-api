@@ -14,7 +14,7 @@ class UserPolicy
      *
      * @param \App\Models\User $consumer
      *
-     * @return mixed
+     * @return bool
      */
     public function viewAny(User $consumer)
     {
@@ -27,7 +27,7 @@ class UserPolicy
      * @param \App\Models\User $consumer
      * @param string           $userId
      *
-     * @return mixed
+     * @return bool
      */
     public function view(User $consumer, string $userId)
     {
@@ -43,7 +43,7 @@ class UserPolicy
      *
      * @param \App\Models\User $consumer
      *
-     * @return mixed
+     * @return bool
      */
     public function create(User $consumer)
     {
@@ -56,7 +56,7 @@ class UserPolicy
      * @param \App\Models\User $consumer
      * @param string           $userId
      *
-     * @return mixed
+     * @return bool
      */
     public function update(User $consumer, string $userId)
     {
@@ -72,7 +72,7 @@ class UserPolicy
      *
      * @param \App\Models\User $consumer
      *
-     * @return mixed
+     * @return bool
      */
     public function softDelete(User $consumer)
     {
@@ -84,7 +84,7 @@ class UserPolicy
      *
      * @param \App\Models\User $consumer
      *
-     * @return mixed
+     * @return bool
      */
     public function restore(User $consumer)
     {
@@ -96,7 +96,7 @@ class UserPolicy
      *
      * @param \App\Models\User $consumer
      *
-     * @return mixed
+     * @return bool
      */
     public function forceDelete(User $consumer)
     {

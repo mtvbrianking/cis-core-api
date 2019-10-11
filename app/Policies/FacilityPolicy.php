@@ -15,7 +15,7 @@ class FacilityPolicy
      *
      * @param \App\Models\User $user
      *
-     * @return mixed
+     * @return bool
      */
     public function viewAny(User $user)
     {
@@ -26,11 +26,11 @@ class FacilityPolicy
      * Determine whether the user can view the facility.
      *
      * @param \App\Models\User $user
-     * @param \App\Facility    $facility
+     * @param string           $facilityId
      *
-     * @return mixed
+     * @return bool
      */
-    public function view(User $user, Facility $facility)
+    public function view(User $user, string $facilityId)
     {
         //
     }
@@ -40,7 +40,7 @@ class FacilityPolicy
      *
      * @param \App\Models\User $user
      *
-     * @return mixed
+     * @return bool
      */
     public function create(User $user)
     {
@@ -51,11 +51,11 @@ class FacilityPolicy
      * Determine whether the user can update the facility.
      *
      * @param \App\Models\User $user
-     * @param \App\Facility    $facility
+     * @param string           $facilityId
      *
-     * @return mixed
+     * @return bool
      */
-    public function update(User $user, Facility $facility)
+    public function update(User $user, string $facilityId)
     {
         //
     }
@@ -64,11 +64,11 @@ class FacilityPolicy
      * Determine whether the user can delete the facility.
      *
      * @param \App\Models\User $user
-     * @param \App\Facility    $facility
+     * @param string           $facilityId
      *
-     * @return mixed
+     * @return bool
      */
-    public function delete(User $user, Facility $facility)
+    public function softDelete(User $user, string $facilityId)
     {
         //
     }
@@ -77,11 +77,11 @@ class FacilityPolicy
      * Determine whether the user can restore the facility.
      *
      * @param \App\Models\User $user
-     * @param \App\Facility    $facility
+     * @param string           $facilityId
      *
-     * @return mixed
+     * @return bool
      */
-    public function restore(User $user, Facility $facility)
+    public function restore(User $user, string $facilityId)
     {
         //
     }
@@ -90,11 +90,11 @@ class FacilityPolicy
      * Determine whether the user can permanently delete the facility.
      *
      * @param \App\Models\User $user
-     * @param \App\Facility    $facility
+     * @param string           $facilityId
      *
-     * @return mixed
+     * @return bool
      */
-    public function forceDelete(User $user, Facility $facility)
+    public function forceDelete(User $user, string $facilityId)
     {
         //
     }
