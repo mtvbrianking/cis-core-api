@@ -373,7 +373,7 @@ class UserControllerTest extends TestCase
         ]);
     }
 
-    public function test_cant_restore_non_revoked_role()
+    public function test_cant_restore_non_revoked_user()
     {
         $consumer = $this->getAuthorizedUser('restore', 'users');
 
@@ -391,7 +391,7 @@ class UserControllerTest extends TestCase
         ]);
     }
 
-    public function test_can_restore_revoked_role()
+    public function test_can_restore_revoked_user()
     {
         $consumer = $this->getAuthorizedUser('restore', 'users');
 
