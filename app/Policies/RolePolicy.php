@@ -15,24 +15,28 @@ class RolePolicy
      *
      * @param \App\Models\User $user
      *
-     * @return mixed
+     * @return bool
      */
     public function viewAny(User $user)
     {
-        //
+        return $user->hasPermissionTo('update', 'roles');
     }
 
     /**
      * Determine whether the user can view the role.
      *
      * @param \App\Models\User $user
-     * @param \App\Role        $role
+     * @param string           $roleId
      *
-     * @return mixed
+     * @return bool
      */
-    public function view(User $user, Role $role)
+    public function view(User $user, string $roleId)
     {
-        //
+        if ($user->role_id == $roleId) {
+            return true;
+        }
+
+        return $user->hasPermissionTo('view', 'roles');
     }
 
     /**
@@ -40,62 +44,58 @@ class RolePolicy
      *
      * @param \App\Models\User $user
      *
-     * @return mixed
+     * @return bool
      */
     public function create(User $user)
     {
-        //
+        return $user->hasPermissionTo('create', 'roles');
     }
 
     /**
      * Determine whether the user can update the role.
      *
      * @param \App\Models\User $user
-     * @param \App\Role        $role
      *
-     * @return mixed
+     * @return bool
      */
-    public function update(User $user, Role $role)
+    public function update(User $user)
     {
-        //
+        return $user->hasPermissionTo('update', 'roles');
     }
 
     /**
      * Determine whether the user can delete the role.
      *
      * @param \App\Models\User $user
-     * @param \App\Role        $role
      *
-     * @return mixed
+     * @return bool
      */
-    public function delete(User $user, Role $role)
+    public function delete(User $user)
     {
-        //
+        return $user->hasPermissionTo('soft-delete', 'roles');
     }
 
     /**
      * Determine whether the user can restore the role.
      *
      * @param \App\Models\User $user
-     * @param \App\Role        $role
      *
-     * @return mixed
+     * @return bool
      */
-    public function restore(User $user, Role $role)
+    public function restore(User $user)
     {
-        //
+        return $user->hasPermissionTo('restore', 'roles');
     }
 
     /**
      * Determine whether the user can permanently delete the role.
      *
      * @param \App\Models\User $user
-     * @param \App\Role        $role
      *
-     * @return mixed
+     * @return bool
      */
-    public function forceDelete(User $user, Role $role)
+    public function forceDelete(User $user)
     {
-        //
+        return $user->hasPermissionTo('force-delete', 'roles');
     }
 }

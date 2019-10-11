@@ -3,7 +3,6 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\Permission;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class PermissionPolicy
@@ -15,24 +14,23 @@ class PermissionPolicy
      *
      * @param \App\Models\User $user
      *
-     * @return mixed
+     * @return bool
      */
     public function viewAny(User $user)
     {
-        //
+        return $user->hasPermissionTo('view-any', 'permissions');
     }
 
     /**
      * Determine whether the user can view the permission.
      *
      * @param \App\Models\User $user
-     * @param \App\Permission  $permission
      *
-     * @return mixed
+     * @return bool
      */
-    public function view(User $user, Permission $permission)
+    public function view(User $user)
     {
-        //
+        return $user->hasPermissionTo('view', 'permissions');
     }
 
     /**
@@ -40,62 +38,58 @@ class PermissionPolicy
      *
      * @param \App\Models\User $user
      *
-     * @return mixed
+     * @return bool
      */
     public function create(User $user)
     {
-        //
+        return $user->hasPermissionTo('create', 'permissions');
     }
 
     /**
      * Determine whether the user can update the permission.
      *
      * @param \App\Models\User $user
-     * @param \App\Permission  $permission
      *
-     * @return mixed
+     * @return bool
      */
-    public function update(User $user, Permission $permission)
+    public function update(User $user)
     {
-        //
+        return $user->hasPermissionTo('update', 'permissions');
     }
 
     /**
      * Determine whether the user can delete the permission.
      *
      * @param \App\Models\User $user
-     * @param \App\Permission  $permission
      *
-     * @return mixed
+     * @return bool
      */
-    public function delete(User $user, Permission $permission)
+    public function softDelete(User $user)
     {
-        //
+        return $user->hasPermissionTo('soft-delete', 'permissions');
     }
 
     /**
      * Determine whether the user can restore the permission.
      *
      * @param \App\Models\User $user
-     * @param \App\Permission  $permission
      *
-     * @return mixed
+     * @return bool
      */
-    public function restore(User $user, Permission $permission)
+    public function restore(User $user)
     {
-        //
+        return $user->hasPermissionTo('restore', 'permissions');
     }
 
     /**
      * Determine whether the user can permanently delete the permission.
      *
      * @param \App\Models\User $user
-     * @param \App\Permission  $permission
      *
-     * @return mixed
+     * @return bool
      */
-    public function forceDelete(User $user, Permission $permission)
+    public function forceDelete(User $user)
     {
-        //
+        return $user->hasPermissionTo('force-delete', 'permissions');
     }
 }
