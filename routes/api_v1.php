@@ -99,3 +99,15 @@ Route::group(['prefix' => 'roles'], function () {
     Route::put('/{role}/restore', 'RoleController@restore');
     Route::delete('/{role}', 'RoleController@destroy');
 });
+
+Route::pattern('user', $slug);
+
+Route::group(['prefix' => 'users'], function () {
+    Route::get('/', 'UserController@index');
+    Route::get('/{user}', 'UserController@show');
+    Route::post('/', 'UserController@store');
+    Route::put('/{user}', 'UserController@update');
+    Route::put('/{user}/revoke', 'UserController@revoke');
+    Route::put('/{user}/restore', 'UserController@restore');
+    Route::delete('/{user}', 'UserController@destroy');
+});

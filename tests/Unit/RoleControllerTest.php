@@ -22,6 +22,10 @@ class RoleControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
+        factory(Role::class)->create([
+            'facility_id' => $user->facility_id,
+        ]);
+
         $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/roles');
 
         $response->assertStatus(200);
@@ -44,17 +48,17 @@ class RoleControllerTest extends TestCase
 
     public function test_can_get_specified_role()
     {
-        // Associate user with facility
-        $facility = factory(Facility::class)->create();
-        $user = factory(User::class)->create(['facility_id' => $facility->id]);
+        $user = factory(User::class)->create();
 
-        $name = 'sample role';
+        $roleName = 'Role name';
 
-        $role = factory(Role::class)->create([
-            'name' => $name,
+        $attrs = [
+            'name' => $roleName,
             'description' => 'Role description.',
-            'facility_id' => $facility->id,
-        ]);
+            'facility_id' => $user->facility_id,
+        ];
+
+        $role = factory(Role::class)->create($attrs);
 
         $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$role->id}");
 
@@ -71,24 +75,23 @@ class RoleControllerTest extends TestCase
             'deleted_at',
         ]);
 
-        $response->assertJson([
-            'name'          => Str::title($name),
-            'description'   => 'Role description.',
-        ]);
+        $attrs['name'] = Str::title($roleName);
+
+        $response->assertJson($attrs);
     }
 
     public function test_can_create_a_role()
     {
-        // Associate user with facility
-        $facility = factory(Facility::class)->create();
-        $user = factory(User::class)->create(['facility_id' => $facility->id]);
+        $user = factory(User::class)->create();
 
-        $name = 'Role name';
+        $roleName = 'Role name';
 
-        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/roles', [
-            'name' => $name,
+        $attrs = [
+            'name' => $roleName,
             'description' => 'Role description.',
-        ]);
+        ];
+
+        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/roles', $attrs);
 
         $response->assertStatus(201);
 
@@ -105,28 +108,28 @@ class RoleControllerTest extends TestCase
             'facility',
         ]);
 
-        $response->assertJson([
-            'name' => Str::title($name),
-            'description' => 'Role description.',
-        ]);
+        $attrs['name'] = Str::title($roleName);
+        $attrs['facility_id'] = $user->facility_id;
+
+        $response->assertJson($attrs);
     }
 
     public function test_can_update_specified_role()
     {
-        // Associate user with facility
-        $facility = factory(Facility::class)->create();
-        $user = factory(User::class)->create(['facility_id' => $facility->id]);
+        $user = factory(User::class)->create();
 
         $role = factory(Role::class)->create([
-            'facility_id' => $facility->id,
+            'facility_id' => $user->facility_id,
         ]);
 
-        $name = 'sample role';
+        $roleName = 'Role name';
 
-        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$role->id}", [
-            'name' => $name,
-            'description' => 'New users role desc',
-        ]);
+        $attrs = [
+            'name' => $roleName,
+            'description' => 'Role description.',
+        ];
+
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$role->id}", $attrs);
 
         $response->assertStatus(200);
 
@@ -141,21 +144,17 @@ class RoleControllerTest extends TestCase
             'deleted_at',
         ]);
 
-        $response->assertJson([
-            'name' => Str::title($name),
-            'description' => 'New users role desc',
-        ]);
+        $attrs['name'] = Str::title($roleName);
+
+        $response->assertJson($attrs);
     }
 
     public function test_can_revoke_specified_role()
     {
-        // Associate user with facility
-        $facility = factory(Facility::class)->create();
-        $user = factory(User::class)->create(['facility_id' => $facility->id]);
+        $user = factory(User::class)->create();
 
         $role = factory(Role::class)->create([
-            'facility_id' => $facility->id,
-            'name' => 'Sample Role',
+            'facility_id' => $user->facility_id,
         ]);
 
         $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$role->id}/revoke");
@@ -173,20 +172,16 @@ class RoleControllerTest extends TestCase
         ]);
 
         $this->assertSoftDeleted('roles', [
-            'name' => 'Sample Role',
-            'facility_id' => $facility->id,
+            'facility_id' => $user->facility_id,
         ]);
     }
 
-    public function test_cant_restore_non_revoked_module()
+    public function test_cant_restore_non_revoked_role()
     {
-        // Associate user with facility
-        $facility = factory(Facility::class)->create();
-        $user = factory(User::class)->create(['facility_id' => $facility->id]);
+        $user = factory(User::class)->create();
 
         $role = factory(Role::class)->create([
-            'facility_id' => $facility->id,
-            'name' => 'Sample Role',
+            'facility_id' => $user->facility_id,
         ]);
 
         $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$role->id}/restore");
@@ -198,15 +193,12 @@ class RoleControllerTest extends TestCase
         ]);
     }
 
-    public function test_can_restore_revoked_module()
+    public function test_can_restore_revoked_role()
     {
-        // Associate user with facility
-        $facility = factory(Facility::class)->create();
-        $user = factory(User::class)->create(['facility_id' => $facility->id]);
+        $user = factory(User::class)->create();
 
         $role = factory(Role::class)->create([
-            'facility_id' => $facility->id,
-            'name' => 'Sample Role',
+            'facility_id' => $user->facility_id,
             'deleted_at' => date('Y-m-d H:i:s'),
         ]);
 
@@ -226,20 +218,16 @@ class RoleControllerTest extends TestCase
         ]);
 
         $this->assertDatabaseHas('roles', [
-            'name' => 'Sample Role',
             'deleted_at' => null,
         ]);
     }
 
     public function test_cant_delete_non_revoked_role()
     {
-        // Associate user with facility
-        $facility = factory(Facility::class)->create();
-        $user = factory(User::class)->create(['facility_id' => $facility->id]);
+        $user = factory(User::class)->create();
 
         $role = factory(Role::class)->create([
-            'facility_id' => $facility->id,
-            'name' => 'Sample Role',
+            'facility_id' => $user->facility_id,
         ]);
 
         $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/roles/{$role->id}");
@@ -253,13 +241,10 @@ class RoleControllerTest extends TestCase
 
     public function test_can_delete_revoked_role()
     {
-        // Associate user with facility
-        $facility = factory(Facility::class)->create();
-        $user = factory(User::class)->create(['facility_id' => $facility->id]);
+        $user = factory(User::class)->create();
 
         $role = factory(Role::class)->create([
-            'facility_id' => $facility->id,
-            'name' => 'Sample Role',
+            'facility_id' => $user->facility_id,
             'deleted_at' => date('Y-m-d H:i:s'),
         ]);
 
@@ -270,18 +255,17 @@ class RoleControllerTest extends TestCase
         $this->assertEquals('', $response->getContent());
 
         $this->assertDatabaseMissing('roles', [
-            'name' => 'Sample Role',
-            'facility_id' => $facility->id,
+            'id' => $role->id,
         ]);
     }
 
     public function test_can_get_permissions_for_a_specified_role()
     {
-        // Associate user with facility
-        $facility = factory(Facility::class)->create();
-        $user = factory(User::class)->create(['facility_id' => $facility->id]);
+        $user = factory(User::class)->create();
 
-        $role = factory(Role::class)->create(['facility_id' => $facility->id]);
+        $role = factory(Role::class)->create([
+            'facility_id' => $user->facility_id,
+        ]);
 
         $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$role->id}/permissions");
 
@@ -303,10 +287,11 @@ class RoleControllerTest extends TestCase
 
     public function test_can_assign_permissions_to_a_role()
     {
-        // Associate user with facility
         $facility = factory(Facility::class)->create();
 
-        $user = factory(User::class)->create(['facility_id' => $facility->id]);
+        $user = factory(User::class)->create([
+            'facility_id' => $facility->id,
+        ]);
 
         $module = factory(Module::class)->create();
 
@@ -319,8 +304,7 @@ class RoleControllerTest extends TestCase
         $permission->save();
 
         $role = factory(Role::class)->create([
-            'facility_id' => $facility->id,
-            'name' => 'Sample Role',
+            'facility_id' => $user->facility_id,
         ]);
 
         $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$role->id}/permissions", [
