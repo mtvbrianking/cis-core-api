@@ -38,6 +38,8 @@ class RoleController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
+     * @throws ValidationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -82,6 +84,8 @@ class RoleController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
+     *
+     * @throws ValidationException
      *
      * @return \Illuminate\Http\Response
      */
@@ -243,6 +247,8 @@ class RoleController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
+     *
+     * @throws ValidationException
      *
      * @return \Illuminate\Http\Response
      */

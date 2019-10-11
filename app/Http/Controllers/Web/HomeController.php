@@ -77,7 +77,7 @@ class HomeController extends Controller
     protected function getRouteMiddleware($route)
     {
         return collect($route->gatherMiddleware())->map(function ($middleware) {
-            return $middleware instanceof Closure ? 'Closure' : $middleware;
+            return $middleware instanceof \Closure ? 'Closure' : $middleware;
         })->implode(', ');
     }
 }

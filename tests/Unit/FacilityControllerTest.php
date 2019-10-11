@@ -143,7 +143,7 @@ class FacilityControllerTest extends TestCase
         ]);
 
         $response->assertJson([
-            'user_id' => null,
+            'user_id' => $user->id,
             'name' => 'Mulago Hospital',
             'description' => 'Regional Referral Hospital',
             'address' => 'Mulago Hill',

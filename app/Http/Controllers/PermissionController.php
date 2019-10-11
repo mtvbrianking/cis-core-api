@@ -35,6 +35,8 @@ class PermissionController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
+     * @throws ValidationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -92,6 +94,8 @@ class PermissionController extends Controller
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
      *
+     * @throws ValidationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -134,6 +138,8 @@ class PermissionController extends Controller
      * Permanently delete the specific permission.
      *
      * @param string $id
+     *
+     * @throws \Exception
      *
      * @return \Illuminate\Http\Response
      */

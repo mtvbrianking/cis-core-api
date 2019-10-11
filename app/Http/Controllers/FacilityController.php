@@ -37,6 +37,8 @@ class FacilityController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
+     * @throws ValidationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -87,6 +89,8 @@ class FacilityController extends Controller
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
      *
+     * @throws ValidationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
@@ -109,6 +113,7 @@ class FacilityController extends Controller
         $facility->email = $request->input('email', $facility->email);
         $facility->website = $request->website;
         $facility->phone = $request->phone;
+        $facility->creator()->associate($user);
         $facility->save();
 
         $facility->refresh();
@@ -120,6 +125,8 @@ class FacilityController extends Controller
      * Temporarily delete (ban) the specific facility.
      *
      * @param string $id
+     *
+     * @throws \Exception
      *
      * @return \Illuminate\Http\Response
      */
@@ -173,6 +180,8 @@ class FacilityController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
+     *
+     * @throws ValidationException
      *
      * @return \Illuminate\Http\Response
      */

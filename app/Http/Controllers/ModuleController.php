@@ -35,6 +35,8 @@ class ModuleController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
+     * @throws ValidationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -88,6 +90,8 @@ class ModuleController extends Controller
      * @param \Illuminate\Http\Request $request
      * @param string                   $name
      *
+     * @throws ValidationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $name)
@@ -110,6 +114,8 @@ class ModuleController extends Controller
      * Temporarily delete (ban) the specific module.
      *
      * @param string $name
+     *
+     * @throws \Exception
      *
      * @return \Illuminate\Http\Response
      */
