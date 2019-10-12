@@ -227,7 +227,7 @@ class FacilityController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function sync_modules(Request $request, $id)
+    public function syncModules(Request $request, $id)
     {
         $this->authorize('assign-modules', [Module::class]);
 

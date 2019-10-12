@@ -253,7 +253,7 @@ class RoleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function permissions_granted($id)
+    public function permissionsGranted($id)
     {
         $this->authorize('viewPermissions', [Role::class]);
 
@@ -300,7 +300,7 @@ class RoleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function sync_permissions(Request $request, $id)
+    public function syncPermissions(Request $request, $id)
     {
         $this->authorize('assignPermissions', [Permission::class]);
 
