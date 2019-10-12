@@ -243,7 +243,7 @@ class UserController extends Controller
     }
 
     /**
-     * Determine if a user exists with given email.
+     * Determine this is your valid account password.
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
@@ -310,10 +310,10 @@ class UserController extends Controller
             throw new ValidationException($validator);
         }
 
-        $user->password = Hash::make($request->password);
+        $user->password = Hash::make($request->new_password);
         $user->save();
 
-        return response(['message' => 'Password changed.']);
+        return response(null, 204);
     }
 
     /**
@@ -358,9 +358,9 @@ class UserController extends Controller
 
         $user = User::where('email', $request->email)->firstOrFail();
 
-        $user->password = Hash::make($request->password);
+        $user->password = Hash::make($request->new_password);
         $user->save();
 
-        return response(['message' => 'Password reset.']);
+        return response(null, 204);
     }
 }
