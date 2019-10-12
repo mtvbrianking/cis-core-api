@@ -14,7 +14,8 @@ class AddFacilityToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->foreign('facility_id')->references('id')->on('facilities');
+            $table->foreign('facility_id')->references('id')->on('facilities')
+                ->onUpdate('cascade')->onDelete('restrict');
         });
     }
 

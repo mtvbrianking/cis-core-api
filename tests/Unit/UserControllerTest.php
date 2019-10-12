@@ -16,17 +16,17 @@ class UserControllerTest extends TestCase
 
     public function test_can_get_users()
     {
-        $user = factory(User::class)->create();
+        $consumer = factory(User::class)->create();
 
-        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/users');
+        $response = $this->actingAs($consumer, 'api')->json('GET', 'api/v1/users');
 
         $response->assertStatus(403);
 
         // ...
 
-        $user = $this->getAuthorizedUser('view-any', 'users');
+        $consumer = $this->getAuthorizedUser('view-any', 'users');
 
-        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/users');
+        $response = $this->actingAs($consumer, 'api')->json('GET', 'api/v1/users');
 
         $response->assertStatus(200);
 

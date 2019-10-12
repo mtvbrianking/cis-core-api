@@ -3,7 +3,6 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\Module;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ModulePolicy
@@ -11,91 +10,98 @@ class ModulePolicy
     use HandlesAuthorization;
 
     /**
-     * Determine whether the user can view any app models modules.
+     * Determine whether the user can view any modules.
      *
      * @param \App\Models\User $user
      *
-     * @return mixed
+     * @return bool
      */
     public function viewAny(User $user)
     {
-        //
+        return $user->hasPermissionTo('view-any', 'modules');
     }
 
     /**
-     * Determine whether the user can view the app models module.
-     *
-     * @param \App\Models\User     $user
-     * @param \App\AppModelsModule $appModelsModule
-     *
-     * @return mixed
-     */
-    public function view(User $user, AppModelsModule $appModelsModule)
-    {
-        //
-    }
-
-    /**
-     * Determine whether the user can create app models modules.
+     * Determine whether the user can view the module.
      *
      * @param \App\Models\User $user
      *
-     * @return mixed
+     * @return bool
+     */
+    public function view(User $user)
+    {
+        return $user->hasPermissionTo('view', 'modules');
+    }
+
+    /**
+     * Determine whether the user can create modules.
+     *
+     * @param \App\Models\User $user
+     *
+     * @return bool
      */
     public function create(User $user)
     {
-        //
+        return $user->hasPermissionTo('create', 'modules');
     }
 
     /**
-     * Determine whether the user can update the app models module.
+     * Determine whether the user can update the module.
      *
-     * @param \App\Models\User     $user
-     * @param \App\AppModelsModule $appModelsModule
+     * @param \App\Models\User $user
      *
-     * @return mixed
+     * @return bool
      */
-    public function update(User $user, AppModelsModule $appModelsModule)
+    public function update(User $user)
     {
-        //
+        return $user->hasPermissionTo('update', 'modules');
     }
 
     /**
-     * Determine whether the user can delete the app models module.
+     * Determine whether the user can delete the module.
      *
-     * @param \App\Models\User     $user
-     * @param \App\AppModelsModule $appModelsModule
+     * @param \App\Models\User $user
      *
-     * @return mixed
+     * @return bool
      */
-    public function delete(User $user, AppModelsModule $appModelsModule)
+    public function softDelete(User $user)
     {
-        //
+        return $user->hasPermissionTo('soft-delete', 'modules');
     }
 
     /**
-     * Determine whether the user can restore the app models module.
+     * Determine whether the user can restore the module.
      *
-     * @param \App\Models\User     $user
-     * @param \App\AppModelsModule $appModelsModule
+     * @param \App\Models\User $user
      *
-     * @return mixed
+     * @return bool
      */
-    public function restore(User $user, AppModelsModule $appModelsModule)
+    public function restore(User $user)
     {
-        //
+        return $user->hasPermissionTo('restore', 'modules');
     }
 
     /**
-     * Determine whether the user can permanently delete the app models module.
+     * Determine whether the user can permanently delete the module.
      *
-     * @param \App\Models\User     $user
-     * @param \App\AppModelsModule $appModelsModule
+     * @param \App\Models\User $user
      *
-     * @return mixed
+     * @return bool
      */
-    public function forceDelete(User $user, AppModelsModule $appModelsModule)
+    public function forceDelete(User $user)
     {
-        //
+        return $user->hasPermissionTo('force-delete', 'modules');
+    }
+
+    /**
+     * Determine whether the user can assign modules to facilities.
+     *
+     * @param \App\Models\User $user
+     *
+     * @return bool
+     */
+    public function assignModules(User $user)
+    {
+        return $user->hasPermissionTo('assign-modules', 'modules');
     }
 }

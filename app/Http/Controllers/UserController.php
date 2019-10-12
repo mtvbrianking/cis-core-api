@@ -33,7 +33,7 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', [User::class]);
 
-        // if (Gate::denies('view-users')) {
+        // if (Gate::denies('view-any.users')) {
         //     abort(403);
         // }
 

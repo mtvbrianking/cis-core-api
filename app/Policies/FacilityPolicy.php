@@ -3,7 +3,6 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\Facility;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class FacilityPolicy
@@ -15,24 +14,28 @@ class FacilityPolicy
      *
      * @param \App\Models\User $user
      *
-     * @return mixed
+     * @return bool
      */
     public function viewAny(User $user)
     {
-        //
+        return $user->hasPermissionTo('view-any', 'facilities');
     }
 
     /**
      * Determine whether the user can view the facility.
      *
      * @param \App\Models\User $user
-     * @param \App\Facility    $facility
+     * @param string           $facilityId
      *
-     * @return mixed
+     * @return bool
      */
-    public function view(User $user, Facility $facility)
+    public function view(User $user, string $facilityId)
     {
-        //
+        if ($user->facility_id == $facilityId) {
+            return true;
+        }
+
+        return $user->hasPermissionTo('view', 'facilities');
     }
 
     /**
@@ -40,62 +43,58 @@ class FacilityPolicy
      *
      * @param \App\Models\User $user
      *
-     * @return mixed
+     * @return bool
      */
     public function create(User $user)
     {
-        //
+        return $user->hasPermissionTo('create', 'facilities');
     }
 
     /**
      * Determine whether the user can update the facility.
      *
      * @param \App\Models\User $user
-     * @param \App\Facility    $facility
      *
-     * @return mixed
+     * @return bool
      */
-    public function update(User $user, Facility $facility)
+    public function update(User $user)
     {
-        //
+        return $user->hasPermissionTo('update', 'facilities');
     }
 
     /**
      * Determine whether the user can delete the facility.
      *
      * @param \App\Models\User $user
-     * @param \App\Facility    $facility
      *
-     * @return mixed
+     * @return bool
      */
-    public function delete(User $user, Facility $facility)
+    public function softDelete(User $user)
     {
-        //
+        return $user->hasPermissionTo('soft-delete', 'facilities');
     }
 
     /**
      * Determine whether the user can restore the facility.
      *
      * @param \App\Models\User $user
-     * @param \App\Facility    $facility
      *
-     * @return mixed
+     * @return bool
      */
-    public function restore(User $user, Facility $facility)
+    public function restore(User $user)
     {
-        //
+        return $user->hasPermissionTo('restore', 'facilities');
     }
 
     /**
      * Determine whether the user can permanently delete the facility.
      *
      * @param \App\Models\User $user
-     * @param \App\Facility    $facility
      *
-     * @return mixed
+     * @return bool
      */
-    public function forceDelete(User $user, Facility $facility)
+    public function forceDelete(User $user)
     {
-        //
+        return $user->hasPermissionTo('force-delete', 'facilities');
     }
 }

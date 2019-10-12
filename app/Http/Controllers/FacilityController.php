@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Rules\Tel;
+use App\Models\Role;
+use App\Models\User;
 use App\Models\Module;
 use App\Models\Facility;
 use Illuminate\Http\Request;
@@ -23,10 +25,14 @@ class FacilityController extends Controller
     /**
      * Get all facilities.
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
+        $this->authorize('viewAny', [Facility::class]);
+
         $facilities = Facility::withTrashed()->get();
 
         return response(['facilities' => $facilities]);
@@ -37,10 +43,15 @@ class FacilityController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
+     * @throws ValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
+        $this->authorize('create', [Facility::class]);
+
         $this->validate($request, [
             'name' => 'required|max:100',
             'description' => 'nullable|max:100',
@@ -72,10 +83,14 @@ class FacilityController extends Controller
      *
      * @param string $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
+        $this->authorize('view', [Facility::class, $id]);
+
         $facility = Facility::withTrashed()->findOrFail($id);
 
         return response($facility);
@@ -87,10 +102,15 @@ class FacilityController extends Controller
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
      *
+     * @throws ValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
+        $this->authorize('update', [Facility::class]);
+
         $this->validate($request, [
             'name' => 'sometimes|max:100',
             'description' => 'nullable|max:100',
@@ -109,6 +129,7 @@ class FacilityController extends Controller
         $facility->email = $request->input('email', $facility->email);
         $facility->website = $request->website;
         $facility->phone = $request->phone;
+        $facility->creator()->associate($user);
         $facility->save();
 
         $facility->refresh();
@@ -121,10 +142,15 @@ class FacilityController extends Controller
      *
      * @param string $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Exception
+     *
      * @return \Illuminate\Http\Response
      */
     public function revoke($id)
     {
+        $this->authorize('soft-delete', [Facility::class]);
+
         $facility = Facility::findOrFail($id);
 
         $facility->delete();
@@ -139,10 +165,14 @@ class FacilityController extends Controller
      *
      * @param string $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function restore($id)
     {
+        $this->authorize('restore', [Facility::class]);
+
         $facility = Facility::onlyTrashed()->findOrFail($id);
 
         $facility->restore();
@@ -157,11 +187,29 @@ class FacilityController extends Controller
      *
      * @param string $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
+        $this->authorize('force-delete', [Facility::class]);
+
         $facility = Facility::onlyTrashed()->findOrFail($id);
+
+        // ...
+
+        $users = User::withTrashed()->where('facility_id', $id)->count();
+
+        $roles = Role::withTrashed()->where('facility_id', $id)->count();
+
+        $dependants = max($users, $roles);
+
+        if ($dependants) {
+            return response(['message' => "Can't delete non-orphaned facility."], 400);
+        }
+
+        // ...
 
         $facility->forceDelete();
 
@@ -174,10 +222,15 @@ class FacilityController extends Controller
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
      *
+     * @throws ValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function sync_modules(Request $request, $id)
     {
+        $this->authorize('assign-modules', [Module::class]);
+
         $facility = Facility::findOrFail($id);
 
         $this->validate($request, [

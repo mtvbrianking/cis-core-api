@@ -15,9 +15,17 @@ class FacilityControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_can_get_facility()
+    public function test_can_get_facilities()
     {
         $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/users');
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view-any', 'facilities');
 
         $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/facilities');
 
@@ -42,11 +50,21 @@ class FacilityControllerTest extends TestCase
         ]);
     }
 
-    public function test_can_get_specified_facility()
+    public function test_can_get_any_facility_info()
     {
+        $facility = factory(Facility::class)->create();
+
+        // ...
+
         $user = factory(User::class)->create();
 
-        $facility = factory(Facility::class)->create();
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/facilities/{$facility->id}");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view', 'facilities');
 
         $response = $this->actingAs($user, 'api')->json('GET', "api/v1/facilities/{$facility->id}");
 
@@ -71,9 +89,44 @@ class FacilityControllerTest extends TestCase
         ]);
     }
 
+    public function test_can_get_user_facility_info()
+    {
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/facilities/{$user->facility_id}");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'id',
+            'user_id',
+            'name',
+            'description',
+            'address',
+            'email',
+            'website',
+            'phone',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+        ]);
+
+        $response->assertJson([
+            'id' => $user->facility_id,
+        ]);
+    }
+
     public function test_can_create_a_facility()
     {
         $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/facilities', []);
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('create', 'facilities');
 
         $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/facilities', [
             'name' => 'Mulago Hospital',
@@ -115,9 +168,15 @@ class FacilityControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $facility = factory(Facility::class)->create();
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/facilities/{$user->facility_id}", []);
 
-        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/facilities/{$facility->id}", [
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('update', 'facilities');
+
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/facilities/{$user->facility_id}", [
             'name' => 'Mulago Hospital',
             'description' => 'Regional Referral Hospital',
             'address' => 'Mulago Hill',
@@ -143,7 +202,7 @@ class FacilityControllerTest extends TestCase
         ]);
 
         $response->assertJson([
-            'user_id' => null,
+            'user_id' => $user->id,
             'name' => 'Mulago Hospital',
             'description' => 'Regional Referral Hospital',
             'address' => 'Mulago Hill',
@@ -156,6 +215,14 @@ class FacilityControllerTest extends TestCase
     public function test_can_revoke_specified_facility()
     {
         $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/facilities/{$user->facility_id}/revoke");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('soft-delete', 'facilities');
 
         $facility = factory(Facility::class)->create();
 
@@ -186,6 +253,14 @@ class FacilityControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/facilities/{$user->facility_id}/restore");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('restore', 'facilities');
+
         $facility = factory(Facility::class)->create();
 
         $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/facilities/{$facility->id}/restore");
@@ -200,6 +275,14 @@ class FacilityControllerTest extends TestCase
     public function test_can_restore_revoked_facility()
     {
         $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/facilities/{$user->facility_id}");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('restore', 'facilities');
 
         $facility = factory(Facility::class)->create([
             'deleted_at' => date('Y-m-d H:i:s'),
@@ -227,6 +310,14 @@ class FacilityControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
+        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/facilities/{$user->facility_id}");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('force-delete', 'facilities');
+
         $facility = factory(Facility::class)->create();
 
         $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/facilities/{$facility->id}");
@@ -241,6 +332,14 @@ class FacilityControllerTest extends TestCase
     public function test_can_delete_revoked_facility()
     {
         $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/facilities/{$user->facility_id}");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('force-delete', 'facilities');
 
         $facility = factory(Facility::class)->create([
             'deleted_at' => date('Y-m-d H:i:s'),
@@ -260,6 +359,14 @@ class FacilityControllerTest extends TestCase
     public function test_can_reassign_facility_module_access()
     {
         $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/facilities/{$user->facility_id}/modules");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('assign-modules', 'modules');
 
         $facility = factory(Facility::class)->create();
 

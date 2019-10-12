@@ -22,6 +22,14 @@ class PermissionControllerTest extends TestCase
 
         $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/permissions');
 
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view-any', 'permissions');
+
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/permissions');
+
         $response->assertStatus(200);
 
         $response->assertJsonStructure([
@@ -40,14 +48,24 @@ class PermissionControllerTest extends TestCase
 
     public function test_can_get_specified_permission()
     {
-        $user = factory(User::class)->create();
-
         $name = 'sample permission';
 
         $permission = factory(Permission::class)->create([
             'name' => $name,
             'description' => 'Users permission.',
         ]);
+
+        // ...
+
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/permissions/{$permission->id}");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view', 'permissions');
 
         $response = $this->actingAs($user, 'api')->json('GET', "api/v1/permissions/{$permission->id}");
 
@@ -71,6 +89,14 @@ class PermissionControllerTest extends TestCase
     public function test_can_create_a_permission()
     {
         $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/permissions');
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('create', 'permissions');
 
         $module = factory(Module::class)->create([
             'name' => 'User module',
@@ -106,6 +132,12 @@ class PermissionControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
+        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/permissions', []);
+
+        $response->assertStatus(403);
+
+        // ...
+
         $name = 'Users permission.';
 
         $module = factory(Module::class)->create([
@@ -120,6 +152,8 @@ class PermissionControllerTest extends TestCase
         ]);
 
         $slug_name = Str::slug($name);
+
+        $user = $this->getAuthorizedUser('create', 'permissions');
 
         $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/permissions', [
             'name' => $slug_name,
@@ -148,8 +182,6 @@ class PermissionControllerTest extends TestCase
 
     public function test_can_update_specified_permission()
     {
-        $user = factory(User::class)->create();
-
         $module = factory(Module::class)->create([
             'name'          => 'User module',
             'description'   => 'the users module',
@@ -160,6 +192,18 @@ class PermissionControllerTest extends TestCase
             'module_name' => $module->name,
             'description' => 'The Users permission.',
         ]);
+
+        // ...
+
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/permissions/{$permission->id}");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('update', 'permissions');
 
         $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/permissions/{$permission->id}", [
             'name' => 'users permission',
@@ -184,12 +228,22 @@ class PermissionControllerTest extends TestCase
 
     public function test_can_delete_a_permission()
     {
-        $user = factory(User::class)->create();
-
         $permission = factory(Permission::class)->create([
             'name' => 'users permission',
             'description' => 'The Users permission',
         ]);
+
+        // ...
+
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/permissions/{$permission->id}");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('delete', 'permissions');
 
         $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/permissions/{$permission->id}");
 

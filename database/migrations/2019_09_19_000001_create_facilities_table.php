@@ -27,7 +27,8 @@ class CreateFacilitiesTable extends Migration
 
             $table->primary('id');
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('user_id')->references('id')->on('users')
+                ->onUpdate('cascade')->onDelete('set null');
         });
     }
 
