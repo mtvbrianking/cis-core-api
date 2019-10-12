@@ -7,7 +7,6 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -33,10 +32,6 @@ class UserController extends Controller
     public function index()
     {
         $this->authorize('viewAny', [User::class]);
-
-        // if (Gate::denies('view-any.users')) {
-        //     abort(403);
-        // }
 
         $consumer = Auth::guard('api')->user();
 
@@ -86,8 +81,6 @@ class UserController extends Controller
             'name' => 'required|max:25',
             'alias' => 'required|unique:users,alias',
             'email' => 'required|unique:users,email',
-            // 'password' => 'nullable|min:6|confirmed',
-            // 'email_verified_at' => 'nullable|date_format:Y-m-d H:i:s',
             'role_id' => 'required|uuid',
         ]);
 
@@ -106,8 +99,6 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->alias = $request->alias;
         $user->email = $request->email;
-        // $user->email_verified_at = $request->email_verified_at;
-        // $user->password = Hash::make($request->input('password', Str::random(10)));
         $user->password = Hash::make(Str::random(10));
         $user->creator()->associate($creator);
         $user->facility()->associate($creator->facility);
@@ -339,6 +330,38 @@ class UserController extends Controller
     }
 
     /**
+     * Mark that a user has confirmed their email address.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function confirmEmail(Request $request)
+    {
+        // Client credentials grant <-
+
+        $this->validate($request, [
+            'email' => 'required|email',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user) {
+            $validator = Validator::make([], []);
+            $validator->errors()->add('email', 'Wrong email address.');
+
+            throw new ValidationException($validator);
+        }
+
+        $user->email_verified_at = date('Y-m-d H:i:s');
+        $user->save();
+
+        return response(null, 204);
+    }
+
+    /**
      * Reset your forgotten password.
      *
      * @param \Illuminate\Http\Request $request
@@ -356,7 +379,14 @@ class UserController extends Controller
             'new_password' => 'required|min:6|confirmed',
         ]);
 
-        $user = User::where('email', $request->email)->firstOrFail();
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user) {
+            $validator = Validator::make([], []);
+            $validator->errors()->add('email', 'Wrong email address.');
+
+            throw new ValidationException($validator);
+        }
 
         $user->password = Hash::make($request->new_password);
         $user->save();

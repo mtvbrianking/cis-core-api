@@ -109,6 +109,7 @@ Route::group(['prefix' => 'users'], function () {
     Route::post('/email', 'UserController@validateEmail');
     Route::put('/{user}', 'UserController@update');
     Route::put('/{user}/password', 'UserController@updatePassword');
+    Route::put('/email', 'UserController@confirmEmail');
     Route::put('/password', 'UserController@resetPassword');
     Route::post('/{user}/password', 'UserController@confirmPassword');
     Route::put('/{user}/revoke', 'UserController@revoke');
