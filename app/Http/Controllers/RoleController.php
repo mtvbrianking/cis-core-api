@@ -189,6 +189,16 @@ class RoleController extends Controller
 
         $role = Role::onlyRelated($user)->onlyTrashed()->findOrFail($id);
 
+        // ...
+
+        $dependants = User::withTrashed()->where('role_id', $id)->count();
+
+        if ($dependants) {
+            return response(['message' => "Can't delete non-orphaned role."], 400);
+        }
+
+        // ...
+
         $role->forceDelete();
 
         return response(null, 204);

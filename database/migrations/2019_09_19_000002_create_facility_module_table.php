@@ -19,8 +19,10 @@ class CreateFacilityModuleTable extends Migration
 
             $table->primary(['facility_id', 'module_name']);
 
-            $table->foreign('facility_id')->references('id')->on('facilities')->onDelete('cascade');
-            $table->foreign('module_name')->references('name')->on('modules')->onDelete('cascade');
+            $table->foreign('facility_id')->references('id')->on('facilities')
+                ->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('module_name')->references('name')->on('modules')
+                ->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

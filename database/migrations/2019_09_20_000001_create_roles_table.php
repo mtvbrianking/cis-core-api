@@ -26,8 +26,10 @@ class CreateRolesTable extends Migration
 
             $table->index('name', 'idx_role_name', 'btree');
 
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
-            $table->foreign('facility_id')->references('id')->on('facilities');
+            $table->foreign('user_id')->references('id')->on('users')
+                ->onUpdate('cascade')->onDelete('set null');
+            $table->foreign('facility_id')->references('id')->on('facilities')
+                ->onUpdate('cascade')->onDelete('restrict');
         });
     }
 

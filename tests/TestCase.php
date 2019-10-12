@@ -63,12 +63,14 @@ abstract class TestCase extends BaseTestCase
         ]);
 
         $role = factory(Role::class)->create([
+            'facility_id' => $facility->id,
             'name' => $roleName,
         ]);
 
         $role->permissions()->attach($permission);
 
         return factory(User::class)->create([
+            'facility_id' => $facility->id,
             'role_id' => $role->id,
         ]);
     }

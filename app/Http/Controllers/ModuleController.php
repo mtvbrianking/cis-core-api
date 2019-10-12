@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Module;
+use App\Models\Permission;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -183,6 +184,16 @@ class ModuleController extends Controller
         $this->authorize('force-delete', [Module::class]);
 
         $module = Module::onlyTrashed()->findOrFail($name);
+
+        // ...
+
+        $dependants = Permission::where('module_name', $name)->count();
+
+        if ($dependants) {
+            return response(['message' => "Can't delete non-orphaned module."], 400);
+        }
+
+        // ...
 
         $module->forceDelete();
 

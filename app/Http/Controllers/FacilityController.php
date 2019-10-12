@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Rules\Tel;
+use App\Models\Role;
+use App\Models\User;
 use App\Models\Module;
 use App\Models\Facility;
 use Illuminate\Http\Request;
@@ -194,6 +196,20 @@ class FacilityController extends Controller
         $this->authorize('force-delete', [Facility::class]);
 
         $facility = Facility::onlyTrashed()->findOrFail($id);
+
+        // ...
+
+        $users = User::withTrashed()->where('facility_id', $id)->count();
+
+        $roles = Role::withTrashed()->where('facility_id', $id)->count();
+
+        $dependants = max($users, $roles);
+
+        if ($dependants) {
+            return response(['message' => "Can't delete non-orphaned facility."], 400);
+        }
+
+        // ...
 
         $facility->forceDelete();
 
