@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\Access\AuthorizationException;
 
 class UserController extends Controller
 {
@@ -239,5 +240,127 @@ class UserController extends Controller
         $user->forceDelete();
 
         return response(null, 204);
+    }
+
+    /**
+     * Determine if a user exists with given email.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param string                   $id
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function confirmPassword(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $consumer = Auth::guard('api')->user();
+
+        if ($consumer->id != $user->id) {
+            throw new AuthorizationException("Can't confirm someone else's password.");
+        }
+
+        $this->validate($request, [
+            'password' => 'required',
+        ]);
+
+        if (! password_verify($request->password, $user->password)) {
+            $validator = Validator::make([], []);
+            $validator->errors()->add('password', 'Wrong password.');
+
+            throw new ValidationException($validator);
+        }
+
+        return response(null, 204);
+    }
+
+    /**
+     * Change your account password.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param string                   $id
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updatePassword(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $consumer = Auth::guard('api')->user();
+
+        if ($consumer->id != $user->id) {
+            throw new AuthorizationException("Can't update someone else's password.");
+        }
+
+        $this->validate($request, [
+            'password' => 'required',
+            'new_password' => 'required|min:6|confirmed',
+        ]);
+
+        if (! password_verify($request->password, $user->password)) {
+            $validator = Validator::make([], []);
+            $validator->errors()->add('password', 'Wrong password.');
+
+            throw new ValidationException($validator);
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return response(['message' => 'Password changed.']);
+    }
+
+    /**
+     * Determine if a user exists with given email.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function validateEmail(Request $request)
+    {
+        // Client credentials grant <-
+
+        $this->validate($request, [
+            'email' => 'required|email',
+        ]);
+
+        $user = User::where('email', $request->email)->firstOrFail();
+
+        return response(null, 204);
+    }
+
+    /**
+     * Reset your forgotten password.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function resetPassword(Request $request)
+    {
+        // Client credentials grant <-
+
+        $this->validate($request, [
+            'email' => 'required|email',
+            'new_password' => 'required|min:6|confirmed',
+        ]);
+
+        $user = User::where('email', $request->email)->firstOrFail();
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return response(['message' => 'Password reset.']);
     }
 }
