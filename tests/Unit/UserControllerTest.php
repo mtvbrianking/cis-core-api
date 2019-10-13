@@ -5,6 +5,10 @@ namespace Tests\Unit;
 use Tests\TestCase;
 use App\Models\Role;
 use App\Models\User;
+use Ramsey\Uuid\Uuid;
+use Illuminate\Support\Str;
+use Laravel\Passport\Passport;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 /**
@@ -464,5 +468,222 @@ class UserControllerTest extends TestCase
         $this->assertDatabaseMissing('users', [
             'id' => $user->id,
         ]);
+    }
+
+    public function test_a_user_can_confirm_their_password()
+    {
+        $user = factory(User::class)->create([
+            'password' => Hash::make('correct-password'),
+        ]);
+
+        // ...
+
+        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/users/password', [
+            'password' => 'wrong-password',
+        ]);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'password',
+            ],
+        ]);
+
+        // ...
+
+        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/users/password', [
+            'password' => 'correct-password',
+        ]);
+
+        $response->assertStatus(204);
+
+        $this->assertEquals('', $response->getContent());
+    }
+
+    public function test_a_user_can_change_their_password()
+    {
+        $user = factory(User::class)->create([
+            'password' => Hash::make('current-password'),
+        ]);
+
+        // ...
+
+        $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/users/password', [
+            'password' => 'wrong-current-password',
+            'new_password' => 'new-password',
+            'new_password_confirmation' => 'new-password',
+        ]);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'password',
+            ],
+        ]);
+
+        // ...
+
+        $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/users/password', [
+            'password' => 'current-password',
+            'new_password' => 'new-password',
+            'new_password_confirmation' => 'new-password',
+        ]);
+
+        $response->assertStatus(204);
+
+        $this->assertEquals('', $response->getContent());
+
+        $user->refresh();
+
+        $this->assertTrue(password_verify('new-password', $user->password));
+    }
+
+    /**
+     * Create client credentials grant client app.
+     *
+     * @return void
+     */
+    protected function createClient()
+    {
+        $client = new \App\Models\Client();
+        $client->id = Uuid::uuid4()->toString();
+        $client->user_id = null;
+        $client->name = 'test-client-grant-client';
+        $client->secret = Str::random('40');
+        $client->redirect = '';
+        $client->personal_access_client = false;
+        $client->password_client = false;
+        $client->revoked = false;
+        $client->save();
+
+        return $client;
+    }
+
+    /**
+     * @see https://laravel.com/docs/6.x/passport#testing
+     */
+    public function test_an_app_can_validate_a_user_by_email()
+    {
+        Passport::actingAsClient($this->createClient(), ['validate-email']);
+
+        // ...
+
+        $user = factory(User::class)->create([
+            'email' => 'correct@example.com',
+        ]);
+
+        // ...
+
+        $response = $this->json('POST', 'api/v1/users/email', [
+            'email' => 'wrong@example.com',
+        ]);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'email',
+            ],
+        ]);
+
+        // ...
+
+        $response = $this->json('POST', 'api/v1/users/email', [
+            'email' => 'correct@example.com',
+        ]);
+
+        $response->assertStatus(204);
+
+        $this->assertEquals('', $response->getContent());
+    }
+
+    public function test_an_app_can_confirm_user_email_verification()
+    {
+        Passport::actingAsClient($this->createClient(), ['confirm-email']);
+
+        // ...
+
+        $user = factory(User::class)->create([
+            'email' => 'correct@example.com',
+        ]);
+
+        // ...
+
+        $response = $this->json('PUT', 'api/v1/users/email', [
+            'email' => 'wrong@example.com',
+        ]);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'email',
+            ],
+        ]);
+
+        // ...
+
+        $response = $this->json('PUT', 'api/v1/users/email', [
+            'email' => 'correct@example.com',
+        ]);
+
+        $response->assertStatus(204);
+
+        $this->assertEquals('', $response->getContent());
+
+        $user->refresh();
+
+        $this->assertNotNull($user->email_verified_at);
+    }
+
+    public function test_an_app_can_reset_forgotten_user_password()
+    {
+        Passport::actingAsClient($this->createClient(), ['reset-password']);
+
+        // ...
+
+        $user = factory(User::class)->create([
+            'email' => 'jdoe@example.com',
+            'password' => Hash::make('forgotten_pswd'),
+        ]);
+
+        // ...
+
+        $response = $this->json('PUT', 'api/v1/users/password/reset', [
+            'email' => 'wrong@example.com',
+            'new_password' => 'new-password',
+            'new_password_confirmation' => 'new-password',
+        ]);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'email',
+            ],
+        ]);
+
+        // ...
+
+        $response = $this->json('PUT', 'api/v1/users/password/reset', [
+            'email' => 'jdoe@example.com',
+            'new_password' => 'new-password',
+            'new_password_confirmation' => 'new-password',
+        ]);
+
+        $response->assertStatus(204);
+
+        $this->assertEquals('', $response->getContent());
+
+        $user->refresh();
+
+        $this->assertTrue(password_verify('new-password', $user->password));
     }
 }
