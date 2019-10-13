@@ -106,13 +106,13 @@ Route::group(['prefix' => 'users'], function () {
     Route::get('/', 'UserController@index');
     Route::post('/', 'UserController@store');
     Route::post('/email', 'UserController@validateEmail');
-    Route::put('/email', 'UserController@confirmEmail');
-    Route::put('/password', 'UserController@resetPassword');
+    Route::put('/email', 'UserController@confirmEmailVerification');
+    Route::put('/password', 'UserController@updatePassword');
+    Route::post('/password', 'UserController@confirmPassword');
+    Route::put('/password/reset', 'UserController@resetPassword');
     Route::get('/{user}', 'UserController@show');
     Route::put('/{user}', 'UserController@update');
     Route::delete('/{user}', 'UserController@destroy');
-    Route::put('/{user}/password', 'UserController@updatePassword');
-    Route::post('/{user}/password', 'UserController@confirmPassword');
     Route::put('/{user}/restore', 'UserController@restore');
     Route::put('/{user}/revoke', 'UserController@revoke');
 });

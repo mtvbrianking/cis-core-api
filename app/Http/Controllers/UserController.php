@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use Illuminate\Auth\Access\AuthorizationException;
 
 class UserController extends Controller
 {
@@ -19,7 +18,11 @@ class UserController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api');
+        $this->middleware('auth:api')->except([
+            'resetPassword',
+            'validateEmail',
+            'confirmEmailVerification',
+        ]);
     }
 
     /**
@@ -234,25 +237,17 @@ class UserController extends Controller
     }
 
     /**
-     * Determine this is your valid account password.
+     * Confirm your account password.
      *
      * @param \Illuminate\Http\Request $request
-     * @param string                   $id
      *
      * @throws \Illuminate\Validation\ValidationException
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function confirmPassword(Request $request, $id)
+    public function confirmPassword(Request $request)
     {
-        $user = User::findOrFail($id);
-
-        $consumer = Auth::guard('api')->user();
-
-        if ($consumer->id != $user->id) {
-            throw new AuthorizationException("Can't confirm someone else's password.");
-        }
+        $user = Auth::guard('api')->user();
 
         $this->validate($request, [
             'password' => 'required',
@@ -272,22 +267,14 @@ class UserController extends Controller
      * Change your account password.
      *
      * @param \Illuminate\Http\Request $request
-     * @param string                   $id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Illuminate\Validation\ValidationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function updatePassword(Request $request, $id)
+    public function updatePassword(Request $request)
     {
-        $user = User::findOrFail($id);
-
-        $consumer = Auth::guard('api')->user();
-
-        if ($consumer->id != $user->id) {
-            throw new AuthorizationException("Can't update someone else's password.");
-        }
+        $user = Auth::guard('api')->user();
 
         $this->validate($request, [
             'password' => 'required',
@@ -308,7 +295,7 @@ class UserController extends Controller
     }
 
     /**
-     * Determine if a user exists with given email.
+     * Determine if a user exists with the given email address.
      *
      * @param \Illuminate\Http\Request $request
      *
@@ -318,19 +305,15 @@ class UserController extends Controller
      */
     public function validateEmail(Request $request)
     {
-        // Client credentials grant <-
-
         $this->validate($request, [
-            'email' => 'required|email',
+            'email' => 'required|email|exists:users,email',
         ]);
-
-        $user = User::where('email', $request->email)->firstOrFail();
 
         return response(null, 204);
     }
 
     /**
-     * Mark that a user has confirmed their email address.
+     * Confirm a user has verified their email address.
      *
      * @param \Illuminate\Http\Request $request
      *
@@ -338,10 +321,8 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function confirmEmail(Request $request)
+    public function confirmEmailVerification(Request $request)
     {
-        // Client credentials grant <-
-
         $this->validate($request, [
             'email' => 'required|email',
         ]);
@@ -362,7 +343,7 @@ class UserController extends Controller
     }
 
     /**
-     * Reset your forgotten password.
+     * Reset a user's forgotten password.
      *
      * @param \Illuminate\Http\Request $request
      *
@@ -372,8 +353,6 @@ class UserController extends Controller
      */
     public function resetPassword(Request $request)
     {
-        // Client credentials grant <-
-
         $this->validate($request, [
             'email' => 'required|email',
             'new_password' => 'required|min:6|confirmed',
