@@ -49,65 +49,70 @@ Route::pattern('facility', $uuid);
 
 Route::group(['prefix' => 'facilities'], function () {
     Route::get('/', 'FacilityController@index');
+    Route::post('/', 'FacilityController@store');
     Route::get('/{facility}', 'FacilityController@show');
-    Route::put('/{facility}/modules', 'FacilityController@sync_modules');
+    Route::put('/{facility}', 'FacilityController@update');
+    Route::delete('/{facility}', 'FacilityController@destroy');
+    Route::put('/{facility}/modules', 'FacilityController@syncModules');
+    Route::put('/{facility}/restore', 'FacilityController@restore');
+    Route::put('/{facility}/revoke', 'FacilityController@revoke');
     Route::get('/{facility}/roles', 'FacilityController@roles');
     Route::get('/{facility}/users', 'FacilityController@users');
-    Route::post('/', 'FacilityController@store');
-    Route::put('/{facility}', 'FacilityController@update');
-    Route::put('/{facility}/revoke', 'FacilityController@revoke');
-    Route::put('/{facility}/restore', 'FacilityController@restore');
-    Route::delete('/{facility}', 'FacilityController@destroy');
 });
 
 Route::pattern('module', $slug);
 
 Route::group(['prefix' => 'modules'], function () {
     Route::get('/', 'ModuleController@index');
-    Route::get('/{module}', 'ModuleController@show');
-    Route::get('/{module}/permissions', 'ModuleController@permissions');
     Route::post('/', 'ModuleController@store');
+    Route::get('/{module}', 'ModuleController@show');
     Route::put('/{module}', 'ModuleController@update');
-    Route::put('/{module}/revoke', 'ModuleController@revoke');
-    Route::put('/{module}/restore', 'ModuleController@restore');
     Route::delete('/{module}', 'ModuleController@destroy');
+    Route::get('/{module}/permissions', 'ModuleController@permissions');
+    Route::put('/{module}/restore', 'ModuleController@restore');
+    Route::put('/{module}/revoke', 'ModuleController@revoke');
 });
 
 Route::pattern('permission', $int);
 
 Route::group(['prefix' => 'permissions'], function () {
     Route::get('/', 'PermissionController@index');
-    Route::get('/{permission}', 'PermissionController@show');
-    Route::get('/{permission}/module', 'PermissionController@module');
     Route::post('/', 'PermissionController@store');
+    Route::get('/{permission}', 'PermissionController@show');
     Route::put('/{permission}', 'PermissionController@update');
     Route::delete('/{permission}', 'PermissionController@destroy');
+    Route::get('/{permission}/module', 'PermissionController@module');
 });
 
 Route::pattern('role', $uuid);
 
 Route::group(['prefix' => 'roles'], function () {
     Route::get('/', 'RoleController@index');
-    Route::get('/{role}', 'RoleController@show');
-    Route::get('/{role}/users', 'RoleController@users');
-    Route::get('/{role}/permissions', 'RoleController@permissions');
-    Route::put('/{role}/permissions', 'RoleController@sync_permissions');
-    Route::get('/{role}/permissions/granted', 'RoleController@permissions_granted');
     Route::post('/', 'RoleController@store');
+    Route::get('/{role}', 'RoleController@show');
     Route::put('/{role}', 'RoleController@update');
-    Route::put('/{role}/revoke', 'RoleController@revoke');
-    Route::put('/{role}/restore', 'RoleController@restore');
     Route::delete('/{role}', 'RoleController@destroy');
+    Route::get('/{role}/permissions', 'RoleController@permissions');
+    Route::put('/{role}/permissions', 'RoleController@syncPermissions');
+    Route::get('/{role}/permissions/granted', 'RoleController@permissionsGranted');
+    Route::put('/{role}/restore', 'RoleController@restore');
+    Route::put('/{role}/revoke', 'RoleController@revoke');
+    Route::get('/{role}/users', 'RoleController@users');
 });
 
 Route::pattern('user', $slug);
 
 Route::group(['prefix' => 'users'], function () {
     Route::get('/', 'UserController@index');
-    Route::get('/{user}', 'UserController@show');
     Route::post('/', 'UserController@store');
+    Route::post('/email', 'UserController@validateEmail');
+    Route::put('/email', 'UserController@confirmEmail');
+    Route::put('/password', 'UserController@resetPassword');
+    Route::get('/{user}', 'UserController@show');
     Route::put('/{user}', 'UserController@update');
-    Route::put('/{user}/revoke', 'UserController@revoke');
-    Route::put('/{user}/restore', 'UserController@restore');
     Route::delete('/{user}', 'UserController@destroy');
+    Route::put('/{user}/password', 'UserController@updatePassword');
+    Route::post('/{user}/password', 'UserController@confirmPassword');
+    Route::put('/{user}/restore', 'UserController@restore');
+    Route::put('/{user}/revoke', 'UserController@revoke');
 });
