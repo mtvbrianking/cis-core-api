@@ -100,7 +100,7 @@ Route::group(['prefix' => 'roles'], function () {
     Route::get('/{role}/users', 'RoleController@users');
 });
 
-Route::pattern('user', $slug);
+Route::pattern('user', $uuid);
 
 Route::group(['prefix' => 'users'], function () {
     Route::get('/', 'UserController@index');
