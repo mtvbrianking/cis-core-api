@@ -30,6 +30,8 @@ class OauthClientsTableSeeder extends Seeder
                 'personal_access_client' => false,
                 'password_client' => false,
                 'revoked' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
 
             // Password grant client
@@ -43,6 +45,8 @@ class OauthClientsTableSeeder extends Seeder
                 'personal_access_client' => false,
                 'password_client' => true,
                 'revoked' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
         ]);
 
