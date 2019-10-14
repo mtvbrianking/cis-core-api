@@ -130,7 +130,7 @@ class UserController extends Controller
 
         $creator = Auth::guard('api')->user();
 
-        $user = User::onlyRelated($creator)->findOrFail($id);
+        $user = User::with(['role', 'facility'])->onlyRelated($creator)->findOrFail($id);
 
         $this->validate($request, [
             'name' => 'sometimes|max:25',
@@ -181,7 +181,7 @@ class UserController extends Controller
 
         $user = Auth::guard('api')->user();
 
-        $user = User::onlyRelated($user)->findOrFail($id);
+        $user = User::with(['role', 'facility'])->onlyRelated($user)->findOrFail($id);
 
         $user->delete();
 
@@ -205,7 +205,7 @@ class UserController extends Controller
 
         $user = Auth::guard('api')->user();
 
-        $user = User::onlyRelated($user)->onlyTrashed()->findOrFail($id);
+        $user = User::with(['role', 'facility'])->onlyRelated($user)->onlyTrashed()->findOrFail($id);
 
         $user->restore();
 
