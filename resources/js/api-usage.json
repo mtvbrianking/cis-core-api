@@ -1,887 +1,1091 @@
 {
-    "swagger": "2.0",
-    "schemes": [
-        "http"
-    ],
-    "host": "/cis-core-api",
-    "basePath": "/v1",
-    "info": {
-        "description": "API usage documentation",
-        "version": "1.0.0",
-        "title": "CIS CORE API",
-        "termsOfService": "https://github.com/mtvbrianking/cis-core-api/blob/master/readme.md",
-        "contact": {
-            "url": "https://github.com/mtvbrianking/cis-core-api"
-        },
-        "x-logo": {
-            "url": "#"
-        },
-        "license": {
-            "name": "None",
-            "url": "#"
-        }
+  "swagger": "2.0",
+  "schemes": [
+    "http"
+  ],
+  "host": "/cis-core-api",
+  "basePath": "/v1",
+  "info": {
+    "description": "API usage documentation",
+    "version": "1.0.0",
+    "title": "CIS CORE API",
+    "termsOfService": "https://github.com/mtvbrianking/cis-core-api/blob/master/readme.md",
+    "contact": {
+      "url": "https://github.com/mtvbrianking/cis-core-api"
     },
-    "externalDocs": {
-        "description": "Source code documentation",
-        "url": "https://mtvbrianking.github.io/cis-core-api"
+    "x-logo": {
+      "url": "#"
     },
-    "tags": [
-        {
-            "name": "user",
-            "description": "Operations about user"
-        },
-        {
-            "name": "oauth",
-            "description": "Operations about OAuth"
-        }
-    ],
-    "x-tagGroups": [
-        {
-            "name": "Resources",
-            "tags": [
-                "user",
-                "oauth"
-            ]
-        }
-    ],
-    "securityDefinitions": {
-        "client credentials grant": {
-            "description": "Get access to data while protecting your account credentials.",
-            "type": "oauth2",
-            "flow": "client",
-            "tokenUrl": "http://localhost:8000/api/v1/oauth/token",
-            "scopes": {
-            }
-        },
-        "authorization code grant": {
-            "description": "Get access to data while protecting your account credentials.",
-            "type": "oauth2",
-            "flow": "accessCode",
-            "authorizationUrl": "http://localhost:8000/api/v1/oauth/authorize",
-            "tokenUrl": "http://localhost:8000/api/v1/oauth/token",
-            "scopes": {
-            }
-        },
-        "password grant": {
-            "description": "First party apps only.",
-            "type": "oauth2",
-            "flow": "client",
-            "tokenUrl": "http://localhost:8000/api/v1/oauth/token",
-            "scopes": {
-                "scope": "Scope description.",
-            }
-        },
-        "person_access_token": {
-            "description": "You can use a [personal access](http://localhost:8000/clients) token for testing."
-        }
-    },
-    "x-servers": [
-        {
-            "url": "//localhost:8000/api/v1",
-            "description": "Live server"
-        },
-        {
-            "url": "//localhost:8000/api/v1/sandbox",
-            "description": "Sandbox server"
-        }
-    ],
-    "paths": {
-        "/users/auth": {
-            "post": {
-                "tags": [
-                    "user"
-                ],
-                "summary": "Authenticate user",
-                "description": "Only available for <code>client credentials grant</code> client apps",
-                "operationId": "authUser",
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "name": "email",
-                        "in": "formData",
-                        "description": "Verified user account email address",
-                        "required": true,
-                        "type": "string",
-                        "example": "jdoe@example.com"
-                    },
-                    {
-                        "name": "password",
-                        "in": "formData",
-                        "description": "Plain text user account password",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "x-code-samples": [
-                    {
-                        "lang": "CURL",
-                        "source": "curl -X POST \\\n http:\/\/localhost:8000\/api\/v1\/users\/auth \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}' \\\n -H 'content-type: multipart\/form-data' \\\n -F 'email=jdoe@example.com' \\\n -F 'password=S&jPc-6%'"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "schema": {
-                            "$ref": "#/definitions/User"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "examples": {
-                            "application/json": {
-                                "message": "Unauthenticated."
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "examples": {
-                            "application/json": {
-                                "message": "Insufficient Permission."
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessibile entity",
-                        "examples": {
-                            "application/json": {
-                                "message": "The given data was invalid.",
-                                "errors": {
-                                    "email": [
-                                        "The email field is required."
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/users": {
-            "post": {
-                "tags": [
-                    "user"
-                ],
-                "summary": "Register user",
-                "description": "Only available for <code>client credentials grant</code> client apps.",
-                "operationId": "registerUser",
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "name": "name",
-                        "in": "formData",
-                        "description": "Full name",
-                        "required": true,
-                        "type": "string",
-                        "example": "John Doe"
-                    },
-                    {
-                        "name": "email",
-                        "in": "formData",
-                        "description": "Email address",
-                        "required": true,
-                        "type": "string",
-                        "example": "jdoe@example.com"
-                    },
-                    {
-                        "name": "password",
-                        "in": "formData",
-                        "description": "Having at least; \n+ 8 characters, \n+ an upper case letter, \n+ a lower case letter, \n+ a number and, \n+ a symbol.",
-                        "required": true,
-                        "type": "string",
-                        "pattern": "(?=^.{8,}$)((?=.*\\d)|(?=.*\\W+))(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$",
-                        "example": "S&jPc-6%"
-                    },
-                    {
-                        "name": "password_confirmation",
-                        "in": "formData",
-                        "description": "Password confirmation",
-                        "required": true,
-                        "type": "string"
-                    }
-                ],
-                "x-code-samples": [
-                    {
-                        "lang": "CURL",
-                        "source": "curl -X POST \\\n http:\/\/localhost:8000\/api\/v1\/users \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}' \\\n -H 'content-type: multipart\/form-data' \\\n -F 'name=John Doe' \\\n -F 'email=jdeo@example.com' \\\n -F 'password=S&jPc-6%' \\\n -F 'password_confirmation=S&jPc-6%'"
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "examples": {
-                            "application/json": {
-                                "id": "c19df45f-0ce4-49fb-8cb2-4b5d2fa8b550",
-                                "name": "John Doe",
-                                "email": "jdoe@example.com",
-                                "updated_at": "2018-10-18 11:41:06",
-                                "created_at": "2018-10-18 11:41:06"
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessibile entity",
-                        "examples": {
-                            "application/json": {
-                                "message": "The given data was invalid.",
-                                "errors": {
-                                    "name": [
-                                        "The name has already been taken."
-                                    ],
-                                    "email": [
-                                        "The email has already been taken."
-                                    ],
-                                    "password": [
-                                        "The password confirmation does not match."
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "get": {
-                "tags": [
-                    "user"
-                ],
-                "summary": "Get users",
-                "description": "Get all users data",
-                "operationId": "getUsers",
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                ],
-                "x-code-samples": [
-                    {
-                        "lang": "CURL",
-                        "source": "curl -X GET \\\n http:\/\/localhost:8000\/api\/v1\/users \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}'"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "examples": {
-                            "application/json": {
-                                "users": [
-                                    {
-                                        "id": "3dacedb2-b865-4192-87ed-0fc29ffefc26",
-                                        "name": "jdoe",
-                                        "email": "jdoe@example.com",
-                                        "email_verified_at": "2018-10-14 12:42:30",
-                                        "created_at": "2018-10-14 12:42:31",
-                                        "updated_at": "2018-10-14 12:42:31",
-                                        "deleted_at": null
-                                    },
-                                    {
-                                        "id": "e1b26e3b-2a02-4ad1-9842-7bf6f0484128",
-                                        "name": "Tester",
-                                        "email": "tester@example.com",
-                                        "email_verified_at": null,
-                                        "created_at": "2018-10-18 10:04:06",
-                                        "updated_at": "2018-10-18 10:04:06",
-                                        "deleted_at": null
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/users/{user}": {
-            "get": {
-                "tags": [
-                    "user"
-                ],
-                "summary": "Get user",
-                "description": "Get a single user's data",
-                "operationId": "getUser",
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "name": "user",
-                        "in": "path",
-                        "description": "User ID",
-                        "required": true,
-                        "type": "string",
-                        "format": "uuid",
-                        "example": "3dacedb2-b865-4192-87ed-0fc29ffefc26"
-                    }
-                ],
-                "x-code-samples": [
-                    {
-                        "lang": "CURL",
-                        "source": "curl -X GET \\\n http:\/\/localhost:8000\/api\/v1\/users\/3dacedb2-b865-4192-87ed-0fc29ffefc26 \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}'"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "examples": {
-                            "application/json": {
-                                "id": "3dacedb2-b865-4192-87ed-0fc29ffefc26",
-                                "name": "jdoe",
-                                "email": "jdoe@example.com",
-                                "email_verified_at": "2018-10-14 12:42:30",
-                                "created_at": "2018-10-14 12:42:31",
-                                "updated_at": "2018-10-14 12:42:31",
-                                "deleted_at": null
-                            }
-                        }
-                    }
-                }
-            },
-            "put": {
-                "tags": [
-                    "user"
-                ],
-                "summary": "Update user",
-                "description": "Update user data. \\\nCan't change/update user password. \\\nSee <a href='#operation/updateUserProfile'>Update user profile</a> \\\n<strong>Note</strong>: Content-Type: `application/x-www-form-urlencoded`. \\\n Or use [form method spoofing](https://laravel.com/docs/master/routing#form-method-spoofing)",
-                "operationId": "updateUser",
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "name": "user",
-                        "in": "path",
-                        "description": "User ID",
-                        "required": true,
-                        "type": "string",
-                        "format": "uuid",
-                        "example": "3dacedb2-b865-4192-87ed-0fc29ffefc26"
-                    },
-                    {
-                        "name": "name",
-                        "in": "formData",
-                        "description": "Full name",
-                        "required": false,
-                        "type": "string",
-                        "example": "John Doe"
-                    },
-                    {
-                        "name": "email",
-                        "in": "formData",
-                        "description": "Email address",
-                        "required": false,
-                        "type": "string",
-                        "format": "email",
-                        "example": "jdoe@example.com"
-                    },
-                    {
-                        "name": "email_verified_at",
-                        "in": "formData",
-                        "description": "When the user verified their account (using email link).",
-                        "required": false,
-                        "type": "datetime",
-                        "format": "Y-M-D h:i:s",
-                        "example": "2018-10-18 16:36:04"
-                    }
-                ],
-                "x-code-samples": [
-                    {
-                        "lang": "CURL",
-                        "source": "curl -X PUT \\\n http:\/\/localhost:8000\/api\/v1\/users\/3dacedb2-b865-4192-87ed-0fc29ffefc26 \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}' \\\n -H 'Content-Type: application\/x-www-form-urlencoded' \\\n -d 'name=Jane Doe' \\\n -d 'email=jdoe@example.com'"
-                    },
-                    {
-                        "lang": "CURL - Spoofed",
-                        "source": "curl -X POST \\\n http:\/\/localhost:8000\/api\/v1\/users\/3dacedb2-b865-4192-87ed-0fc29ffefc26 \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}' \\\n -H 'content-type: multipart\/form-data' \\\n -F '_method=put' \\\n -F 'name=Jane Doe' \\\n -F 'email=jdoe@example.com'"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "examples": {
-                            "application/json": {
-                                "id": "3dacedb2-b865-4192-87ed-0fc29ffefc26",
-                                "name": "Jane Doe",
-                                "email": "jdoe@example.com",
-                                "email_verified_at": "2018-10-14 12:42:30",
-                                "created_at": "2018-10-14 12:42:31",
-                                "updated_at": "2018-10-18 12:13:44",
-                                "deleted_at": null
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessibile entity",
-                        "examples": {
-                            "application/json": {
-                                "message": "The given data was invalid.",
-                                "errors": {
-                                    "name": [
-                                        "The name has already been taken."
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "tags": [
-                    "user"
-                ],
-                "summary": "Remove user",
-                "description": "<strong>Permanently</strong> delete user account.\\\nSee <a href='#operation/disableUser'>Disable user</a>",
-                "operationId": "removeUser",
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "name": "user",
-                        "in": "path",
-                        "description": "User ID",
-                        "required": true,
-                        "type": "string",
-                        "format": "uuid",
-                        "example": "3dacedb2-b865-4192-87ed-0fc29ffefc26"
-                    }
-                ],
-                "x-code-samples": [
-                    {
-                        "lang": "CURL",
-                        "source": "curl -X DELETE \\\n 'http:\/\/localhost:8000\/api\/v1\/users\/3dacedb2-b865-4192-87ed-0fc29ffefc26' \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}'"
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content",
-                        "examples": {
-                            "application/json": null
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "examples": {
-                            "application/json": {
-                                "error": "Unknown user"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/users/{user}/profile": {
-            "put": {
-                "tags": [
-                    "user"
-                ],
-                "summary": "Update user profile",
-                "description": "Update your own profile. \\\nSupports changing user account password. \\\nSee <a href='#operation/updateUser'>Update user</a>",
-                "operationId": "updateUserProfile",
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "name": "user",
-                        "in": "path",
-                        "description": "User ID",
-                        "required": true,
-                        "type": "string",
-                        "format": "uuid",
-                        "example": "3dacedb2-b865-4192-87ed-0fc29ffefc26"
-                    },
-                    {
-                        "name": "name",
-                        "in": "formData",
-                        "description": "Full name",
-                        "required": false,
-                        "type": "string",
-                        "example": "John Doe"
-                    },
-                    {
-                        "name": "email",
-                        "in": "formData",
-                        "description": "Email address",
-                        "required": false,
-                        "type": "string",
-                        "format": "email",
-                        "example": "jdoe@example.com"
-                    },
-                    {
-                        "name": "current_password",
-                        "in": "formData",
-                        "description": "Existing user account password. \\\n<strong>Required if</strong> 'password' field is present.",
-                        "required": false,
-                        "type": "string"
-                    },
-                    {
-                        "name": "password",
-                        "in": "formData",
-                        "description": "New user account password. Having at least; \n+ 8 characters, \n+ an upper case letter, \n+ a lower case letter, \n+ a number and, \n+ a symbol.",
-                        "required": false,
-                        "type": "string",
-                        "pattern": "(?=^.{8,}$)((?=.*\\d)|(?=.*\\W+))(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$"
-                    },
-                    {
-                        "name": "password_confirmation",
-                        "in": "formData",
-                        "description": "New password confirmation. \\\n<strong>Required with</strong> 'password' field.",
-                        "required": false,
-                        "type": "string"
-                    }
-                ],
-                "x-code-samples": [
-                    {
-                        "lang": "CURL",
-                        "source": "curl -X PUT \\\n 'http:\/\/localhost:8000\/api\/v1\/users\/3dacedb2-b865-4192-87ed-0fc29ffefc26\/profile' \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}' \\\n -d 'name=Jane Doe' \\\n -d 'email=jdoe@example.com' \\\n -d 'current_password=N:x/6j^H' \\\n -d 'password=Gm=Pm5^(' \\\n -d 'password_confirmation=Gm=Pm5^('"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "examples": {
-                            "application/json": {
-                                "id": "3dacedb2-b865-4192-87ed-0fc29ffefc26",
-                                "name": "Jane Doe",
-                                "email": "jdoe@example.com",
-                                "email_verified_at": "2018-10-14 12:42:30",
-                                "created_at": "2018-10-14 12:42:31",
-                                "updated_at": "2018-10-18 12:13:44",
-                                "deleted_at": null
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessibile entity",
-                        "examples": {
-                            "application/json": {
-                                "errors": {
-                                    "current_password": [
-                                        "Wrong password"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/users/{user}/trash": {
-            "put": {
-                "tags": [
-                    "user"
-                ],
-                "summary": "Disable user",
-                "description": "<strong>Temporarily</strong> delete user account. \\\nSee <a href='#operation/removeUser'>Remove user</a>",
-                "operationId": "disableUser",
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "name": "user",
-                        "in": "path",
-                        "description": "User ID",
-                        "required": true,
-                        "type": "string",
-                        "format": "uuid",
-                        "example": "3dacedb2-b865-4192-87ed-0fc29ffefc26"
-                    }
-                ],
-                "x-code-samples": [
-                    {
-                        "lang": "CURL",
-                        "source": "curl -X PUT \\\n 'http:\/\/localhost:8000\/api\/v1\/users\/3dacedb2-b865-4192-87ed-0fc29ffefc26\/trash' \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}'"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "examples": {
-                            "application/json": {
-                                "id": "3dacedb2-b865-4192-87ed-0fc29ffefc26",
-                                "name": "Jane Doe",
-                                "email": "jdoe@example.com",
-                                "email_verified_at": "2018-10-14 12:42:30",
-                                "created_at": "2018-10-14 12:42:31",
-                                "updated_at": "2018-10-18 13:53:15",
-                                "deleted_at": "2018-10-18 13:53:15"
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "examples": {
-                            "application/json": {
-                                "error": "Unknown user"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/users/{user}/restore": {
-            "put": {
-                "tags": [
-                    "user"
-                ],
-                "summary": "Restore user",
-                "description": "<strong>Enable</strong> previous <strike>disabled</strike> user account. \\\nSee <a href='#operation/disableUser'>Disable user</a>",
-                "operationId": "restoreUser",
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "name": "user",
-                        "in": "path",
-                        "description": "User ID",
-                        "required": true,
-                        "type": "string",
-                        "format": "uuid",
-                        "example": "3dacedb2-b865-4192-87ed-0fc29ffefc26"
-                    }
-                ],
-                "x-code-samples": [
-                    {
-                        "lang": "CURL",
-                        "source": "curl -X PUT \\\n 'http:\/\/localhost:8000\/api\/v1\/users\/3dacedb2-b865-4192-87ed-0fc29ffefc26\/restore' \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}'"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "examples": {
-                            "application/json": {
-                                "id": "3dacedb2-b865-4192-87ed-0fc29ffefc26",
-                                "name": "Jane Doe",
-                                "email": "jdoe@example.com",
-                                "email_verified_at": "2018-10-14 12:42:30",
-                                "created_at": "2018-10-14 12:42:31",
-                                "updated_at": "2018-10-18 13:53:15",
-                                "deleted_at": null
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "examples": {
-                            "application/json": {
-                                "error": "Unknown user"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/oauth/token": {
-            "post": {
-                "tags": [
-                    "oauth"
-                ],
-                "summary": "Request oauth token",
-                "description": "Request for oauth token",
-                "operationId": "requestToken",
-                "produces": [
-                    "application/json"
-                ],
-                "parameters": [
-                    {
-                        "name": "client_id",
-                        "in": "formData",
-                        "description": "OAuth client APP ID",
-                        "required": true,
-                        "type": "string",
-                        "format": "UUID"
-                    },
-                    {
-                        "name": "client_secret",
-                        "in": "formData",
-                        "description": "OAuth client APP secret",
-                        "required": true,
-                        "type": "string",
-                        "format": "UUID"
-                    },
-                    {
-                        "name": "user_id",
-                        "in": "formData",
-                        "description": "ID of the user authorizing with token.",
-                        "required": false,
-                        "type": "string",
-                        "format": "UUID"
-                    },
-                    {
-                        "name": "grant_type",
-                        "in": "formData",
-                        "description": "ID of the user authorizing with token.",
-                        "required": false,
-                        "type": "string",
-                        "format": "UUID",
-                        "example": "980c5c87-01da-4a1a-b623-49d3692002b5"
-                    },
-                    {
-                        "name": "grant_type",
-                        "type": "string",
-                        "enum": [
-                            "authorization_code",
-                            "client_credentials",
-                            "password",
-                            "refresh_token"
-                        ],
-                        "in": "formData",
-                        "description": "",
-                        "required": true
-                    },
-                    {
-                        "name": "code",
-                        "in": "formData",
-                        "description": "Authorization code. \\\n<strong>Required if</strong> grant_type is `authorization_code`.",
-                        "required": false,
-                        "type": "string"
-                    },
-                    {
-                        "name": "redirect_uri",
-                        "in": "formData",
-                        "description": "Redirect URI. \\\n<strong>Required if</strong> grant_type is `authorization_code`.",
-                        "required": false,
-                        "type": "string",
-                        "format": "URI"
-                    },
-                    {
-                        "name": "refresh_token",
-                        "in": "formData",
-                        "description": "Refresh access token. \\\n<strong>Required if</strong> grant_type is `refresh_token`.",
-                        "required": false,
-                        "type": "string"
-                    },
-                    {
-                        "name": "username",
-                        "in": "formData",
-                        "description": "<strong>Required if</strong> grant_type is `password`.",
-                        "required": false,
-                        "type": "string"
-                    },
-                    {
-                        "name": "password",
-                        "in": "formData",
-                        "description": "<strong>Required if</strong> grant_type is `password`.",
-                        "required": false,
-                        "type": "string"
-                    },
-                    {
-                        "name": "scopes",
-                        "in": "formData",
-                        "description": "Scopes the client APP is requesting.",
-                        "required": false,
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        }
-                    }
-                ],
-                "x-code-samples": [
-                    {
-                        "lang": "CURL",
-                        "source": "curl -X POST \\\n http:\/\/localhost:8000\/api\/v1\/oauth\/token \\\n -H 'Accept: application\/json' \\\n -H 'Content-Type: application\/json' \\\n -d '{\n    \"client_id\": \"3102c90b-1936-4968-af9e-3701bcc6147c\",\n    \"client_secret\": \"OZHF4AuWWvMY0rKC2VWwEMlvobJ4GfCgGKopdadQ\",\n    \"grant_type\": \"client_credentials\"\n }'"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Created",
-                        "examples": {
-                            "application/json": {
-                                "token_type": "Bearer",
-                                "expires_in": 3600,
-                                "access_token": "eyJ0eXAiOiJKV1QiLCJhbGc..."
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Unprocessibile entity",
-                        "examples": {
-                            "application/json": {
-                                "message": "The given data was invalid.",
-                                "errors": {
-                                    "client_id": [
-                                        "The client id must be a valid UUID."
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    },
-    "definitions": {
-        "ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "description": "Error message",
-                    "type": "string",
-                    "example": "Something went wrong."
-                }
-            }
-        },
-        "401ErrorResponse": {
-            "message": "Unauthenticated."
-        },
-        "403ErrorResponse": {
-            "message": "Insufficient Permission."
-        },
-        "422ErrorResponse": {
-            "errors": {
-                "email": [
-                    "Wrong email or password."
-                ]
-            }
-        },
-        "User": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "description": "User ID",
-                    "type": "uuid",
-                    "example": "0ac99f1b-482c-4af1-be28-ddace07eff20"
-                },
-                "name": {
-                    "description": "User full name",
-                    "type": "string",
-                    "maxLength": 25,
-                    "example": "John Doe"
-                },
-                "email": {
-                    "description": "User email address",
-                    "type": "string",
-                    "format": "email",
-                    "example": "jdoe@example.com"
-                },
-                "created_at": {
-                    "description": "When user account was created",
-                    "type": "datetime",
-                    "example": "2018-09-30 15:32:06",
-                    "x-nullable": true
-                },
-                "email_verified_at": {
-                    "description": "When user account was verified",
-                    "type": "datetime",
-                    "example": "2018-09-30 15:35:42",
-                    "x-nullable": true
-                },
-                "updated_at": {
-                    "description": "When user account was last updated",
-                    "type": "datetime",
-                    "example": "2018-09-30 15:35:42",
-                    "x-nullable": true
-                },
-                "deleted_at": {
-                    "description": "When user account was deleted",
-                    "type": "datetime",
-                    "x-nullable": true
-                }
-            }
-        }
+    "license": {
+      "name": "None",
+      "url": "#"
     }
+  },
+  "externalDocs": {
+    "description": "Source code documentation",
+    "url": "https://mtvbrianking.github.io/cis-core-api"
+  },
+  "tags": [
+    {
+      "name": "user",
+      "description": "Operations about users."
+    },
+    {
+      "name": "oauth",
+      "description": "Operations about OAuth."
+    }
+  ],
+  "x-tagGroups": [
+    {
+      "name": "Resources",
+      "tags": [
+        "user",
+        "oauth"
+      ]
+    }
+  ],
+  "securityDefinitions": {
+    "client credentials grant": {
+      "description": "Get access to data while protecting your account credentials.",
+      "type": "oauth2",
+      "flow": "client",
+      "tokenUrl": "http://localhost:8000/api/v1/oauth/token",
+      "scopes": {
+      }
+    },
+    "authorization code grant": {
+      "description": "Get access to data while protecting your account credentials.",
+      "type": "oauth2",
+      "flow": "accessCode",
+      "authorizationUrl": "http://localhost:8000/api/v1/oauth/authorize",
+      "tokenUrl": "http://localhost:8000/api/v1/oauth/token",
+      "scopes": {
+      }
+    },
+    "password grant": {
+      "description": "First party apps only.",
+      "type": "oauth2",
+      "flow": "client",
+      "tokenUrl": "http://localhost:8000/api/v1/oauth/token",
+      "scopes": {
+        "scope": "Scope description.",
+      }
+    },
+    "person_access_token": {
+      "description": "You can use a [personal access](http://localhost:8000/clients) token for testing."
+    }
+  },
+  "x-servers": [
+    {
+      "url": "//localhost:8000/api/v1",
+      "description": "Live server"
+    },
+    {
+      "url": "//localhost:8000/api/v1/sandbox",
+      "description": "Sandbox server"
+    }
+  ],
+  "paths": {
+    "/users": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Register user",
+        "description": "Demands `create` permission on `users` module. \n\nSets a random default password; see <a href='#operation/resetPassword'>reset password.<\/a>",
+        "operationId": "registerUser",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "formData",
+            "description": "Full name.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "alias",
+            "in": "formData",
+            "description": "Preferred display name.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "email",
+            "in": "formData",
+            "description": "Email address. Must be unique. See <a href='#operation/validateEmail'>validate email.<\/a>",
+            "required": true,
+            "type": "string",
+            "format": "email"
+          },
+          {
+            "name": "role_id",
+            "in": "formData",
+            "description": "<a href='#operation/getRoles'>Role ID<\/a>",
+            "required": true,
+            "type": "string",
+            "format": "uuid"
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "CURL",
+            "source": "curl -X POST \\\n http:\/\/localhost:8000\/api\/v1\/users \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}' \\\n -H 'Content-Type: application\/x-www-form-urlencoded' \\\n -d 'name=John Doe' \\\n -d 'alias=jdoe' \\\n -d 'email=jdoe@example.com' \\\n -d 'role_id=1bc27b9c-a963-4fda-b79b-91b125ba0ed1'"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "examples": {
+              "application/json": {
+                "id": "3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59",
+                "facility_id": "2631b81a-4925-4a60-8a97-8e9b0b779a2e",
+                "role_id": "1bc27b9c-a963-4fda-b79b-91b125ba0ed1",
+                "alias": "jdoe",
+                "name": "John Doe",
+                "email": "jdoe@example.com",
+                "email_verified_at": "2019-10-14 08:25:48",
+                "user_id": null,
+                "created_at": "2019-10-14 08:25:48",
+                "updated_at": "2019-10-14 08:25:48",
+                "deleted_at": null,
+                "role": {
+                  "id": "1bc27b9c-a963-4fda-b79b-91b125ba0ed1",
+                  "facility_id": "2631b81a-4925-4a60-8a97-8e9b0b779a2e",
+                  "user_id": null,
+                  "name": "Developer",
+                  "description": null,
+                  "created_at": "2019-10-14 08:25:48",
+                  "updated_at": "2019-10-14 08:25:48",
+                  "deleted_at": null
+                },
+                "facility": {
+                  "id": "2631b81a-4925-4a60-8a97-8e9b0b779a2e",
+                  "user_id": null,
+                  "name": "Mulago Hospital",
+                  "description": "Regional Referral Hospital",
+                  "address": "Mulago Hill",
+                  "email": "info@mulago.com",
+                  "website": "https://mulago.ug",
+                  "phone": "+256754954852",
+                  "created_at": "2019-10-14 08:25:48",
+                  "updated_at": "2019-10-14 08:25:48",
+                  "deleted_at": null
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessibile entity",
+            "examples": {
+              "application/json": {
+                "message": "The given data was invalid.",
+                "errors": {
+                  "name": [
+                    "The name has already been taken."
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get users",
+        "description": "Get all users data.\n\nRequires `view-any` permission on `users` module.",
+        "operationId": "getUsers",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+        ],
+        "x-code-samples": [
+          {
+            "lang": "CURL",
+            "source": "curl -X GET \\\n http:\/\/localhost:8000\/api\/v1\/users \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "examples": {
+              "application/json": {
+                "users": [
+                  {
+                    "id": "3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59",
+                    "facility_id": "2631b81a-4925-4a60-8a97-8e9b0b779a2e",
+                    "role_id": "1bc27b9c-a963-4fda-b79b-91b125ba0ed1",
+                    "alias": "jdoe",
+                    "name": "John Doe",
+                    "email": "jdoe@example.com",
+                    "email_verified_at": "2019-10-14 08:25:48",
+                    "user_id": null,
+                    "created_at": "2019-10-14 08:25:48",
+                    "updated_at": "2019-10-14 08:25:48",
+                    "deleted_at": null
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/email": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Validate email",
+        "description": "Check if a user exists with given email.\n\nRequires `validate-email` scope.",
+        "operationId": "validateEmail",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "formData",
+            "description": "Email address to validate.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "CURL",
+            "source": "curl -X POST \\\n 'http:\/\/localhost:8000\/api\/v1\/users\/email' \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}' \\\n -d 'email=jdoe@example.com'"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessibile entity",
+            "examples": {
+              "application/json": {
+                "errors": {
+                  "email": [
+                    "No related user account."
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Confirm email verification",
+        "description": "Confirm a user has verified their email address.\n\nRequires `confirm-email` scope.",
+        "operationId": "confirmEmailVerification",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "formData",
+            "description": "Verified email address.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "CURL",
+            "source": "curl -X PUT \\\n 'http:\/\/localhost:8000\/api\/v1\/users\/email' \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}' \\\n -d 'email=jdoe@example.com'"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessibile entity",
+            "examples": {
+              "application/json": {
+                "errors": {
+                  "email": [
+                    "No related user account."
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/password": {
+      "post": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Confirm password",
+        "description": "Confirm your <strong>own</strong> password.",
+        "operationId": "confirmPassword",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "password",
+            "in": "formData",
+            "description": "Your user account password.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "CURL",
+            "source": "curl -X POST \\\n 'http:\/\/localhost:8000\/api\/v1\/users\/password' \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}' \\\n -d 'password=N:x/6j^H'"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessibile entity",
+            "examples": {
+              "application/json": {
+                "errors": {
+                  "password": [
+                    "Wrong password."
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Update password",
+        "description": "Update your <strong>own</strong> password. See <a href='#operation/updateUser'>update user</a>.",
+        "operationId": "updatePassword",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "password",
+            "in": "formData",
+            "description": "Existing user account password.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "new_password",
+            "in": "formData",
+            "description": "New user account password. Having at least; \n+ 8 characters, \n+ an upper case letter, \n+ a lower case letter, \n+ a number and, \n+ a symbol.",
+            "required": true,
+            "type": "string",
+            "pattern": "(?=^.{8,}$)((?=.*\\d)|(?=.*\\W+))(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$"
+          },
+          {
+            "name": "new_password_confirmation",
+            "in": "formData",
+            "description": "New password confirmation.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "CURL",
+            "source": "curl -X PUT \\\n 'http:\/\/localhost:8000\/api\/v1\/users\/password' \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}' \\\n -d 'password=N:x/6j^H' \\\n -d 'new_password=Gm=Pm5^(' \\\n -d 'new_password_confirmation=Gm=Pm5^('"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessibile entity",
+            "examples": {
+              "application/json": {
+                "errors": {
+                  "password": [
+                    "Wrong password."
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/password/reset": {
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Reset password",
+        "description": "Reset a user's password. \n\nRequires `reset-password` scope.\n\nSee <a href='#operation/updatePassword'>update password</a>.",
+        "operationId": "resetPassword",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "formData",
+            "description": "Email for account to reset passport.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "password",
+            "in": "formData",
+            "description": "New user account password. Having at least; \n+ 8 characters, \n+ an upper case letter, \n+ a lower case letter, \n+ a number and, \n+ a symbol.",
+            "required": true,
+            "type": "string",
+            "pattern": "(?=^.{8,}$)((?=.*\\d)|(?=.*\\W+))(?![.\\n])(?=.*[A-Z])(?=.*[a-z]).*$"
+          },
+          {
+            "name": "password_confirmation",
+            "in": "formData",
+            "description": "New password confirmation.",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "CURL",
+            "source": "curl -X PUT \\\n 'http:\/\/localhost:8000\/api\/v1\/users\/password\/reset' \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}' \\\n -d 'email=jdoe@example.com' \\\n -d 'password=N:x/6j^H' \\\n -d 'new_password=Gm=Pm5^(' \\\n -d 'new_password_confirmation=Gm=Pm5^('"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessibile entity",
+            "examples": {
+              "application/json": {
+                "errors": {
+                  "email": [
+                    "Unknown user account."
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user}": {
+      "get": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Get user",
+        "description": "Get a single user's data.\n\nUser's can view their own details. Demands `view` permission on `users` module to view other user's details.",
+        "operationId": "getUser",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "description": "<a href='#operation/getUsers'>User ID<\/a>",
+            "required": true,
+            "type": "string",
+            "format": "uuid"
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "CURL",
+            "source": "curl -X GET \\\n http:\/\/localhost:8000\/api\/v1\/users\/3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59 \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "examples": {
+              "application/json": {
+                "id": "3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59",
+                "facility_id": "2631b81a-4925-4a60-8a97-8e9b0b779a2e",
+                "role_id": "1bc27b9c-a963-4fda-b79b-91b125ba0ed1",
+                "alias": "jdoe",
+                "name": "John Doe",
+                "email": "jdoe@example.com",
+                "email_verified_at": "2019-10-14 08:25:48",
+                "user_id": null,
+                "created_at": "2019-10-14 08:25:48",
+                "updated_at": "2019-10-14 08:25:48",
+                "deleted_at": null,
+                "role": {
+                  "id": "1bc27b9c-a963-4fda-b79b-91b125ba0ed1",
+                  "facility_id": "2631b81a-4925-4a60-8a97-8e9b0b779a2e",
+                  "user_id": null,
+                  "name": "Developer",
+                  "description": null,
+                  "created_at": "2019-10-14 08:25:48",
+                  "updated_at": "2019-10-14 08:25:48",
+                  "deleted_at": null
+                },
+                "facility": {
+                  "id": "2631b81a-4925-4a60-8a97-8e9b0b779a2e",
+                  "user_id": null,
+                  "name": "Mulago Hospital",
+                  "description": "Regional Referral Hospital",
+                  "address": "Mulago Hill",
+                  "email": "info@mulago.com",
+                  "website": "https://mulago.ug",
+                  "phone": "+256754954852",
+                  "created_at": "2019-10-14 08:25:48",
+                  "updated_at": "2019-10-14 08:25:48",
+                  "deleted_at": null
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Update user",
+        "description": "Update user data.\n\nCan't update a user's password. See <a href='#operation/updatePassword'>update user password<\/a>\n\nRequires `update` permission on `users` module.",
+        "operationId": "updateUser",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "description": "<a href='#operation/getUsers'>User ID<\/a>",
+            "required": true,
+            "type": "string",
+            "format": "uuid"
+          },
+          {
+            "name": "name",
+            "in": "formData",
+            "description": "Full name",
+            "required": false,
+            "type": "string",
+            "example": "John Doe"
+          },
+          {
+            "name": "alias",
+            "in": "formData",
+            "description": "Preferred display name.",
+            "required": false,
+            "type": "string",
+            "example": "jdoe"
+          },
+          {
+            "name": "email",
+            "in": "formData",
+            "description": "Email address.\\\nIf changed, user must verify new email address. See <a href='#operation/confirmEmail'>confirm email verification.<\/a>",
+            "required": false,
+            "type": "string",
+            "format": "email",
+            "example": "jdoe@example.com"
+          },
+          {
+            "name": "role_id",
+            "in": "formData",
+            "description": "<a href='#operation/getRoles'>Role ID<\/a>",
+            "required": false,
+            "type": "string",
+            "format": "uuid"
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "CURL",
+            "source": "curl -X PUT \\\n http:\/\/localhost:8000\/api\/v1\/users\/3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59 \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}' \\\n -H 'Content-Type: application\/x-www-form-urlencoded' \\\n -d 'name=John Doe' \\\n -d 'alias=jdoe' \\\n -d 'email=jdoe@example.com' \\\n -d 'role_id=1bc27b9c-a963-4fda-b79b-91b125ba0ed1'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "examples": {
+              "application/json": {
+                "id": "3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59",
+                "facility_id": "2631b81a-4925-4a60-8a97-8e9b0b779a2e",
+                "role_id": "1bc27b9c-a963-4fda-b79b-91b125ba0ed1",
+                "alias": "jdoe",
+                "name": "John Doe",
+                "email": "jdoe@example.com",
+                "email_verified_at": "2019-10-14 08:25:48",
+                "user_id": null,
+                "created_at": "2019-10-14 08:25:48",
+                "updated_at": "2019-10-14 08:25:48",
+                "deleted_at": null,
+                "role": {
+                  "id": "1bc27b9c-a963-4fda-b79b-91b125ba0ed1",
+                  "facility_id": "2631b81a-4925-4a60-8a97-8e9b0b779a2e",
+                  "user_id": null,
+                  "name": "Developer",
+                  "description": null,
+                  "created_at": "2019-10-14 08:25:48",
+                  "updated_at": "2019-10-14 08:25:48",
+                  "deleted_at": null
+                },
+                "facility": {
+                  "id": "2631b81a-4925-4a60-8a97-8e9b0b779a2e",
+                  "user_id": null,
+                  "name": "Mulago Hospital",
+                  "description": "Regional Referral Hospital",
+                  "address": "Mulago Hill",
+                  "email": "info@mulago.com",
+                  "website": "https://mulago.ug",
+                  "phone": "+256754954852",
+                  "created_at": "2019-10-14 08:25:48",
+                  "updated_at": "2019-10-14 08:25:48",
+                  "deleted_at": null
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessibile entity",
+            "examples": {
+              "application/json": {
+                "message": "The given data was invalid.",
+                "errors": {
+                  "email": [
+                    "The email has already been taken."
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Delete user",
+        "description": "<strong>Permanently</strong> remove user from database.\n\nRequires `force-delete` permission on `users` module, and the user must be revoked before he/she can be deleted.\n\nSee <a href='#operation/revokeUser'>revoke user</a>",
+        "operationId": "deleteUser",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "description": "<a href='#operation/getUsers'>User ID<\/a>",
+            "required": true,
+            "type": "string",
+            "format": "uuid"
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "CURL",
+            "source": "curl -X DELETE \\\n 'http:\/\/localhost:8000\/api\/v1\/users\/3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59' \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}'"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found",
+            "examples": {
+              "application/json": {
+                "message": "Unknown user"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user}/revoke": {
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Revoke user",
+        "description": "Demands `soft-delete` permission on `users` module. \n\nDifferent from <a href='#operation/deleteUser'>delete user</a>.",
+        "operationId": "revokeUser",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "description": "<a href='#operation/getUsers'>User ID<\/a>",
+            "required": true,
+            "type": "string",
+            "format": "uuid"
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "CURL",
+            "source": "curl -X PUT \\\n 'http:\/\/localhost:8000\/api\/v1\/users\/3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59\/revoke' \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "examples": {
+              "application/json": {
+                "id": "3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59",
+                "facility_id": "2631b81a-4925-4a60-8a97-8e9b0b779a2e",
+                "role_id": "1bc27b9c-a963-4fda-b79b-91b125ba0ed1",
+                "alias": "jdoe",
+                "name": "John Doe",
+                "email": "jdoe@example.com",
+                "email_verified_at": "2019-10-14 08:25:48",
+                "user_id": null,
+                "created_at": "2019-10-14 08:25:48",
+                "updated_at": "2019-10-14 08:25:48",
+                "deleted_at": "2019-10-14 14:47:51",
+                "role": {
+                  "id": "1bc27b9c-a963-4fda-b79b-91b125ba0ed1",
+                  "facility_id": "2631b81a-4925-4a60-8a97-8e9b0b779a2e",
+                  "user_id": null,
+                  "name": "Developer",
+                  "description": null,
+                  "created_at": "2019-10-14 08:25:48",
+                  "updated_at": "2019-10-14 08:25:48",
+                  "deleted_at": null,
+                },
+                "facility": {
+                  "id": "2631b81a-4925-4a60-8a97-8e9b0b779a2e",
+                  "user_id": null,
+                  "name": "Mulago Hospital",
+                  "description": "Regional Referral Hospital",
+                  "address": "Mulago Hill",
+                  "email": "info@mulago.com",
+                  "website": "https://mulago.ug",
+                  "phone": "+256754954852",
+                  "created_at": "2019-10-14 08:25:48",
+                  "updated_at": "2019-10-14 08:25:48",
+                  "deleted_at": null
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "examples": {
+              "application/json": {
+                "message": "Unknown user"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{user}/restore": {
+      "put": {
+        "tags": [
+          "user"
+        ],
+        "summary": "Restore user",
+        "description": "<strong>Reinstate</strong> previously <strike>revoked</strike> user.\n\nRequires `restore` permission on `users` module.\n\nSee <a href='#operation/revokeUser'>revoke user</a>.",
+        "operationId": "restoreUser",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "description": "User ID",
+            "required": true,
+            "type": "string",
+            "format": "uuid"
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "CURL",
+            "source": "curl -X PUT \\\n 'http:\/\/localhost:8000\/api\/v1\/users\/3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59\/restore' \\\n -H 'Accept: application\/json' \\\n -H 'Authorization: Bearer {ACCESS TOKEN}'"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok",
+            "examples": {
+              "application/json": {
+                "id": "3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59",
+                "facility_id": "2631b81a-4925-4a60-8a97-8e9b0b779a2e",
+                "role_id": "1bc27b9c-a963-4fda-b79b-91b125ba0ed1",
+                "alias": "jdoe",
+                "name": "John Doe",
+                "email": "jdoe@example.com",
+                "email_verified_at": "2019-10-14 08:25:48",
+                "user_id": null,
+                "created_at": "2019-10-14 08:25:48",
+                "updated_at": "2019-10-14 08:25:48",
+                "deleted_at": null,
+                "role": {
+                  "id": "1bc27b9c-a963-4fda-b79b-91b125ba0ed1",
+                  "facility_id": "2631b81a-4925-4a60-8a97-8e9b0b779a2e",
+                  "user_id": null,
+                  "name": "Developer",
+                  "description": null,
+                  "created_at": "2019-10-14 08:25:48",
+                  "updated_at": "2019-10-14 08:25:48",
+                  "deleted_at": null
+                },
+                "facility": {
+                  "id": "2631b81a-4925-4a60-8a97-8e9b0b779a2e",
+                  "user_id": null,
+                  "name": "Mulago Hospital",
+                  "description": "Regional Referral Hospital",
+                  "address": "Mulago Hill",
+                  "email": "info@mulago.com",
+                  "website": "https://mulago.ug",
+                  "phone": "+256754954852",
+                  "created_at": "2019-10-14 08:25:48",
+                  "updated_at": "2019-10-14 08:25:48",
+                  "deleted_at": null
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "examples": {
+              "application/json": {
+                "message": "Unknown user"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/oauth/token": {
+      "post": {
+        "tags": [
+          "oauth"
+        ],
+        "summary": "Request oauth token",
+        "description": "Request for oauth token",
+        "operationId": "requestToken",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "client_id",
+            "in": "formData",
+            "description": "OAuth client APP ID",
+            "required": true,
+            "type": "string",
+            "format": "UUID"
+          },
+          {
+            "name": "client_secret",
+            "in": "formData",
+            "description": "OAuth client APP secret",
+            "required": true,
+            "type": "string",
+            "format": "UUID"
+          },
+          {
+            "name": "user_id",
+            "in": "formData",
+            "description": "ID of the user authorizing with token.",
+            "required": false,
+            "type": "string",
+            "format": "UUID"
+          },
+          {
+            "name": "grant_type",
+            "in": "formData",
+            "description": "ID of the user authorizing with token.",
+            "required": false,
+            "type": "string",
+            "format": "UUID",
+            "example": "980c5c87-01da-4a1a-b623-49d3692002b5"
+          },
+          {
+            "name": "grant_type",
+            "type": "string",
+            "enum": [
+              "authorization_code",
+              "client_credentials",
+              "password",
+              "refresh_token"
+            ],
+            "in": "formData",
+            "description": "",
+            "required": true
+          },
+          {
+            "name": "code",
+            "in": "formData",
+            "description": "Authorization code. \\\n<strong>Required if</strong> grant_type is `authorization_code`.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "redirect_uri",
+            "in": "formData",
+            "description": "Redirect URI. \\\n<strong>Required if</strong> grant_type is `authorization_code`.",
+            "required": false,
+            "type": "string",
+            "format": "URI"
+          },
+          {
+            "name": "refresh_token",
+            "in": "formData",
+            "description": "Refresh access token. \\\n<strong>Required if</strong> grant_type is `refresh_token`.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "username",
+            "in": "formData",
+            "description": "<strong>Required if</strong> grant_type is `password`.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "password",
+            "in": "formData",
+            "description": "<strong>Required if</strong> grant_type is `password`.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "scopes",
+            "in": "formData",
+            "description": "Scopes the client APP is requesting.",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        ],
+        "x-code-samples": [
+          {
+            "lang": "CURL",
+            "source": "curl -X POST \\\n http:\/\/localhost:8000\/api\/v1\/oauth\/token \\\n -H 'Accept: application\/json' \\\n -H 'Content-Type: application\/json' \\\n -d '{\n    \"client_id\": \"3102c90b-1936-4968-af9e-3701bcc6147c\",\n    \"client_secret\": \"OZHF4AuWWvMY0rKC2VWwEMlvobJ4GfCgGKopdadQ\",\n    \"grant_type\": \"client_credentials\"\n }'"
+            }
+          ],
+        "responses": {
+          "200": {
+            "description": "Created",
+            "examples": {
+              "application/json": {
+                "token_type": "Bearer",
+                "expires_in": 3600,
+                "access_token": "eyJ0eXAiOiJKV1QiLCJhbGc..."
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessibile entity",
+            "examples": {
+              "application/json": {
+                "message": "The given data was invalid.",
+                "errors": {
+                  "client_id": [
+                    "The client id must be a valid UUID."
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "description": "Error message",
+          "type": "string",
+          "example": "Something went wrong."
+        }
+      }
+    },
+    "401ErrorResponse": {
+      "message": "Unauthenticated."
+    },
+    "403ErrorResponse": {
+      "message": "Insufficient permission."
+    },
+    "404ErrorResponse": {
+      "message": "Not found."
+    },
+    "422ErrorResponse": {
+      "errors": {
+        "message": "The given data was invalid.",
+        "email": [
+          "Wrong email or password."
+        ]
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "User ID",
+          "type": "uuid",
+          "example": "0ac99f1b-482c-4af1-be28-ddace07eff20"
+        },
+        "name": {
+          "description": "User full name",
+          "type": "string",
+          "maxLength": 25,
+          "example": "John Doe"
+        },
+        "email": {
+          "description": "User email address",
+          "type": "string",
+          "format": "email",
+          "example": "jdoe@example.com"
+        },
+        "created_at": {
+          "description": "When user account was created",
+          "type": "datetime",
+          "example": "2018-09-30 15:32:06",
+          "x-nullable": true
+        },
+        "email_verified_at": {
+          "description": "When user account was verified",
+          "type": "datetime",
+          "example": "2018-09-30 15:35:42",
+          "x-nullable": true
+        },
+        "updated_at": {
+          "description": "When user account was last updated",
+          "type": "datetime",
+          "example": "2018-09-30 15:35:42",
+          "x-nullable": true
+        },
+        "deleted_at": {
+          "description": "When user account was deleted",
+          "type": "datetime",
+          "x-nullable": true
+        }
+      }
+    }
+  }
 }
