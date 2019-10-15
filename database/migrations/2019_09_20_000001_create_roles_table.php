@@ -17,8 +17,8 @@ class CreateRolesTable extends Migration
             $table->uuid('id');
             $table->uuid('facility_id');
             $table->uuid('user_id')->nullable();
-            $table->string('name');
-            $table->string('description', 50)->nullable();
+            $table->string('name', 50);
+            $table->string('description', 100)->nullable();
             $table->timestamps();
             $table->softDeletes();
 
