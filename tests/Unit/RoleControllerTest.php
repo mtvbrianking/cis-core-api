@@ -39,7 +39,6 @@ class RoleControllerTest extends TestCase
                 '*' => [
                     'id',
                     'facility_id',
-                    'user_id',
                     'name',
                     'description',
                     'created_at',
@@ -84,7 +83,6 @@ class RoleControllerTest extends TestCase
         $response->assertJsonStructure([
             'id',
             'facility_id',
-            'user_id',
             'name',
             'description',
             'created_at',
@@ -130,7 +128,6 @@ class RoleControllerTest extends TestCase
         $response->assertJsonStructure([
             'id',
             'facility_id',
-            'user_id',
             'name',
             'description',
             'created_at',
@@ -169,13 +166,11 @@ class RoleControllerTest extends TestCase
         $response->assertJsonStructure([
             'id',
             'facility_id',
-            'user_id',
             'name',
             'description',
             'created_at',
             'updated_at',
             'deleted_at',
-            'creator',
             'facility',
         ]);
 
@@ -220,7 +215,6 @@ class RoleControllerTest extends TestCase
         $response->assertJsonStructure([
             'id',
             'facility_id',
-            'user_id',
             'name',
             'description',
             'created_at',
@@ -262,7 +256,6 @@ class RoleControllerTest extends TestCase
             'name',
             'description',
             'facility_id',
-            'user_id',
             'created_at',
             'updated_at',
             'deleted_at',
@@ -332,7 +325,6 @@ class RoleControllerTest extends TestCase
         $response->assertJsonStructure([
             'id',
             'facility_id',
-            'user_id',
             'name',
             'description',
             'created_at',
@@ -423,7 +415,6 @@ class RoleControllerTest extends TestCase
             'permissions' => [
                 '*' => [
                     'id',
-                    'user_id',
                     'module_name',
                     'description',
                     'created_at',
@@ -455,7 +446,6 @@ class RoleControllerTest extends TestCase
                     'id',
                     'facility_id',
                     'role_id',
-                    'user_id',
                     'alias',
                     'name',
                     'email',
@@ -502,7 +492,6 @@ class RoleControllerTest extends TestCase
 
         $response->assertJsonStructure([
             'id',
-            'user_id',
             'facility_id',
             'name',
             'description',
@@ -512,7 +501,6 @@ class RoleControllerTest extends TestCase
             'permissions' => [
                 '*' => [
                     'id',
-                    'user_id',
                     'module_name',
                     'description',
                     'created_at',

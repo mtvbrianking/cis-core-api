@@ -62,7 +62,6 @@ class RoleController extends Controller
         $role = new Role();
         $role->name = $request->name;
         $role->description = $request->description;
-        $role->creator()->associate($user);
         $role->facility()->associate($user->facility);
         $role->save();
 

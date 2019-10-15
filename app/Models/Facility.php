@@ -73,16 +73,6 @@ class Facility extends Model
     // Relationships
 
     /**
-     * User that created this facility.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function creator()
-    {
-        return $this->belongsTo(User::class, 'user_id', 'id');
-    }
-
-    /**
      * Users belonging to this facility.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

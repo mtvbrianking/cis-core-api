@@ -35,7 +35,6 @@ class FacilityControllerTest extends TestCase
             'facilities' => [
                 '*' => [
                     'id',
-                    'user_id',
                     'name',
                     'description',
                     'address',
@@ -72,7 +71,6 @@ class FacilityControllerTest extends TestCase
 
         $response->assertJsonStructure([
             'id',
-            'user_id',
             'name',
             'description',
             'address',
@@ -99,7 +97,6 @@ class FacilityControllerTest extends TestCase
 
         $response->assertJsonStructure([
             'id',
-            'user_id',
             'name',
             'description',
             'address',
@@ -141,7 +138,6 @@ class FacilityControllerTest extends TestCase
 
         $response->assertJsonStructure([
             'id',
-            'user_id',
             'name',
             'description',
             'address',
@@ -154,7 +150,6 @@ class FacilityControllerTest extends TestCase
         ]);
 
         $response->assertJson([
-            'user_id' => $user->id,
             'name' => 'Mulago Hospital',
             'description' => 'Regional Referral Hospital',
             'address' => 'Mulago Hill',
@@ -189,7 +184,6 @@ class FacilityControllerTest extends TestCase
 
         $response->assertJsonStructure([
             'id',
-            'user_id',
             'name',
             'description',
             'address',
@@ -202,7 +196,6 @@ class FacilityControllerTest extends TestCase
         ]);
 
         $response->assertJson([
-            'user_id' => $user->id,
             'name' => 'Mulago Hospital',
             'description' => 'Regional Referral Hospital',
             'address' => 'Mulago Hill',
@@ -232,7 +225,6 @@ class FacilityControllerTest extends TestCase
 
         $response->assertJsonStructure([
             'id',
-            'user_id',
             'name',
             'description',
             'address',
@@ -380,7 +372,6 @@ class FacilityControllerTest extends TestCase
 
         $response->assertJsonStructure([
             'id',
-            'user_id',
             'name',
             'description',
             'address',

@@ -596,12 +596,6 @@ paths:
           required: true
           type: string
           format: UUID
-        - name: user_id
-          in: formData
-          description: ID of the user authorizing with token.
-          required: false
-          type: string
-          format: UUID
         - name: grant_type
           type: string
           enum:
@@ -694,12 +688,6 @@ definitions:
         type: string
         format: uuid
         example: f0f95c23-6ba1-4348-b1d9-bfb5e4bb1e3f
-      user_id:
-        description: 'ID of <a href=''#operation/getUsers''>user</a> that registered this user.'
-        type: string
-        format: uuid
-        example: 911a7575-1587-4507-8924-62df782d2006
-        x-nullable: true
       alias:
         description: Display name - unique.
         type: string
@@ -753,12 +741,6 @@ definitions:
         type: string
         format: uuid
         example: 0ac99f1b-482c-4af1-be28-ddace07eff20
-      user_id:
-        description: 'ID of <a href=''#operation/getUsers''>user</a> that registered this user.'
-        type: string
-        format: uuid
-        example: 0ac99f1b-482c-4af1-be28-ddace07eff20
-        x-nullable: true
       name:
         description: User role name
         type: string
@@ -797,12 +779,6 @@ definitions:
         type: string
         format: uuid
         example: 90cae4ff-6f86-4ba3-8651-134b48fd7a2a
-      user_id:
-        description: 'ID of <a href=''#operation/getUsers''>user</a> that registered this facility.'
-        type: string
-        format: uuid
-        example: 0ac99f1b-482c-4af1-be28-ddace07eff20
-        x-nullable: true
       name:
         type: string
         maxLength: 100

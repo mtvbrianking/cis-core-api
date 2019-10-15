@@ -70,7 +70,6 @@ class FacilityController extends Controller
         $facility->email = $request->email;
         $facility->website = $request->website;
         $facility->phone = $request->phone;
-        $facility->creator()->associate($user);
         $facility->save();
 
         $facility->refresh();
@@ -129,7 +128,6 @@ class FacilityController extends Controller
         $facility->email = $request->input('email', $facility->email);
         $facility->website = $request->website;
         $facility->phone = $request->phone;
-        $facility->creator()->associate($user);
         $facility->save();
 
         $facility->refresh();
