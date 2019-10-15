@@ -16,7 +16,7 @@
 </head>
 <body>
 
-<redoc spec-url='{{ asset('js/api-usage.json') }}'></redoc>
+<redoc spec-url='{{ asset('js/api-usage.yml') }}'></redoc>
 
 {{-- <script src="https://rebilly.github.io/ReDoc/releases/latest/redoc.min.js"></script> --}}
 

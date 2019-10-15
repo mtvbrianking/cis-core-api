@@ -87,9 +87,9 @@ class UserController extends Controller
             'role_id' => 'required|uuid',
         ]);
 
-        $creator = Auth::guard('api')->user();
+        $registrar = Auth::guard('api')->user();
 
-        $role = Role::onlyRelated($creator)->find($request->role_id);
+        $role = Role::onlyRelated($registrar)->find($request->role_id);
 
         if (! $role) {
             $validator = Validator::make([], []);
@@ -103,8 +103,7 @@ class UserController extends Controller
         $user->alias = $request->alias;
         $user->email = $request->email;
         $user->password = Hash::make(Str::random(10));
-        $user->creator()->associate($creator);
-        $user->facility()->associate($creator->facility);
+        $user->facility()->associate($registrar->facility);
         $user->role()->associate($role);
         $user->save();
 
@@ -128,9 +127,9 @@ class UserController extends Controller
     {
         $this->authorize('update', [User::class, $id]);
 
-        $creator = Auth::guard('api')->user();
+        $registrar = Auth::guard('api')->user();
 
-        $user = User::with(['role', 'facility'])->onlyRelated($creator)->findOrFail($id);
+        $user = User::with(['role', 'facility'])->onlyRelated($registrar)->findOrFail($id);
 
         $this->validate($request, [
             'name' => 'sometimes|max:25',
@@ -140,7 +139,7 @@ class UserController extends Controller
         ]);
 
         if ($request->filled('role_id')) {
-            $role = Role::onlyRelated($creator)->find($request->role_id);
+            $role = Role::onlyRelated($registrar)->find($request->role_id);
 
             if (! $role) {
                 $validator = Validator::make([], []);

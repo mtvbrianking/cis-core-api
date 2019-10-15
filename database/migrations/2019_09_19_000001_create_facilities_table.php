@@ -15,7 +15,6 @@ class CreateFacilitiesTable extends Migration
     {
         Schema::create('facilities', function (Blueprint $table) {
             $table->uuid('id');
-            $table->uuid('user_id')->nullable();
             $table->string('name', 100);
             $table->string('description', 100)->nullable();
             $table->string('address', 100);
@@ -26,9 +25,6 @@ class CreateFacilitiesTable extends Migration
             $table->softDeletes();
 
             $table->primary('id');
-
-            $table->foreign('user_id')->references('id')->on('users')
-                ->onUpdate('cascade')->onDelete('set null');
         });
     }
 
@@ -39,10 +35,6 @@ class CreateFacilitiesTable extends Migration
      */
     public function down()
     {
-        Schema::table('facilities', function (Blueprint $table) {
-            $table->dropForeign(['user_id']);
-        });
-
         Schema::dropIfExists('facilities');
     }
 }

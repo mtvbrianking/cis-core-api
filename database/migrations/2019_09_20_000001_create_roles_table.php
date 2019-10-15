@@ -16,9 +16,8 @@ class CreateRolesTable extends Migration
         Schema::create('roles', function (Blueprint $table) {
             $table->uuid('id');
             $table->uuid('facility_id');
-            $table->uuid('user_id')->nullable();
-            $table->string('name');
-            $table->string('description', 50)->nullable();
+            $table->string('name', 50);
+            $table->string('description', 100)->nullable();
             $table->timestamps();
             $table->softDeletes();
 
@@ -26,8 +25,6 @@ class CreateRolesTable extends Migration
 
             $table->index('name', 'idx_role_name', 'btree');
 
-            $table->foreign('user_id')->references('id')->on('users')
-                ->onUpdate('cascade')->onDelete('set null');
             $table->foreign('facility_id')->references('id')->on('facilities')
                 ->onUpdate('cascade')->onDelete('restrict');
         });
@@ -43,7 +40,6 @@ class CreateRolesTable extends Migration
         DB::raw('DROP INDEX IF EXISTS idx_role_name');
 
         Schema::table('roles', function (Blueprint $table) {
-            $table->dropForeign(['user_id']);
             $table->dropForeign(['facility_id']);
         });
 

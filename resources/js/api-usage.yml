@@ -1,0 +1,887 @@
+swagger: '2.0'
+schemes:
+  - http
+  - https
+host: 'localhost:8000'
+basePath: /v1
+info:
+  description: API usage documentation
+  version: 1.0.0
+  title: CIS CORE API
+  termsOfService: 'https://github.com/mtvbrianking/cis-core-api/blob/master/readme.md'
+  contact:
+    url: 'https://github.com/mtvbrianking/cis-core-api'
+  x-logo:
+externalDocs:
+  description: Source code documentation
+  url: 'https://mtvbrianking.github.io/cis-core-api'
+tags:
+  - name: user
+    description: Operations about users.
+  - name: oauth
+    description: Operations about OAuth.
+x-tagGroups:
+  - name: Resources
+    tags:
+      - user
+      - oauth
+securityDefinitions:
+  client_credentials_grant:
+    description: Get access to data while protecting your account credentials.
+    type: oauth2
+    flow: application
+    tokenUrl: 'http://localhost:8000/api/v1/oauth/token'
+  authorization_code_grant:
+    description: Get access to data while protecting your account credentials.
+    type: oauth2
+    flow: accessCode
+    authorizationUrl: 'http://localhost:8000/api/v1/oauth/authorize'
+    tokenUrl: 'http://localhost:8000/api/v1/oauth/token'
+  password_grant:
+    description: First party apps only.
+    type: oauth2
+    flow: password
+    tokenUrl: 'http://localhost:8000/api/v1/oauth/token'
+    scopes:
+      confirm-email: "Indicate that a user has verified their email."
+      reset-password: "Change a user's forgot password."
+      validate-email: 'Check if a user account exists for given email.'
+x-servers:
+  - url: '//localhost:8000/api/v1'
+    description: Live server
+  - url: '//localhost:8000/api/v1/sandbox'
+    description: Sandbox server
+paths:
+  /users:
+    get:
+      tags:
+        - user
+      summary: Get users
+      description: |-
+        Get all users data.
+
+        Requires `view-any` permission on `users` module.
+      operationId: getUsers
+      produces:
+        - application/json
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/users \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              users:
+                type: array
+                items:
+                  $ref: '#/definitions/UserModel'
+    post:
+      tags:
+        - user
+      summary: Register user
+      description: |-
+        Requires `create` permission on `users` module.
+
+        Sets a random default password; see <a href='#operation/resetPassword'>reset password</a>.
+      operationId: registerUser
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: formData
+          description: Full name.
+          required: true
+          type: string
+        - name: alias
+          in: formData
+          description: Preferred display name.
+          required: true
+          type: string
+        - name: email
+          in: formData
+          description: 'Email address. Must be unique. See <a href=''#operation/validateEmail''>validate email.</a>'
+          required: true
+          type: string
+          format: email
+        - name: role_id
+          in: formData
+          description: '<a href=''#operation/getRoles''>Role ID</a>'
+          required: true
+          type: string
+          format: uuid
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+              http://localhost:8000/api/v1/users \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {ACCESS TOKEN}' \
+              -H 'Content-Type: application/x-www-form-urlencoded' \
+              -d 'name=John Doe' \
+              -d 'alias=jdoe' \
+              -d 'email=jdoe@example.com' \
+              -d 'role_id=1bc27b9c-a963-4fda-b79b-91b125ba0ed1'
+      responses:
+        '201':
+          description: Created
+          schema:
+            allOf:
+              - $ref: '#/definitions/UserModel'
+              - properties:
+                  role:
+                    $ref: '#/definitions/RoleModel'
+                  facility:
+                    $ref: '#/definitions/FacilityModel'
+        '401':
+          description: Unauthenticated
+          schema:
+            $ref: '#/definitions/401HttpResponse'
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/403HttpResponse'
+        '404':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/404HttpResponse'
+        '405':
+          description: Method Not Allowed
+          schema:
+            $ref: '#/definitions/405HttpResponse'
+        '422':
+          description: Unprocessibile Entity
+          schema:
+            $ref: '#/definitions/422HttpResponse'
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/500HttpResponse'
+      # security:
+      # - password_grant:
+      #   - "create.modules"
+  /users/email:
+    post:
+      tags:
+        - user
+      summary: Validate email
+      description: |-
+        Check if a user exists with given email.
+
+        Requires `validate-email` scope.
+      operationId: validateEmail
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/UserValidateEmailRequest"
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+              http://localhost:8000/api/v1/users/email \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {ACCESS TOKEN}' \
+              -H 'Content-Type: application/json' \
+              -d '{"email": "jdoe@example.com"}'
+      responses:
+        '204':
+          description: No Content
+      security:
+        - password_grant:
+          - "validate-email"
+    put:
+      tags:
+        - user
+      summary: Confirm email verification
+      description: |-
+        Confirm a user has verified their email address.
+
+        Requires `confirm-email` scope.
+      operationId: confirmEmailVerification
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: email
+          in: formData
+          description: Verified email address.
+          required: true
+          type: string
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/users/email' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}' \
+             -d 'email=jdoe@example.com'
+      responses:
+        '204':
+          description: No Content
+  /users/password:
+    post:
+      tags:
+        - user
+      summary: Confirm password
+      description: Confirm your <strong>own</strong> password.
+      operationId: confirmPassword
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: password
+          in: formData
+          description: Your user account password.
+          required: true
+          type: string
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+             'http://localhost:8000/api/v1/users/password' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}' \
+             -d 'password=N:x/6j^H'
+      responses:
+        '204':
+          description: No Content
+    put:
+      tags:
+        - user
+      summary: Update password
+      description: 'Update your <strong>own</strong> password. See <a href=''#operation/updateUser''>update user</a>.'
+      operationId: updatePassword
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: password
+          in: formData
+          description: Existing user account password.
+          required: true
+          type: string
+        - name: new_password
+          in: formData
+          description: |-
+            New user account password. Having at least;
+            + 8 characters,
+            + an upper case letter,
+            + a lower case letter,
+            + a number and,
+            + a symbol.
+          required: true
+          type: string
+          pattern: '(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$'
+        - name: new_password_confirmation
+          in: formData
+          description: New password confirmation.
+          required: true
+          type: string
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/users/password' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}' \
+             -d 'password=N:x/6j^H' \
+             -d 'new_password=Gm=Pm5^(' \
+             -d 'new_password_confirmation=Gm=Pm5^('
+      responses:
+        '204':
+          description: No Content
+  /users/password/reset:
+    put:
+      tags:
+        - user
+      summary: Reset password
+      description: |-
+        Reset a user's password.
+
+        Requires `reset-password` scope.
+
+        See <a href='#operation/updatePassword'>update password</a>.
+      operationId: resetPassword
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: email
+          in: formData
+          description: Email for account to reset passport.
+          required: true
+          type: string
+        - name: password
+          in: formData
+          description: |-
+            New user account password. Having at least;
+            + 8 characters,
+            + an upper case letter,
+            + a lower case letter,
+            + a number and,
+            + a symbol.
+          required: true
+          type: string
+          pattern: '(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$'
+        - name: password_confirmation
+          in: formData
+          description: New password confirmation.
+          required: true
+          type: string
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/users/password/reset' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}' \
+             -d 'email=jdoe@example.com' \
+             -d 'password=N:x/6j^H' \
+             -d 'new_password=Gm=Pm5^(' \
+             -d 'new_password_confirmation=Gm=Pm5^('
+      responses:
+        '204':
+          description: No Content
+  '/users/{user}':
+    get:
+      tags:
+        - user
+      summary: Get user
+      description: |-
+        Get a single user's data.
+        User's can view their own details.
+        Requires `view` permission on `users` module to view other user's details.
+      operationId: getUser
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          description: '<a href=''#operation/getUsers''>User ID</a>'
+          required: true
+          type: string
+          format: uuid
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/users/3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59 \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}'
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/UserModel'
+              - properties:
+                  role:
+                    $ref: '#/definitions/RoleModel'
+                  facility:
+                    $ref: '#/definitions/FacilityModel'
+    put:
+      tags:
+        - user
+      summary: Update user
+      description: |-
+        Update user data.
+
+        Can't update a user's password. See <a href='#operation/updatePassword'>update user password</a>
+
+        Requires `update` permission on `users` module.
+      operationId: updateUser
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          description: '<a href=''#operation/getUsers''>User ID</a>'
+          required: true
+          type: string
+          format: uuid
+        - name: name
+          in: formData
+          description: Full name
+          required: false
+          type: string
+        - name: alias
+          in: formData
+          description: Preferred display name.
+          required: false
+          type: string
+        - name: email
+          in: formData
+          description: |-
+            Email address.\
+            If changed, user must verify new email address.
+            See <a href='#operation/confirmEmailVerification'>confirm email verification.</a>
+          required: false
+          type: string
+          format: email
+        - name: role_id
+          in: formData
+          description: '<a href=''#operation/getRoles''>Role ID</a>'
+          required: false
+          type: string
+          format: uuid
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             http://localhost:8000/api/v1/users/3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59 \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}' \
+             -H 'Content-Type: application/x-www-form-urlencoded' \
+             -d 'name=John Doe' \
+             -d 'alias=jdoe' \
+             -d 'email=jdoe@example.com' \
+             -d 'role_id=1bc27b9c-a963-4fda-b79b-91b125ba0ed1'
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/UserModel'
+              - properties:
+                  role:
+                    $ref: '#/definitions/RoleModel'
+                  facility:
+                    $ref: '#/definitions/FacilityModel'
+    delete:
+      tags:
+        - user
+      summary: Delete user
+      description: |-
+        <strong>Permanently</strong> remove user from database.
+
+        Requires `force-delete` permission on `users` module, and the user must be revoked before he/she can be deleted.
+
+        See <a href='#operation/revokeUser'>revoke user</a>
+      operationId: deleteUser
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          description: '<a href=''#operation/getUsers''>User ID</a>'
+          required: true
+          type: string
+          format: uuid
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X DELETE \
+             'http://localhost:8000/api/v1/users/3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}'
+      responses:
+        '204':
+          description: No Content
+  '/users/{user}/revoke':
+    put:
+      tags:
+        - user
+      summary: Revoke user
+      description: |-
+        Requires `soft-delete` permission on `users` module.
+
+        Different from <a href='#operation/deleteUser'>delete user</a>.
+      operationId: revokeUser
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          description: '<a href=''#operation/getUsers''>User ID</a>'
+          required: true
+          type: string
+          format: uuid
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/users/3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59/revoke' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}'
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/UserModel'
+              - properties:
+                  role:
+                    $ref: '#/definitions/RoleModel'
+                  facility:
+                    $ref: '#/definitions/FacilityModel'
+  '/users/{user}/restore':
+    put:
+      tags:
+        - user
+      summary: Restore user
+      description: |-
+        <strong>Reinstate</strong> previously <strike>revoked</strike> user.
+
+        Requires `restore` permission on `users` module.
+
+        See <a href='#operation/revokeUser'>revoke user</a>.
+      operationId: restoreUser
+      produces:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          description: '<a href=''#operation/getUsers''>User ID</a>'
+          required: true
+          type: string
+          format: uuid
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/users/3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59/restore' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}'
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/UserModel'
+              - properties:
+                  role:
+                    $ref: '#/definitions/RoleModel'
+                  facility:
+                    $ref: '#/definitions/FacilityModel'
+  /oauth/token:
+    post:
+      tags:
+        - oauth
+      summary: Request oauth token
+      description: Request for oauth token
+      operationId: requestToken
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: client_id
+          in: formData
+          description: OAuth client APP ID
+          required: true
+          type: string
+          format: UUID
+        - name: client_secret
+          in: formData
+          description: OAuth client APP secret
+          required: true
+          type: string
+          format: UUID
+        - name: grant_type
+          type: string
+          enum:
+            - authorization_code
+            - client_credentials
+            - password
+            - refresh_token
+          in: formData
+          description: ''
+          required: true
+        - name: code
+          in: formData
+          description: |-
+            Authorization code. \
+            <strong>Required if</strong> grant_type is `authorization_code`.
+          required: false
+          type: string
+        - name: redirect_uri
+          in: formData
+          description: |-
+            Redirect URI. \
+            <strong>Required if</strong> grant_type is `authorization_code`.
+          required: false
+          type: string
+          format: URI
+        - name: refresh_token
+          in: formData
+          description: |-
+            Refresh access token. \
+            <strong>Required if</strong> grant_type is `refresh_token`.
+          required: false
+          type: string
+        - name: username
+          in: formData
+          description: <strong>Required if</strong> grant_type is `password`.
+          required: false
+          type: string
+        - name: password
+          in: formData
+          description: <strong>Required if</strong> grant_type is `password`.
+          required: false
+          type: string
+        - name: scopes
+          in: formData
+          description: Scopes the client APP is requesting.
+          required: false
+          type: array
+          items:
+            type: string
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+             http://localhost:8000/api/v1/oauth/token \
+             -H 'Accept: application/json' \
+             -H 'Content-Type: application/json' \
+             -d '{
+                "client_id": "3102c90b-1936-4968-af9e-3701bcc6147c",
+                "client_secret": "OZHF4AuWWvMY0rKC2VWwEMlvobJ4GfCgGKopdadQ",
+                "grant_type": "client_credentials"
+             }'
+      responses:
+        '200':
+          description: Created
+          examples:
+            application/json:
+              token_type: Bearer
+              expires_in: 3600
+              access_token: eyJ0eXAiOiJKV1QiLCJhbGc...
+definitions:
+
+  # Models
+
+  UserModel:
+    type: object
+    title: User
+    properties:
+      id:
+        description: ID
+        type: string
+        format: uuid
+        example: 0ac99f1b-482c-4af1-be28-ddace07eff20
+      facility_id:
+        description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+        type: string
+        format: uuid
+        example: 90cae4ff-6f86-4ba3-8651-134b48fd7a2a
+      role_id:
+        description: '<a href=''#operation/getRoles''>Role ID</a>'
+        type: string
+        format: uuid
+        example: f0f95c23-6ba1-4348-b1d9-bfb5e4bb1e3f
+      alias:
+        description: Display name - unique.
+        type: string
+        maxLength: 25
+        example: jdoe
+      name:
+        description: Full name
+        type: string
+        maxLength: 25
+        example: John Doe
+      email:
+        description: Email address - unique.
+        type: string
+        format: email
+        example: jdoe@example.com
+      email_verified_at:
+        description: When a user was verified
+        type: string
+        format: date-time
+        example: '2018-09-30 17:06:12'
+        x-nullable: true
+      created_at:
+        description: When a user was created
+        type: string
+        format: date-time
+        example: '2018-09-30 15:32:06'
+        x-nullable: true
+      updated_at:
+        description: When a user was last updated
+        type: string
+        format: date-time
+        example: '2018-10-05 00:54:02'
+        x-nullable: true
+      deleted_at:
+        description: When a user was suspended
+        type: string
+        format: date-time
+        example: null
+        x-nullable: true
+  RoleModel:
+    type: object
+    title: Role
+    properties:
+      id:
+        description: ID
+        type: string
+        format: uuid
+        example: f0f95c23-6ba1-4348-b1d9-bfb5e4bb1e3f
+      facility_id:
+        description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+        type: string
+        format: uuid
+        example: 0ac99f1b-482c-4af1-be28-ddace07eff20
+      name:
+        description: User role name
+        type: string
+        maxLength: 50
+        example: Sys Admin
+      description:
+        description: User role description
+        type: string
+        maxLength: 100
+        example: System Administrator
+        x-nullable: true
+      created_at:
+        description: When a role was created
+        type: string
+        format: date-time
+        example: '2018-09-30 15:32:06'
+        x-nullable: true
+      updated_at:
+        description: When a role was last updated
+        type: string
+        format: date-time
+        example: '2018-10-05 00:54:02'
+        x-nullable: true
+      deleted_at:
+        description: When a role was suspended
+        type: string
+        format: date-time
+        example: null
+        x-nullable: true
+  FacilityModel:
+    type: object
+    title: Facility
+    properties:
+      id:
+        description: ID
+        type: string
+        format: uuid
+        example: 90cae4ff-6f86-4ba3-8651-134b48fd7a2a
+      name:
+        type: string
+        maxLength: 100
+        example: Mulago Hospital
+      description:
+        type: string
+        maxLength: 100
+        example: Mulago Hospital
+        x-nullable: true
+      address:
+        type: string
+        maxLength: 100
+        example: Mulago Hill
+      email:
+        type: string
+        format: email
+        maxLength: 50
+        example: cis@mulago.Hospital
+      website:
+        type: string
+        format: uri
+        maxLength: 50
+        example: 'https://mulago.Hospital'
+        x-nullable: true
+      phone:
+        type: string
+        format: tel
+        maxLength: 25
+        example: '+256392741586'
+        x-nullable: true
+      created_at:
+        description: When a facility was created
+        type: string
+        format: date-time
+        example: '2018-09-30 15:32:06'
+        x-nullable: true
+      updated_at:
+        description: When a facility was last updated
+        type: string
+        format: date-time
+        example: '2018-10-05 00:54:02'
+        x-nullable: true
+      deleted_at:
+        description: When a facility was suspended
+        type: string
+        format: date-time
+        example: null
+        x-nullable: true
+
+  # Requests
+
+  UserValidateEmailRequest:
+    type: object
+    properties:
+      email:
+        description: Email address
+        type: string
+        format: email
+        example: jdoe@example.com
+
+  # Http Responses
+
+  401HttpResponse:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Unauthenticated.
+  403HttpResponse:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Insufficient permission.
+  404HttpResponse:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Not found.
+  405HttpResponse:
+    type: object
+    properties:
+      message:
+        type: string
+        example: 'The POST method is not supported for this route.'
+  422HttpResponse:
+    type: object
+    properties:
+      message:
+        type: string
+        example: The given data was invalid.
+      errors:
+        type: object
+        properties:
+          email:
+            type: array
+            items:
+              type: string
+              example: The email field is required.
+  500HttpResponse:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Something went wrong.
