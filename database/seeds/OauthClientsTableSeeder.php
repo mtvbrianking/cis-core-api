@@ -30,19 +30,23 @@ class OauthClientsTableSeeder extends Seeder
                 'personal_access_client' => false,
                 'password_client' => false,
                 'revoked' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
 
             // Password grant client
 
             [
                 'id' => '1bf0b03e-1c62-45e3-bf18-c5989cb43dde',
-                'user_id' => null,
+                'user_id' => $user->id,
                 'name' => 'dev-password-grant-client',
                 'secret' => 'S8xqNQxus0L4cCJA8lQ4nKLayIQjfc4YOXz9MSWp',
                 'redirect' => '',
                 'personal_access_client' => false,
                 'password_client' => true,
                 'revoked' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
             ],
         ]);
 
