@@ -2,7 +2,7 @@ swagger: '2.0'
 schemes:
   - http
   - https
-host: 'localhost:8000'
+host: 'cis-core-api.test'
 basePath: /v1
 info:
   description: API usage documentation
@@ -16,6 +16,10 @@ externalDocs:
   description: Source code documentation
   url: 'https://mtvbrianking.github.io/cis-core-api'
 tags:
+  - name: facility
+    description: Operations about facilites.
+  - name: module
+    description: Operations about modules.
   - name: user
     description: Operations about users.
   - name: oauth
@@ -23,6 +27,8 @@ tags:
 x-tagGroups:
   - name: Resources
     tags:
+      - facility
+      - module
       - user
       - oauth
 securityDefinitions:
@@ -30,7 +36,7 @@ securityDefinitions:
     description: Get access to data while protecting your account credentials.
     type: oauth2
     flow: application
-    tokenUrl: 'http://localhost:8000/api/v1/oauth/token'
+    tokenUrl: 'http://cis-core-api.test/api/v1/oauth/token'
   authorization_code_grant:
     description: Get access to data while protecting your account credentials.
     type: oauth2
@@ -52,6 +58,575 @@ x-servers:
   - url: '//localhost:8000/api/v1/sandbox'
     description: Sandbox server
 paths:
+  /facilities:
+    get:
+      tags:
+        - facility
+      summary: Get facilities
+      description: |-
+        Get all facilities data.
+
+        Requires `view-any` permission on `facilities` module.
+      operationId: getFacilities
+      produces:
+        - application/json
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/facilities \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              facilities:
+                type: array
+                items:
+                  $ref: '#/definitions/FacilityModel'
+    post:
+      tags:
+        - facility
+      summary: Create a facility
+      description: |-
+        Requires `create` permission on `facilities` module.
+      operationId: createFacility
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: formData
+          description: 'Facility name.'
+          required: true
+          type: string
+        - name: description
+          in: formData
+          description: 'Facility description.'
+          required: false
+          type: string
+        - name: address
+          in: formData
+          description: 'Address of the facility.'
+          required: true
+          type: string
+        - name: email
+          in: formData
+          description: 'Email address. See <a href=''#operation/validateEmail''>validate email.</a>'
+          required: true
+          type: string
+          format: email
+        - name: website
+          in: formData
+          description: 'Website of the facility'
+          required: false
+          type: string
+          format: url
+        - name: phone
+          in: formData
+          description: 'Phone number'
+          required: false
+          type: string
+          format: phone
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+              http://localhost:8000/api/v1/facilities \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {ACCESS TOKEN}' \
+              -H 'Content-Type: application/x-www-form-urlencoded' \
+              -d 'name=Mulago Hospital' \
+              -d 'description=Mulago Hospital' \
+              -d 'address=Mulago Hill' \
+              -d 'email=cis@mulago.Hospital' \
+              -d 'phone=+256392741586' \
+      responses:
+        '201':
+          description: Created
+          schema:
+            allOf:
+              - $ref: '#/definitions/FacilityModel'
+  '/facilities/{facility}':
+    get:
+      tags:
+        - facility
+      summary: Get facility
+      description: |-
+        Get a single facility's data.
+        User's can view details of the facility they belong to.
+        Requires `view` permission on `facilities` module to view details of facilities other than that you belong to.
+      operationId: getFacility
+      produces:
+        - application/json
+      parameters:
+        - name: facility
+          in: path
+          description: '<a href=''#operation/getFacilties''>Facility ID</a>'
+          required: true
+          type: string
+          format: uuid
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/facilities/3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59 \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}'
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/FacilityModel'
+    put:
+      tags:
+        - facility
+      summary: Update facility
+      description: |-
+        Update facility data.
+
+        Requires `update` permission on `facilities` module.
+      operationId: updateFacility
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: facility
+          in: path
+          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+          required: true
+          type: string
+          format: uuid
+        - name: name
+          in: formData
+          description: 'Facility name.'
+          required: false
+          type: string
+        - name: description
+          in: formData
+          description: 'Facility description.'
+          required: false
+          type: string
+        - name: address
+          in: formData
+          required: false
+          description: 'Facility address.'
+          type: string
+        - name: email
+          in: formData
+          description: 'Email address of the facility.'
+          required: false
+          type: string
+          format: email
+        - name: website
+          in: formData
+          description: 'Website of the facility'
+          required: false
+          type: string
+          format: url
+        - name: phone
+          in: formData
+          description: 'Phone number'
+          required: false
+          type: string
+          format: phone
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             http://localhost:8000/api/v1/facilities/3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59 \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}' \
+             -H 'Content-Type: application/x-www-form-urlencoded' \
+             -d 'name=Mulago Hospital' \
+             -d 'description=Mulago Hospital' \
+             -d 'address=Mulago Hill'\
+             -d 'email=cis@mulago.Hospital'\
+             -d 'website=https://mulago.Hospital'\
+             -d 'phone=+256392741586'\
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/FacilityModel'
+              
+    delete:
+      tags:
+        - facility
+      summary: Delete facility
+      description: |-
+        <strong>Permanently</strong> remove a facility from database.
+
+        Requires `force-delete` permission on `facilities` module, and the facility must be revoked before it can be deleted.
+
+        See <a href='#operation/revokeFacility'>revoke facility</a>
+      operationId: deleteFacility
+      produces:
+        - application/json
+      parameters:
+        - name: facility
+          in: path
+          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+          required: true
+          type: string
+          format: uuid
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X DELETE \
+             'http://localhost:8000/api/v1/facilities/3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}'
+      responses:
+        '204':
+          description: No Content
+  '/facilities/{facility}/modules':
+    put:
+      tags:
+        - facility
+      summary: Reassign facility modules
+      description: |-
+        Requires `assign-modules` permission on `modules` module.
+      operationId: assignFacilityModules
+      produces:
+        - application/json
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: facility
+          in: path
+          description: '<a href=''#operation/getModules''>Module Name</a>'
+          required: true
+          type: string
+        - name: modules
+          in: formData
+          description: 'Facility modules.'
+          required: false
+          type: array
+          items:
+            type: string
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/facilities/3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59/modules' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}'
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/FacilityModel'
+              - properties:
+                  modules:
+                    type: array
+                    items:
+                      $ref: '#/definitions/ModuleModel'
+  
+  '/facilities/{facility}/restore':
+    put:
+      tags:
+        - facility
+      summary: Restore facility
+      description: |-
+        <strong>Reinstate</strong> previously <strike>revoked</strike> facility.
+
+        Requires `restore` permission on `facilities` module.
+
+        See <a href='#operation/revokeFacility'>revoke facility</a>.
+      operationId: restoreFacility
+      produces:
+        - application/json
+      parameters:
+        - name: facility
+          in: path
+          description: '<a href=''#operation/getFacilties''>Facility ID</a>'
+          required: true
+          type: string
+          format: uuid
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/facilities/3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59/restore' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}'
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/FacilityModel'
+  '/facilities/{facility}/revoke':
+    put:
+      tags:
+        - facility
+      summary: Revoke facility
+      description: |-
+        Requires `soft-delete` permission on `facilities` module.
+
+        Different from <a href='#operation/deleteFacility'>delete facility</a>.
+      operationId: revokeFacility
+      produces:
+        - application/json
+      parameters:
+        - name: facility
+          in: path
+          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+          required: true
+          type: string
+          format: uuid
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/facilities/3ffa37ee-5da9-4f32-9ce6-9704e3c1ce59/revoke' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}'
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/FacilityModel'
+  
+  
+  /modules:
+    get:
+      tags:
+        - module
+      summary: Get modules
+      description: |-
+        Get all modules data.
+
+        Requires `view-any` permission on `modules` module.
+      operationId: getModules
+      produces:
+        - application/json
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/modules \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}'
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              facilities:
+                type: array
+                items:
+                  $ref: '#/definitions/ModuleModel'
+    post:
+      tags:
+        - module
+      summary: Create a module
+      description: |-
+        Requires `create` permission on `modules` module.
+      operationId: createModule
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: formData
+          description: 'Module name.'
+          required: true
+          type: string
+        - name: description
+          in: formData
+          description: 'Module description.'
+          required: false
+          type: string
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+              http://localhost:8000/api/v1/facilities \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {ACCESS TOKEN}' \
+              -H 'Content-Type: application/x-www-form-urlencoded' \
+              -d 'name=Users module' \
+              -d 'description=Users module' \
+      responses:
+        '201':
+          description: Created
+          schema:
+            allOf:
+              - $ref: '#/definitions/ModuleModel'
+  '/modules/{module}':
+    get:
+      tags:
+        - module
+      summary: Get module
+      description: |-
+        Requires `view` permission on `modules` module.
+      operationId: getModule
+      produces:
+        - application/json
+      parameters:
+        - name: module
+          in: path
+          description: '<a href=''#operation/getModules''>Module name</a>'
+          required: true
+          type: string
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/modules/users \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/ModuleModel'
+            
+    put:
+      tags:
+        - module
+      summary: Update module
+      description: |-
+        Update module's data.
+
+        Requires `update` permission on `modules` module.
+      operationId: updateModule
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: module
+          in: path
+          description: '<a href=''#operation/getModules''>Module name</a>'
+          required: true
+          type: string
+        - name: description
+          in: formData
+          description: 'Module description'
+          required: false
+          type: string
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             http://localhost:8000/api/v1/modules/users \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}' \
+             -H 'Content-Type: application/x-www-form-urlencoded' \
+             -d 'description=Users module' \
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/ModuleModel'
+    delete:
+      tags:
+        - module
+      summary: Delete module
+      description: |-
+        <strong>Permanently</strong> remove a module from database.
+
+        Requires `force-delete` permission on `modules` module, and the module must be revoked before it can be deleted.
+
+        See <a href='#operation/revokeModule'>revoke module</a>
+      operationId: deleteModule
+      produces:
+        - application/json
+      parameters:
+        - name: module
+          in: path
+          description: '<a href=''#operation/getModules''>Module name</a>'
+          required: true
+          type: string
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X DELETE \
+             'http://localhost:8000/api/v1/modules/users' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}'
+      responses:
+        '204':
+          description: No Content
+          
+  '/modules/{module}/restore':
+    put:
+      tags:
+        - module
+      summary: Restore module
+      description: |-
+        <strong>Reinstate</strong> previously <strike>revoked</strike> module.
+
+        Requires `restore` permission on `modules` module.
+
+        See <a href='#operation/revokeModule'>revoke module</a>.
+      operationId: restoreModule
+      produces:
+        - application/json
+      parameters:
+        - name: module
+          in: path
+          description: '<a href=''#operation/getModules''>Module name</a>'
+          required: true
+          type: string
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/modules/users/restore' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/ModuleModel'
+            
+  '/modules/{module}/revoke':
+    put:
+      tags:
+        - module
+      summary: Revoke module
+      description: |-
+        Requires `soft-delete` permission on `modules` module.
+
+        Different from <a href='#operation/deleteModule'>delete module</a>.
+      operationId: revokeModule
+      produces:
+        - application/json
+      parameters:
+        - name: facility
+          in: path
+          description: '<a href=''#operation/getModules''>Module name</a>'
+          required: true
+          type: string
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/modules/users/revoke' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {ACCESS TOKEN}'
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/ModuleModel'
+  
   /users:
     get:
       tags:
@@ -823,6 +1398,42 @@ definitions:
         x-nullable: true
       deleted_at:
         description: When a facility was suspended
+        type: string
+        format: date-time
+        example: null
+        x-nullable: true
+  ModuleModel:
+    type: object
+    title: Module
+    properties:
+      name:
+        type: string
+        maxLength: 100
+        example: users
+      description:
+        type: string
+        maxLength: 50
+        example: Users module
+        x-nullable: true
+      category:
+        type: string
+        enum:
+          - uncategorized
+        default: uncategorized
+      created_at:
+        description: When a module was created
+        type: string
+        format: date-time
+        example: '2018-09-30 15:32:06'
+        x-nullable: true
+      updated_at:
+        description: When a module was last updated
+        type: string
+        format: date-time
+        example: '2018-10-05 00:54:02'
+        x-nullable: true
+      deleted_at:
+        description: When a module was suspended
         type: string
         format: date-time
         example: null
