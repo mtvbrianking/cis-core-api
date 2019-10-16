@@ -183,7 +183,7 @@ class RoleControllerTest extends TestCase
     public function test_can_update_specified_role()
     {
         $role = factory(Role::class)->create([
-           // 'facility_id' => $user->facility_id,
+            // 'facility_id' => $user->facility_id,
         ]);
 
         $roleName = 'Role name';
@@ -419,6 +419,37 @@ class RoleControllerTest extends TestCase
                     'description',
                     'created_at',
                     'updated_at',
+                ],
+            ],
+        ]);
+    }
+
+    public function test_can_get_granted_permissions_for_a_specified_role()
+    {
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$user->role_id}/permissions/granted");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view-permissions', 'roles');
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$user->role_id}/permissions/granted");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'permissions' => [
+                '*' => [
+                    'id',
+                    'name',
+                    'granted',
+                    'module' => [
+                        'name',
+                        'category',
+                    ],
                 ],
             ],
         ]);
