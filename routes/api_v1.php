@@ -81,7 +81,7 @@ Route::group(['prefix' => 'permissions'], function () {
     Route::get('/{permission}', 'PermissionController@show');
     Route::put('/{permission}', 'PermissionController@update');
     Route::delete('/{permission}', 'PermissionController@destroy');
-    Route::get('/{permission}/module', 'PermissionController@module');
+    // Route::get('/{permission}/module', 'PermissionController@module');
 });
 
 Route::pattern('role', $uuid);
