@@ -34,6 +34,7 @@ class AuthServiceProvider extends ServiceProvider
         // ...
 
         Passport::tokensCan([
+            'authenticate-user' => 'Login, logout a user.',
             'confirm-email' => 'Indicate that a user has verified their email.',
             'reset-password' => "Change a user's forgot password.",
             'validate-email' => 'Check if a user account exists for given email.',

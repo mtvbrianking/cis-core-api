@@ -105,6 +105,8 @@ Route::pattern('user', $uuid);
 Route::group(['prefix' => 'users'], function () {
     Route::get('/', 'UserController@index');
     Route::post('/', 'UserController@store');
+    Route::post('/auth', 'UserController@authenticate')->middleware('client:authenticate-user');
+    Route::post('/deauth', 'UserController@deauthenticate');
     Route::post('/email', 'UserController@validateEmail')->middleware('client:validate-email');
     Route::put('/email', 'UserController@confirmEmailVerification')->middleware('client:confirm-email');
     Route::put('/password', 'UserController@updatePassword');
