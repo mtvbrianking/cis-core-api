@@ -99,16 +99,6 @@ class Module extends Model
     // Relationships
 
     /**
-     * User that created this facility.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function creator()
-    {
-        return $this->belongsTo(User::class, 'user_id', 'id');
-    }
-
-    /**
      * Permissions belonging to this module.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

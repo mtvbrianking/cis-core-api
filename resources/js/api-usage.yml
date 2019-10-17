@@ -1,0 +1,2170 @@
+swagger: '2.0'
+schemes:
+  - http
+  - https
+host: 'localhost:8000'
+basePath: /v1
+info:
+  description: API usage documentation
+  version: 1.0.0
+  title: CIS CORE API
+  termsOfService: 'https://github.com/mtvbrianking/cis-core-api/blob/master/readme.md'
+  contact:
+    url: 'https://github.com/mtvbrianking/cis-core-api'
+  x-logo:
+externalDocs:
+  description: Source code documentation
+  url: 'https://mtvbrianking.github.io/cis-core-api'
+tags:
+  - name: facility
+  - name: module
+  - name: permission
+  - name: role
+  - name: user
+  - name: oauth
+x-tagGroups:
+  - name: Resources
+    tags:
+      - facility
+      - module
+      - permission
+      - role
+      - user
+      - oauth
+securityDefinitions:
+  client_credentials_grant:
+    description: Get access to data while protecting your account credentials.
+    type: oauth2
+    flow: application
+    tokenUrl: 'http://localhost:8000/api/v1/oauth/token'
+  authorization_code_grant:
+    description: Get access to data while protecting your account credentials.
+    type: oauth2
+    flow: accessCode
+    authorizationUrl: 'http://localhost:8000/api/v1/oauth/authorize'
+    tokenUrl: 'http://localhost:8000/api/v1/oauth/token'
+  password_grant:
+    description: First party apps only.
+    type: oauth2
+    flow: password
+    tokenUrl: 'http://localhost:8000/api/v1/oauth/token'
+    scopes:
+      confirm-email: "Indicate that a user has verified their email."
+      reset-password: "Change a user's forgot password."
+      validate-email: 'Check if a user account exists for given email.'
+x-servers:
+  - url: '//localhost:8000/api/v1'
+    description: Production server
+  - url: '//localhost:9000/api/v1'
+    description: Sandbox server
+
+paths:
+
+  /facilities:
+    get:
+      tags:
+        - facility
+      summary: Get facilities
+      description: |-
+        Requires `view-any` permission on `facilities` module.
+      operationId: getFacilities
+      # security:
+      # - password_grant:
+      #   - "view-any:facilities"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              facilities:
+                type: array
+                items:
+                  $ref: '#/definitions/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/facilities \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+    post:
+      tags:
+        - facility
+      summary: Create a facility
+      description: |-
+        Requires `create` permission on `facilities` module.
+      operationId: createFacility
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: name
+          in: formData
+          required: true
+          type: string
+        - name: description
+          in: formData
+          required: false
+          type: string
+        - name: address
+          in: formData
+          required: true
+          type: string
+        - name: email
+          in: formData
+          description: 'See <a href=''#operation/validateEmail''>validate email</a>'
+          required: true
+          type: string
+          format: email
+        - name: website
+          in: formData
+          required: false
+          type: string
+          format: url
+        - name: phone
+          in: formData
+          required: false
+          type: string
+          format: phone
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+              http://localhost:8000/api/v1/facilities \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}' \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "name":"Mulago Hospital",
+                "description":"Mulago Hospital",
+                "address":"Mulago Hill",
+                "email":"cis@mulago.Hospital",
+                "phone":"+256392741586"
+              }'
+  '/facilities/{facility}':
+    get:
+      tags:
+        - facility
+      summary: Get facility
+      description: |-
+        Requires `view` permission on `facilities` module.
+
+        A user can view their facility regardless.
+      operationId: getFacility
+      consumes:
+        - application/json
+      parameters:
+        - name: facility
+          in: path
+          description: '<a href=''#operation/getFacilties''>Facility ID</a>'
+          required: true
+          type: string
+          format: uuid
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/facilities/{facility} \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+    put:
+      tags:
+        - facility
+      summary: Update facility
+      description: |-
+        Requires `update` permission on `facilities` module.
+      operationId: updateFacility
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: facility
+          in: path
+          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+          required: true
+          type: string
+          format: uuid
+        - name: name
+          in: formData
+          required: false
+          type: string
+        - name: description
+          in: formData
+          required: false
+          type: string
+        - name: address
+          in: formData
+          required: false
+          type: string
+        - name: email
+          in: formData
+          required: false
+          type: string
+          format: email
+        - name: website
+          in: formData
+          required: false
+          type: string
+          format: url
+        - name: phone
+          in: formData
+          required: false
+          type: string
+          format: phone
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             http://localhost:8000/api/v1/facilities/{facility} \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}' \
+             -H 'Content-Type: application/json' \
+             -d '{
+                "name":"Mulago Hospital",
+                "description":"Mulago Hospital",
+                "address":"Mulago Hill",
+                "email":"cis@mulago.Hospital",
+                "website":"https://mulago.Hospital",
+                "phone":"+256392741586"
+              }'
+    delete:
+      tags:
+        - facility
+      summary: Delete facility
+      description: |-
+        <strong>Permanently</strong> remove a facility from database.
+
+        Requires `force-delete` permission on `facilities` module.
+
+        The facility must be <a href='#operation/revokeFacility'>revoked</a> prior to deletion.
+      operationId: deleteFacility
+      consumes:
+        - application/json
+      parameters:
+        - name: facility
+          in: path
+          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+          required: true
+          type: string
+          format: uuid
+      produces:
+        - application/json
+      responses:
+        '204':
+          description: No Content
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X DELETE \
+             'http://localhost:8000/api/v1/facilities/{facility}' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+  '/facilities/{facility}/modules':
+    put:
+      tags:
+        - facility
+      summary: Reassign facility modules
+      description: |-
+        Requires `assign-modules` permission on `modules` module.
+      operationId: assignFacilityModules
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: facility
+          in: path
+          description: '<a href=''#operation/getModules''>Module Name</a>'
+          required: true
+          type: string
+        - name: modules
+          in: formData
+          description: 'Facility modules.'
+          required: false
+          type: array
+          items:
+            type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/FacilityModel'
+              - properties:
+                  modules:
+                    type: array
+                    items:
+                      $ref: '#/definitions/ModuleModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/facilities/{facility}/modules' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+  '/facilities/{facility}/restore':
+    put:
+      tags:
+        - facility
+      summary: Restore facility
+      description: |-
+        <strong>Reinstate</strong> previously <strike><a href='#operation/revokeFacility'>revoked</a></strike> facility.
+
+        Requires `restore` permission on `facilities` module.
+      operationId: restoreFacility
+      consumes:
+        - application/json
+      parameters:
+        - name: facility
+          in: path
+          description: '<a href=''#operation/getFacilties''>Facility ID</a>'
+          required: true
+          type: string
+          format: uuid
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/facilities/{facility}/restore' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+  '/facilities/{facility}/revoke':
+    put:
+      tags:
+        - facility
+      summary: Revoke facility
+      description: |-
+        Requires `soft-delete` permission on `facilities` module.
+
+        Different from <a href='#operation/deleteFacility'>delete facility</a>.
+      operationId: revokeFacility
+      consumes:
+        - application/json
+      parameters:
+        - name: facility
+          in: path
+          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+          required: true
+          type: string
+          format: uuid
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/FacilityModel'
+              - properties:
+                  deleted_at:
+                    example: '2018-10-05 22:48:06'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/facilities/{facility}/revoke' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+
+  /modules:
+    get:
+      tags:
+        - module
+      summary: Get modules
+      description: |-
+        Requires `view-any` permission on `modules` module.
+      operationId: getModules
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              modules:
+                type: array
+                items:
+                  $ref: '#/definitions/ModuleModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/modules \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+    post:
+      tags:
+        - module
+      summary: Create a module
+      description: |-
+        Requires `create` permission on `modules` module.
+      operationId: createModule
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: name
+          in: formData
+          description: 'Module name.'
+          required: true
+          type: string
+        - name: description
+          in: formData
+          description: 'Module description.'
+          required: false
+          type: string
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: Created
+          schema:
+            $ref: '#/definitions/ModuleModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+              http://localhost:8000/api/v1/modules \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}' \
+              -H 'Content-Type: application/json' \
+              -d '{"name":"Users module","description":"Users module"}'
+  '/modules/{module}':
+    get:
+      tags:
+        - module
+      summary: Get module
+      description: |-
+        Requires `view` permission on `modules` module.
+      operationId: getModule
+      consumes:
+        - application/json
+      parameters:
+        - name: module
+          in: path
+          description: '<a href=''#operation/getModules''>Module name</a>'
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/ModuleModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/modules/{module} \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+
+    put:
+      tags:
+        - module
+      summary: Update module
+      description: |-
+        Requires `update` permission on `modules` module.
+      operationId: updateModule
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - name: module
+          in: path
+          description: '<a href=''#operation/getModules''>Module name</a>'
+          required: true
+          type: string
+        - name: description
+          in: formData
+          description: 'Module description'
+          required: false
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/ModuleModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             http://localhost:8000/api/v1/modules/{module} \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}' \
+             -H 'Content-Type: application/json' \
+             -d '{"description":"Users module"}'
+
+    delete:
+      tags:
+        - module
+      summary: Delete module
+      description: |-
+        <strong>Permanently</strong> remove a module from database.
+
+        Requires `force-delete` permission on `modules` module.
+
+        The module must be <a href='#operation/revokeModule'>revoked</a> before it can be deleted.
+      operationId: deleteModule
+      consumes:
+        - application/json
+      parameters:
+        - name: module
+          in: path
+          description: '<a href=''#operation/getModules''>Module name</a>'
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '204':
+          description: No Content
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X DELETE \
+             'http://localhost:8000/api/v1/modules/{module}' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+  '/modules/{module}/restore':
+    put:
+      tags:
+        - module
+      summary: Restore module
+      description: |-
+        <strong>Reinstate</strong> previously <strike>revoked</strike> module.
+
+        Requires `restore` permission on `modules` module.
+
+        See <a href='#operation/revokeModule'>revoke module</a>.
+      operationId: restoreModule
+      consumes:
+        - application/json
+      parameters:
+        - name: module
+          in: path
+          description: '<a href=''#operation/getModules''>Module name</a>'
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/ModuleModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/modules/{module}/restore' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+  '/modules/{module}/revoke':
+    put:
+      tags:
+        - module
+      summary: Revoke module
+      description: |-
+        Requires `soft-delete` permission on `modules` module.
+
+        Different from <a href='#operation/deleteModule'>delete module</a>.
+      operationId: revokeModule
+      consumes:
+        - application/json
+      parameters:
+        - name: module
+          in: path
+          description: '<a href=''#operation/getModules''>Module name</a>'
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/ModuleModel'
+              - properties:
+                  deleted_at:
+                    example: '2018-10-05 22:48:06'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/modules/{module}/revoke' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+
+  /permissions:
+    get:
+      tags:
+        - permission
+      summary: Get permissions
+      description: |-
+        Requires `view-any` permission on `permissions` module.
+      operationId: getPermissions
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              permissions:
+                type: array
+                items:
+                  $ref: '#/definitions/PermissionModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/permissions \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+    post:
+      tags:
+        - permission
+      summary: Register permission
+      description: |-
+        Requires `create` permission on `permissions` module.
+      operationId: registerPermission
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: module_name
+          description: '<a href=''#operation/getModules''>Module</a>'
+          in: formData
+          required: true
+          type: string
+        - name: name
+          in: formData
+          required: true
+          type: string
+        - name: description
+          in: formData
+          required: false
+          type: string
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: Created
+          schema:
+            allOf:
+              - $ref: '#/definitions/PermissionModel'
+              - properties:
+                  module:
+                    $ref: '#/definitions/ModuleModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+              http://localhost:8000/api/v1/permissions \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}' \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "module_name":"users",
+                "name":"view-any",
+                "description":"View any permission."
+              }'
+  '/permissions/{permission}':
+    get:
+      tags:
+        - permission
+      summary: Get permission
+      description: |-
+        Requires `view` permission on `permissions` module.
+      operationId: getPermission
+      consumes:
+        - application/json
+      parameters:
+        - name: permission
+          in: path
+          description: '<a href=''#operation/getPermissions''>Permission</a>'
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/PermissionModel'
+              - properties:
+                  module:
+                    $ref: '#/definitions/ModuleModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/permissions/{permission} \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+    put:
+      tags:
+        - permission
+      summary: Update permission
+      description: |-
+        Requires `update` permission on `permissions` module.
+      operationId: updatePermission
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: permission
+          in: path
+          description: '<a href=''#operation/getPermissions''>Permission</a>'
+          required: true
+          type: integer
+        - name: module_name
+          in: formData
+          required: true
+          type: string
+        - name: name
+          in: formData
+          required: true
+          type: string
+        - name: description
+          in: formData
+          required: false
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/PermissionModel'
+              - properties:
+                  module:
+                    $ref: '#/definitions/ModuleModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             http://localhost:8000/api/v1/permissions/{permission} \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}' \
+             -H 'Content-Type: application/json' \
+             -d '{
+               "module_name":"users",
+               "name":"view-any",
+               "description":"View any user."
+             }'
+    delete:
+      tags:
+        - permission
+      summary: Delete permission
+      description: |-
+        Remove permission from database. This action irreversible.
+
+        Requires `delete` permission on `permissions` module.
+      operationId: deletePermission
+      consumes:
+        - application/json
+      parameters:
+        - name: permission
+          in: path
+          description: '<a href=''#operation/getPermissions''>Permission</a>'
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        '204':
+          description: No Content
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X DELETE \
+             'http://localhost:8000/api/v1/permissions/{permission}' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+
+  /roles:
+    get:
+      tags:
+        - role
+      summary: Get roles
+      description: |-
+        Requires `view-any` permission on `roles` module.
+      operationId: getRoles
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              roles:
+                type: array
+                items:
+                  $ref: '#/definitions/RoleModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/roles \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+    post:
+      tags:
+        - role
+      summary: Register role
+      description: |-
+        Requires `create` permission on `roles` module.
+      operationId: registerRole
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: name
+          in: formData
+          required: true
+          type: string
+        - name: description
+          in: formData
+          required: false
+          type: string
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: Created
+          schema:
+            allOf:
+              - $ref: '#/definitions/RoleModel'
+              - properties:
+                  facility:
+                    $ref: '#/definitions/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+              http://localhost:8000/api/v1/roles \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}' \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "name":"Sys Admin",
+                "description":"System Administrator"
+              }'
+  '/roles/{role}':
+    get:
+      tags:
+        - role
+      summary: Get role
+      description: |-
+        Requires `view` permission on `roles` module to view other user's roles.
+
+        User's can view role regardless.
+      operationId: getRole
+      consumes:
+        - application/json
+      parameters:
+        - name: role
+          in: path
+          description: '<a href=''#operation/getRoles''>Role</a>'
+          required: true
+          type: string
+          format: uuid
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/RoleModel'
+              - properties:
+                  facility:
+                    $ref: '#/definitions/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/roles/{role} \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+    put:
+      tags:
+        - role
+      summary: Update role
+      description: |-
+        Requires `update` permission on `roles` module.
+      operationId: updateRole
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: role
+          in: path
+          description: '<a href=''#operation/getRoles''>Role</a>'
+          required: true
+          type: string
+        - name: name
+          in: formData
+          required: false
+          type: string
+        - name: description
+          in: formData
+          required: false
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/RoleModel'
+              - properties:
+                  facility:
+                    $ref: '#/definitions/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             http://localhost:8000/api/v1/roles/{role} \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}' \
+             -H 'Content-Type: application/json' \
+             -d '{
+               "name":"Sys Admin",
+               "description":"System Administrator"
+             }'
+    delete:
+      tags:
+        - role
+      summary: Delete role
+      description: |-
+        <strong>Permanently</strong> remove role from database.
+
+        Requires `force-delete` permission on `roles` module.
+
+        The role must be <a href='#operation/revokeRole'>revoked</a> before it be deleted.
+      operationId: deleteRole
+      consumes:
+        - application/json
+      parameters:
+        - name: role
+          in: path
+          description: '<a href=''#operation/getRoles''>Role</a>'
+          required: true
+          type: string
+          format: uuid
+      produces:
+        - application/json
+      responses:
+        '204':
+          description: No Content
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X DELETE \
+             'http://localhost:8000/api/v1/roles/{role}' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+  '/roles/{role}/permissions':
+    get:
+      tags:
+        - role
+      summary: Get role permissions
+      description: |-
+        All permissions available to this role.
+
+        Requires `view-permissions` permission on `roles` module.
+      operationId: getRolePermissions
+      consumes:
+        - application/json
+      parameters:
+        - name: role
+          in: path
+          description: '<a href=''#operation/getRoles''>Role</a>'
+          required: true
+          type: string
+          format: uuid
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              permissions:
+                type: array
+                items:
+                  $ref: '#/definitions/PermissionModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/roles/{role}/permissions \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+    put:
+      tags:
+        - role
+      summary: Synchronize role permissions
+      description: |-
+        Dettach, re-attach permissions to a role.
+
+        Requires `assign-permissions` permission on `permissions` module.
+      operationId: syncRolePermissions
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: role
+          in: path
+          description: '<a href=''#operation/getRoles''>Role</a>'
+          required: true
+          type: string
+          format: uuid
+        - name: permissions
+          in: formData
+          required: false
+          type: array
+          items:
+            type: integer
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/RoleModel'
+              - properties:
+                  permissions:
+                    type: array
+                    items:
+                      $ref: '#/definitions/PermissionModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             http://localhost:8000/api/v1/roles/{role}/permissions \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+  '/roles/{role}/permissions/granted':
+    get:
+      tags:
+        - role
+      summary: Role permissions - granted
+      description: |-
+        Get all permissions available to this role, indicating weather granted or not.
+
+        Requires `view-permissions` permission on `roles` module.
+      operationId: getRolePermissionsGranted
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: role
+          in: path
+          description: '<a href=''#operation/getRoles''>Role</a>'
+          required: true
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: OK
+          examples:
+            application/json:
+              permissions:
+                - id: 1
+                  name: view-any
+                  granted: true
+                  module:
+                    name: users
+                    category: uncategorized
+                - id: 2
+                  name: create
+                  granted: false
+                  module:
+                    name: users
+                    category: uncategorized
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/roles/{role}/permissions/granted \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+  '/roles/{role}/revoke':
+    put:
+      tags:
+        - role
+      summary: Revoke role
+      description: |-
+        Requires `soft-delete` permission on `roles` module.
+
+        Different from <a href='#operation/deleteRole'>delete role</a>.
+      operationId: revokeRole
+      consumes:
+        - application/json
+      parameters:
+        - name: role
+          in: path
+          description: '<a href=''#operation/getRoles''>Role</a>'
+          required: true
+          type: string
+          format: uuid
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/RoleModel'
+              - properties:
+                  deleted_at:
+                    example: '2018-10-05 22:48:06'
+                  facility:
+                    $ref: '#/definitions/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/roles/{role}/revoke' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+  '/roles/{role}/restore':
+    put:
+      tags:
+        - role
+      summary: Restore role
+      description: |-
+        <strong>Reinstate</strong> previously <strike>revoked</strike> role.
+
+        Requires `restore` permission on `roles` module.
+
+        See <a href='#operation/revokeUser'>revoke role</a>.
+      operationId: restoreRole
+      consumes:
+        - application/json
+      parameters:
+        - name: role
+          in: path
+          description: '<a href=''#operation/getRoles''>Role</a>'
+          required: true
+          type: string
+          format: uuid
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/RoleModel'
+              - properties:
+                  facility:
+                    $ref: '#/definitions/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/roles/{role}/restore' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+  '/roles/{role}/users':
+    get:
+      tags:
+        - role
+      summary: Get role users
+      description: |-
+        Get all users having this role.
+
+        Requires `view-any` permission on `users` module.
+      operationId: getRoleUsers
+      consumes:
+        - application/json
+      parameters:
+        - name: role
+          in: path
+          description: '<a href=''#operation/getRoles''>Role</a>'
+          required: true
+          type: string
+          format: uuid
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              users:
+                type: array
+                items:
+                  $ref: '#/definitions/UserModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/roles/{role}/users' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+
+  /users:
+    get:
+      tags:
+        - user
+      summary: Get users
+      description: |-
+        Requires `view-any` permission on `users` module.
+      operationId: getUsers
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              users:
+                type: array
+                items:
+                  $ref: '#/definitions/UserModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/users \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+    post:
+      tags:
+        - user
+      summary: Register user
+      description: |-
+        Requires `create` permission on `users` module.
+
+        Sets a random default password; see <a href='#operation/resetPassword'>reset password</a>.
+      operationId: registerUser
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: name
+          in: formData
+          description: Full name.
+          required: true
+          type: string
+        - name: alias
+          in: formData
+          description: Preferred display name.
+          required: true
+          type: string
+        - name: email
+          in: formData
+          description: 'Email address. Must be unique. See <a href=''#operation/validateEmail''>validate email.</a>'
+          required: true
+          type: string
+          format: email
+        - name: role_id
+          in: formData
+          description: '<a href=''#operation/getRoles''>Role</a>'
+          required: true
+          type: string
+          format: uuid
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: Created
+          schema:
+            allOf:
+              - $ref: '#/definitions/UserModel'
+              - properties:
+                  role:
+                    $ref: '#/definitions/RoleModel'
+                  facility:
+                    $ref: '#/definitions/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+              http://localhost:8000/api/v1/users \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}' \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "name":"John Doe",
+                "alias":"jdoe",
+                "email":"jdoe@example.com",
+                "role_id":"1bc27b9c-a963-4fda-b79b-91b125ba0ed1"
+              }'
+  /users/email:
+    post:
+      tags:
+        - user
+      summary: Validate email
+      description: |-
+        Check if a user exists with given email.
+
+        Requires `validate-email` scope.
+      operationId: validateEmail
+      security:
+        - password_grant:
+          - "validate-email"
+      consumes:
+        - application/json
+      parameters:
+        - in: "body"
+          name: "body"
+          required: true
+          schema:
+            $ref: "#/definitions/UserValidateEmailRequest"
+      produces:
+        - application/json
+      responses:
+        '204':
+          description: No Content
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+              http://localhost:8000/api/v1/users/email \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}' \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "email": "jdoe@example.com"
+              }'
+    put:
+      tags:
+        - user
+      summary: Confirm email verification
+      description: |-
+        Confirm a user has verified their email address.
+
+        Requires `confirm-email` scope.
+      operationId: confirmEmailVerification
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: email
+          in: formData
+          description: Verified email address.
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '204':
+          description: No Content
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/users/email' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}' \
+             -d '{
+                "email": "jdoe@example.com"
+              }'
+  /users/password:
+    post:
+      tags:
+        - user
+      summary: Confirm password
+      description: Confirm your <strong>own</strong> password.
+      operationId: confirmPassword
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: password
+          in: formData
+          description: Your user account password.
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '204':
+          description: No Content
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+             'http://localhost:8000/api/v1/users/password' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}' \
+             -d '{
+               "password":"N%x/6j^H"
+             }'
+    put:
+      tags:
+        - user
+      summary: Update password
+      description: |-
+        Update your <strong>own</strong> password.
+
+        See <a href=''#operation/updateUser''>update user</a>.
+      operationId: updatePassword
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: password
+          in: formData
+          description: Existing user account password.
+          required: true
+          type: string
+        - name: new_password
+          in: formData
+          description: |-
+            New user account password. Having at least;
+            + 8 characters,
+            + an upper case letter,
+            + a lower case letter,
+            + a number and,
+            + a symbol.
+          required: true
+          type: string
+          pattern: '(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$'
+        - name: new_password_confirmation
+          in: formData
+          description: New password confirmation.
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '204':
+          description: No Content
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/users/password' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}' \
+             -d '{
+                "password":"N:x/6j^H",
+                "new_password":"Gm":"Pm5^(",
+                "new_password_confirmation":"Gm=Pm5^(",
+              }'
+  /users/password/reset:
+    put:
+      tags:
+        - user
+      summary: Reset password
+      description: |-
+        Reset a user's password.
+
+        Requires `reset-password` scope.
+
+        See <a href='#operation/updatePassword'>update password</a>.
+      operationId: resetPassword
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: email
+          in: formData
+          description: Email for account to reset passport.
+          required: true
+          type: string
+        - name: password
+          in: formData
+          description: |-
+            New user account password. Having at least;
+            + 8 characters,
+            + an upper case letter,
+            + a lower case letter,
+            + a number and,
+            + a symbol.
+          required: true
+          type: string
+          pattern: '(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$'
+        - name: password_confirmation
+          in: formData
+          description: New password confirmation.
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '204':
+          description: No Content
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/users/password/reset' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}' \
+             -d '{
+                "email":"jdoe@example.com",
+                "password":"Gm%Pm5^(",
+                "password_confirmation":"Gm%Pm5^("
+              }'
+  '/users/{user}':
+    get:
+      tags:
+        - user
+      summary: Get user
+      description: |-
+        Requires `view` permission on `users` module.
+
+        User's can view their own regardless.
+      operationId: getUser
+      consumes:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          description: '<a href=''#operation/getUsers''>User</a>'
+          required: true
+          type: string
+          format: uuid
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/UserModel'
+              - properties:
+                  role:
+                    $ref: '#/definitions/RoleModel'
+                  facility:
+                    $ref: '#/definitions/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/users/{user} \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+    put:
+      tags:
+        - user
+      summary: Update user
+      description: |-
+        Requires `update` permission on `users` module.
+
+        Can't update a user's password. See <a href='#operation/updatePassword'>update user password</a>
+      operationId: updateUser
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: user
+          in: path
+          description: '<a href=''#operation/getUsers''>User</a>'
+          required: true
+          type: string
+          format: uuid
+        - name: name
+          in: formData
+          description: Full name
+          required: false
+          type: string
+        - name: alias
+          in: formData
+          description: Preferred display name.
+          required: false
+          type: string
+        - name: email
+          in: formData
+          description: |-
+            Email address.\
+            If changed, user must verify new email address.
+            See <a href='#operation/confirmEmailVerification'>confirm email verification.</a>
+          required: false
+          type: string
+          format: email
+        - name: role_id
+          in: formData
+          description: '<a href=''#operation/getRoles''>Role</a>'
+          required: false
+          type: string
+          format: uuid
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/UserModel'
+              - properties:
+                  role:
+                    $ref: '#/definitions/RoleModel'
+                  facility:
+                    $ref: '#/definitions/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             http://localhost:8000/api/v1/users/{user} \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}' \
+             -H 'Content-Type: application/json' \
+             -d '{
+                "name":"John Doe",
+                "alias":"jdoe",
+                "email":"jdoe@example.com",
+                "role_id":"{role}"
+              }'
+    delete:
+      tags:
+        - user
+      summary: Delete user
+      description: |-
+        <strong>Permanently</strong> remove user from database.
+
+        Requires `force-delete` permission on `users` module, and the user must be revoked before he/she can be deleted.
+
+        See <a href='#operation/revokeUser'>revoke user</a>
+      operationId: deleteUser
+      consumes:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          description: '<a href=''#operation/getUsers''>User</a>'
+          required: true
+          type: string
+          format: uuid
+      produces:
+        - application/json
+      responses:
+        '204':
+          description: No Content
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X DELETE \
+             'http://localhost:8000/api/v1/users/{user}' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+  '/users/{user}/revoke':
+    put:
+      tags:
+        - user
+      summary: Revoke user
+      description: |-
+        Requires `soft-delete` permission on `users` module.
+
+        Different from <a href='#operation/deleteUser'>delete user</a>.
+      operationId: revokeUser
+      consumes:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          description: '<a href=''#operation/getUsers''>User</a>'
+          required: true
+          type: string
+          format: uuid
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/UserModel'
+              - properties:
+                  deleted_at:
+                    example: '2018-10-05 22:48:06'
+                  role:
+                    $ref: '#/definitions/RoleModel'
+                  facility:
+                    $ref: '#/definitions/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/users/{user}/revoke' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+  '/users/{user}/restore':
+    put:
+      tags:
+        - user
+      summary: Restore user
+      description: |-
+        <strong>Reinstate</strong> previously <strike>revoked</strike> user.
+
+        Requires `restore` permission on `users` module.
+
+        See <a href='#operation/revokeUser'>revoke user</a>.
+      operationId: restoreUser
+      consumes:
+        - application/json
+      parameters:
+        - name: user
+          in: path
+          description: '<a href=''#operation/getUsers''>User</a>'
+          required: true
+          type: string
+          format: uuid
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/UserModel'
+              - properties:
+                  role:
+                    $ref: '#/definitions/RoleModel'
+                  facility:
+                    $ref: '#/definitions/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/users/{user}/restore' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+
+  /oauth/token:
+    post:
+      tags:
+        - oauth
+      summary: Request oauth token
+      operationId: requestToken
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: client_id
+          in: formData
+          required: true
+          type: string
+          format: UUID
+        - name: client_secret
+          in: formData
+          required: true
+          type: string
+        - name: grant_type
+          type: string
+          enum:
+            - authorization_code
+            - client_credentials
+            - password
+            - refresh_token
+          in: formData
+          required: true
+        - name: code
+          in: formData
+          description: |-
+            Authorization code.
+
+            <strong>Required if</strong> grant_type is `authorization_code`.
+          required: false
+          type: string
+        - name: redirect_uri
+          in: formData
+          description: |-
+            <strong>Required if</strong> grant_type is `authorization_code`.
+          required: false
+          type: string
+          format: URI
+        - name: refresh_token
+          in: formData
+          description: |-
+            Refresh access-token.
+
+            <strong>Required if</strong> grant_type is `refresh_token`.
+          required: false
+          type: string
+        - name: username
+          in: formData
+          description: <strong>Required if</strong> grant_type is `password`.
+          required: false
+          type: string
+        - name: password
+          in: formData
+          description: <strong>Required if</strong> grant_type is `password`.
+          required: false
+          type: string
+          format: password
+        - name: scopes
+          in: formData
+          required: false
+          type: array
+          items:
+            type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Created
+          schema:
+            $ref: '#/definitions/TokenModel'
+      x-code-samples:
+        - lang: CURL - Password
+          source: |-
+            curl -X POST \
+             http://localhost:8000/api/v1/oauth/token \
+             -H 'Accept: application/json' \
+             -H 'Content-Type: application/json' \
+             -d '{
+                "grant_type": "password",
+                "client_id": "3102c90b-1936-4968-af9e-3701bcc6147c",
+                "client_secret": "OZHF4AuWWvMY0rKC2VWwEMlvobJ4GfCgGKopdadQ",
+                "username": "jdoe@example.com",
+                "password": "O7SQx63Y12iwaWHQ"
+             }'
+        - lang: CURL - Client Credentials
+          source: |-
+            curl -X POST \
+             http://localhost:8000/api/v1/oauth/token \
+             -H 'Accept: application/json' \
+             -H 'Content-Type: application/json' \
+             -d '{
+                "grant_type": "client_credentials",
+                "client_id": "3102c90b-1936-4968-af9e-3701bcc6147c",
+                "client_secret": "OZHF4AuWWvMY0rKC2VWwEMlvobJ4GfCgGKopdadQ"
+             }'
+
+definitions:
+
+  # Models
+
+  UserModel:
+    type: object
+    title: User
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: 0ac99f1b-482c-4af1-be28-ddace07eff20
+      facility_id:
+        description: '<a href=''#operation/getFacilities''>Facility</a>'
+        type: string
+        format: uuid
+        example: 90cae4ff-6f86-4ba3-8651-134b48fd7a2a
+      role_id:
+        description: '<a href=''#operation/getRoles''>Role</a>'
+        type: string
+        format: uuid
+        example: f0f95c23-6ba1-4348-b1d9-bfb5e4bb1e3f
+      alias:
+        description: Display name - unique.
+        type: string
+        maxLength: 25
+        example: jdoe
+      name:
+        description: Full name
+        type: string
+        maxLength: 25
+        example: John Doe
+      email:
+        description: Email address - unique.
+        type: string
+        format: email
+        example: jdoe@example.com
+      email_verified_at:
+        type: string
+        format: date-time
+        example: '2018-09-30 17:06:12'
+        x-nullable: true
+      created_at:
+        type: string
+        format: date-time
+        example: '2018-09-30 09:42:23'
+        x-nullable: true
+      updated_at:
+        type: string
+        format: date-time
+        example: '2018-10-02 14:27:09'
+        x-nullable: true
+      deleted_at:
+        type: string
+        format: date-time
+        example: null
+        x-nullable: true
+  RoleModel:
+    type: object
+    title: Role
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: f0f95c23-6ba1-4348-b1d9-bfb5e4bb1e3f
+      facility_id:
+        description: '<a href=''#operation/getFacilities''>Facility</a>'
+        type: string
+        format: uuid
+        example: 0ac99f1b-482c-4af1-be28-ddace07eff20
+      name:
+        description: User role name
+        type: string
+        maxLength: 50
+        example: Sys Admin
+      description:
+        description: User role description
+        type: string
+        maxLength: 100
+        example: System Administrator
+        x-nullable: true
+      created_at:
+        type: string
+        format: date-time
+        example: '2018-09-30 09:42:23'
+        x-nullable: true
+      updated_at:
+        type: string
+        format: date-time
+        example: '2018-10-02 14:27:09'
+        x-nullable: true
+      deleted_at:
+        type: string
+        format: date-time
+        example: null
+        x-nullable: true
+  FacilityModel:
+    type: object
+    title: Facility
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: 90cae4ff-6f86-4ba3-8651-134b48fd7a2a
+      name:
+        type: string
+        maxLength: 100
+        example: Mulago Hospital
+      description:
+        type: string
+        maxLength: 100
+        example: Mulago Hospital
+        x-nullable: true
+      address:
+        type: string
+        maxLength: 100
+        example: Mulago Hill
+      email:
+        type: string
+        format: email
+        maxLength: 50
+        example: cis@mulago.Hospital
+      website:
+        type: string
+        format: uri
+        maxLength: 50
+        example: 'https://mulago.Hospital'
+        x-nullable: true
+      phone:
+        type: string
+        format: tel
+        maxLength: 25
+        example: '+256392741586'
+        x-nullable: true
+      created_at:
+        type: string
+        format: date-time
+        example: '2018-09-30 09:42:23'
+        x-nullable: true
+      updated_at:
+        type: string
+        format: date-time
+        example: '2018-10-02 14:27:09'
+        x-nullable: true
+      deleted_at:
+        type: string
+        format: date-time
+        example: null
+        x-nullable: true
+  ModuleModel:
+    type: object
+    title: Module
+    properties:
+      name:
+        type: string
+        maxLength: 100
+        example: users
+      description:
+        type: string
+        maxLength: 50
+        example: Users module
+        x-nullable: true
+      category:
+        type: string
+        enum:
+          - uncategorized
+        default: uncategorized
+      created_at:
+        type: string
+        format: date-time
+        example: '2018-09-30 09:42:23'
+        x-nullable: true
+      updated_at:
+        type: string
+        format: date-time
+        example: '2018-10-02 14:27:09'
+        x-nullable: true
+      deleted_at:
+        type: string
+        format: date-time
+        example: null
+        x-nullable: true
+  PermissionModel:
+    type: object
+    title: Permission
+    properties:
+      id:
+        type: integer
+        example: 1
+      module_name:
+        type: string
+        maxLength: 100
+        example: users
+      name:
+        type: string
+        format: uuid
+        maxLength: 100
+        example: view-any
+      description:
+        type: string
+        maxLength: 100
+        example: View any user
+        x-nullable: true
+      created_at:
+        type: string
+        format: date-time
+        example: '2018-09-30 09:42:23'
+        x-nullable: true
+      updated_at:
+        type: string
+        format: date-time
+        example: '2018-10-02 14:27:09'
+        x-nullable: true
+  TokenModel:
+    type: object
+    title: Token
+    properties:
+      token_type:
+        type: string
+        default: Bearer
+      expires_in:
+        type: integer
+        example: 3600
+      access_token:
+        type: string
+        example: eyJ0eXAiOiJKV1QiLCJhbGcNGY4ODNhMzRmMTM0NTdmMTkyMGNlY...
+      refresh_token:
+        type: string
+        description: \* Missing on client-credentials token.
+        example: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6Ijk4OGM1...
+        x-nullable: true
+
+  # Requests
+
+  UserValidateEmailRequest:
+    type: object
+    required:
+      - email
+    properties:
+      email:
+        description: Email address
+        type: string
+        format: email
+        example: jdoe@example.com
+
+  # Http Responses
+
+  401HttpResponse:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Unauthenticated.
+  403HttpResponse:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Insufficient permission.
+  404HttpResponse:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Not found.
+  405HttpResponse:
+    type: object
+    properties:
+      message:
+        type: string
+        example: 'The POST method is not supported for this route.'
+  422HttpResponse:
+    type: object
+    properties:
+      message:
+        type: string
+        example: The given data was invalid.
+      errors:
+        type: object
+        properties:
+          email:
+            type: array
+            items:
+              type: string
+              example: The email field is required.
+  429HttpResponse:
+    type: object
+    properties:
+      message:
+        type: string
+        example: 'Exceed the max number of requests per minute.'
+  500HttpResponse:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Something went wrong.

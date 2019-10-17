@@ -21,6 +21,14 @@ class ModuleControllerTest extends TestCase
 
         $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/modules');
 
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view-any', 'modules');
+
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/modules');
+
         $response->assertStatus(200);
 
         $response->assertJsonStructure([
@@ -38,16 +46,26 @@ class ModuleControllerTest extends TestCase
 
     public function test_can_get_specified_module()
     {
-        $user = factory(User::class)->create();
-
         $name = 'user';
 
-        $module = factory(Module::class)->create([
+        factory(Module::class)->create([
             'name' => $name,
             'description' => 'Users module',
         ]);
 
         $slug_plural_name = Str::slug(Str::plural($name));
+
+        // ...
+
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/modules/{$slug_plural_name}");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view', 'modules');
 
         $response = $this->actingAs($user, 'api')->json('GET', "api/v1/modules/{$slug_plural_name}");
 
@@ -71,9 +89,15 @@ class ModuleControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
+        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/modules', []);
+
+        $response->assertStatus(403);
+
+        // ...
+
         $name = 'user';
 
-        $slug_plural_name = Str::slug(Str::plural($name));
+        $user = $this->getAuthorizedUser('create', 'modules');
 
         $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/modules', [
             'name' => $name,
@@ -90,6 +114,8 @@ class ModuleControllerTest extends TestCase
             'deleted_at',
         ]);
 
+        $slug_plural_name = Str::slug(Str::plural($name));
+
         $response->assertJson([
             'name' => $slug_plural_name,
             'description' => 'Users module',
@@ -100,9 +126,17 @@ class ModuleControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
+        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/modules', []);
+
+        $response->assertStatus(403);
+
+        // ...
+
         $name = 'user';
 
-        $module = factory(Module::class)->create([
+        $user = $this->getAuthorizedUser('create', 'modules');
+
+        factory(Module::class)->create([
             'name' => $name,
             'description' => 'Original users module',
         ]);
@@ -136,10 +170,18 @@ class ModuleControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $module = factory(Module::class)->create([
+        $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/modules/users', []);
+
+        $response->assertStatus(403);
+
+        // ...
+
+        factory(Module::class)->create([
             'name' => 'users',
             'description' => 'Users module',
         ]);
+
+        $user = $this->getAuthorizedUser('update', 'modules');
 
         $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/modules/users', [
             'description' => 'New users module desc',
@@ -162,12 +204,22 @@ class ModuleControllerTest extends TestCase
 
     public function test_can_revoke_specified_module()
     {
-        $user = factory(User::class)->create();
-
-        $module = factory(Module::class)->create([
+        factory(Module::class)->create([
             'name' => 'users',
             'description' => 'Users module',
         ]);
+
+        // ...
+
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/modules/users/revoke');
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('soft-delete', 'modules');
 
         $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/modules/users/revoke');
 
@@ -188,12 +240,22 @@ class ModuleControllerTest extends TestCase
 
     public function test_cant_restore_non_revoked_module()
     {
-        $user = factory(User::class)->create();
-
-        $module = factory(Module::class)->create([
+        factory(Module::class)->create([
             'name' => 'users',
             'description' => 'Users module',
         ]);
+
+        // ...
+
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/modules/users/restore');
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('restore', 'modules');
 
         $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/modules/users/restore');
 
@@ -206,13 +268,23 @@ class ModuleControllerTest extends TestCase
 
     public function test_can_restore_revoked_module()
     {
-        $user = factory(User::class)->create();
-
-        $module = factory(Module::class)->create([
+        factory(Module::class)->create([
             'name' => 'users',
             'description' => 'Users module',
             'deleted_at' => date('Y-m-d H:i:s'),
         ]);
+
+        // ...
+
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/modules/users/restore');
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('restore', 'modules');
 
         $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/modules/users/restore');
 
@@ -234,12 +306,22 @@ class ModuleControllerTest extends TestCase
 
     public function test_cant_delete_non_revoked_module()
     {
-        $user = factory(User::class)->create();
-
-        $module = factory(Module::class)->create([
+        factory(Module::class)->create([
             'name' => 'users',
             'description' => 'Users module',
         ]);
+
+        // ...
+
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('DELETE', 'api/v1/modules/users');
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('force-delete', 'modules');
 
         $response = $this->actingAs($user, 'api')->json('DELETE', 'api/v1/modules/users');
 
@@ -252,13 +334,23 @@ class ModuleControllerTest extends TestCase
 
     public function test_can_delete_revoked_module()
     {
-        $user = factory(User::class)->create();
-
-        $module = factory(Module::class)->create([
+        factory(Module::class)->create([
             'name' => 'users',
             'description' => 'Users module',
             'deleted_at' => date('Y-m-d H:i:s'),
         ]);
+
+        // ...
+
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('DELETE', 'api/v1/modules/users');
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('force-delete', 'modules');
 
         $response = $this->actingAs($user, 'api')->json('DELETE', 'api/v1/modules/users');
 

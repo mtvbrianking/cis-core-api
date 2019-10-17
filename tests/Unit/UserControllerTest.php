@@ -5,6 +5,10 @@ namespace Tests\Unit;
 use Tests\TestCase;
 use App\Models\Role;
 use App\Models\User;
+use Ramsey\Uuid\Uuid;
+use Illuminate\Support\Str;
+use Laravel\Passport\Passport;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 /**
@@ -16,9 +20,17 @@ class UserControllerTest extends TestCase
 
     public function test_can_get_users()
     {
-        $user = factory(User::class)->create();
+        $consumer = factory(User::class)->create();
 
-        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/users');
+        $response = $this->actingAs($consumer, 'api')->json('GET', 'api/v1/users');
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $consumer = $this->getAuthorizedUser('view-any', 'users');
+
+        $response = $this->actingAs($consumer, 'api')->json('GET', 'api/v1/users');
 
         $response->assertStatus(200);
 
@@ -28,7 +40,6 @@ class UserControllerTest extends TestCase
                     'id',
                     'facility_id',
                     'role_id',
-                    'user_id',
                     'alias',
                     'name',
                     'email',
@@ -41,7 +52,7 @@ class UserControllerTest extends TestCase
         ]);
     }
 
-    public function test_can_get_specified_user()
+    public function test_can_user_can_get_their_info()
     {
         $attrs = [
             'alias' => 'jdoe',
@@ -49,9 +60,9 @@ class UserControllerTest extends TestCase
             'email' => 'jdoe@example.com',
         ];
 
-        $user = factory(User::class)->create($attrs);
+        $consumer = factory(User::class)->create($attrs);
 
-        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/users/{$user->id}");
+        $response = $this->actingAs($consumer, 'api')->json('GET', "api/v1/users/{$consumer->id}");
 
         $response->assertStatus(200);
 
@@ -59,7 +70,6 @@ class UserControllerTest extends TestCase
             'id',
             'facility_id',
             'role_id',
-            'user_id',
             'alias',
             'name',
             'email',
@@ -69,7 +79,6 @@ class UserControllerTest extends TestCase
             'deleted_at',
             'facility' => [
                 'id',
-                'user_id',
                 'name',
                 'description',
                 'address',
@@ -83,7 +92,72 @@ class UserControllerTest extends TestCase
             'role' => [
                 'id',
                 'facility_id',
-                'user_id',
+                'name',
+                'description',
+                'created_at',
+                'updated_at',
+                'deleted_at',
+            ],
+        ]);
+
+        $response->assertJson($attrs);
+    }
+
+    public function test_can_get_any_user_info()
+    {
+        $attrs = [
+            'alias' => 'jdoe',
+            'name' => 'John Doe',
+            'email' => 'jdoe@example.com',
+        ];
+
+        $user = factory(User::class)->create($attrs);
+
+        // ...
+
+        $consumer = factory(User::class)->create();
+
+        $response = $this->actingAs($consumer, 'api')->json('GET', "api/v1/users/{$user->id}");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $consumer = $this->getAuthorizedUser('view', 'users');
+
+        $user->facility()->associate($consumer->facility);
+        $user->save();
+
+        $response = $this->actingAs($consumer, 'api')->json('GET', "api/v1/users/{$user->id}");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'id',
+            'facility_id',
+            'role_id',
+            'alias',
+            'name',
+            'email',
+            'email_verified_at',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+            'facility' => [
+                'id',
+                'name',
+                'description',
+                'address',
+                'email',
+                'website',
+                'phone',
+                'created_at',
+                'updated_at',
+                'deleted_at',
+            ],
+            'role' => [
+                'id',
+                'facility_id',
                 'name',
                 'description',
                 'created_at',
@@ -97,10 +171,18 @@ class UserControllerTest extends TestCase
 
     public function test_can_create_a_user()
     {
-        $user = factory(User::class)->create();
+        $consumer = factory(User::class)->create();
+
+        $response = $this->actingAs($consumer, 'api')->json('POST', 'api/v1/users', []);
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $consumer = $this->getAuthorizedUser('create', 'users');
 
         $role = factory(Role::class)->create([
-            'facility_id' => $user->facility_id,
+            'facility_id' => $consumer->facility_id,
         ]);
 
         $attrs = [
@@ -110,7 +192,7 @@ class UserControllerTest extends TestCase
             'role_id' => $role->id,
         ];
 
-        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/users', $attrs);
+        $response = $this->actingAs($consumer, 'api')->json('POST', 'api/v1/users', $attrs);
 
         $response->assertStatus(201);
 
@@ -118,7 +200,6 @@ class UserControllerTest extends TestCase
             'id',
             'facility_id',
             'role_id',
-            'user_id',
             'alias',
             'name',
             'email',
@@ -128,7 +209,6 @@ class UserControllerTest extends TestCase
             'deleted_at',
             'facility' => [
                 'id',
-                'user_id',
                 'name',
                 'description',
                 'address',
@@ -142,22 +222,8 @@ class UserControllerTest extends TestCase
             'role' => [
                 'id',
                 'facility_id',
-                'user_id',
                 'name',
                 'description',
-                'created_at',
-                'updated_at',
-                'deleted_at',
-            ],
-            'creator' => [
-                'id',
-                'facility_id',
-                'role_id',
-                'alias',
-                'name',
-                'email',
-                'email_verified_at',
-                'user_id',
                 'created_at',
                 'updated_at',
                 'deleted_at',
@@ -167,9 +233,58 @@ class UserControllerTest extends TestCase
         $response->assertJson($attrs);
     }
 
-    public function test_can_update_specified_user()
+    public function test_can_update_user_their_details()
     {
+        $consumer = factory(User::class)->create();
+
+        $role = factory(Role::class)->create([
+            'facility_id' => $consumer->facility_id,
+        ]);
+
+        $attrs = [
+            'alias' => 'jdoe',
+            'name' => 'John Doe',
+            'email' => 'jdoe@example.com',
+            'role_id' => $role->id,
+        ];
+
+        $response = $this->actingAs($consumer, 'api')->json('PUT', "api/v1/users/{$consumer->id}", $attrs);
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'id',
+            'facility_id',
+            'role_id',
+            'alias',
+            'name',
+            'email',
+            'email_verified_at',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+        ]);
+
+        $response->assertJson($attrs);
+    }
+
+    public function test_can_update_any_user_details()
+    {
+        $consumer = factory(User::class)->create();
+
         $user = factory(User::class)->create();
+
+        $response = $this->actingAs($consumer, 'api')->json('PUT', "api/v1/users/{$user->id}");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $consumer = $this->getAuthorizedUser('update', 'users');
+
+        $user = factory(User::class)->create([
+            'facility_id' => $consumer->facility_id,
+        ]);
 
         $role = factory(Role::class)->create([
             'facility_id' => $user->facility_id,
@@ -182,7 +297,7 @@ class UserControllerTest extends TestCase
             'role_id' => $role->id,
         ];
 
-        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/users/{$user->id}", $attrs);
+        $response = $this->actingAs($consumer, 'api')->json('PUT', "api/v1/users/{$user->id}", $attrs);
 
         $response->assertStatus(200);
 
@@ -190,7 +305,6 @@ class UserControllerTest extends TestCase
             'id',
             'facility_id',
             'role_id',
-            'user_id',
             'alias',
             'name',
             'email',
@@ -205,9 +319,13 @@ class UserControllerTest extends TestCase
 
     public function test_can_revoke_specified_user()
     {
-        $user = factory(User::class)->create();
+        $consumer = $this->getAuthorizedUser('soft-delete', 'users');
 
-        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/users/{$user->id}/revoke");
+        $user = factory(User::class)->create([
+            'facility_id' => $consumer->facility_id,
+        ]);
+
+        $response = $this->actingAs($consumer, 'api')->json('PUT', "api/v1/users/{$user->id}/revoke");
 
         // what happens when a user is soft deleted?
         // api - revoke associated access tokens
@@ -219,7 +337,6 @@ class UserControllerTest extends TestCase
             'id',
             'facility_id',
             'role_id',
-            'user_id',
             'alias',
             'name',
             'email',
@@ -234,11 +351,16 @@ class UserControllerTest extends TestCase
         ]);
     }
 
-    public function test_cant_restore_non_revoked_role()
+    public function test_cant_restore_non_revoked_user()
     {
-        $user = factory(User::class)->create();
+        $consumer = $this->getAuthorizedUser('restore', 'users');
 
-        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/users/{$user->id}/restore");
+        $user = factory(User::class)->create([
+            'facility_id' => $consumer->facility_id,
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($consumer, 'api')->json('PUT', "api/v1/users/{$user->id}/restore");
 
         $response->assertStatus(404);
 
@@ -247,9 +369,12 @@ class UserControllerTest extends TestCase
         ]);
     }
 
-    public function test_can_restore_revoked_role()
+    public function test_can_restore_revoked_user()
     {
+        $consumer = $this->getAuthorizedUser('restore', 'users');
+
         $user = factory(User::class)->create([
+            'facility_id' => $consumer->facility_id,
             'deleted_at' => date('Y-m-d H:i:s'),
         ]);
 
@@ -257,7 +382,7 @@ class UserControllerTest extends TestCase
         // This should return 401 since the user is soft deleted
         // Can a revoke user login?
 
-        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/users/{$user->id}/restore");
+        $response = $this->actingAs($consumer, 'api')->json('PUT', "api/v1/users/{$user->id}/restore");
 
         $response->assertStatus(200);
 
@@ -265,7 +390,6 @@ class UserControllerTest extends TestCase
             'id',
             'facility_id',
             'role_id',
-            'user_id',
             'alias',
             'name',
             'email',
@@ -283,9 +407,14 @@ class UserControllerTest extends TestCase
 
     public function test_cant_delete_non_revoked_user()
     {
-        $user = factory(User::class)->create();
+        $consumer = $this->getAuthorizedUser('force-delete', 'users');
 
-        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/users/{$user->id}");
+        $user = factory(User::class)->create([
+            'facility_id' => $consumer->facility_id,
+            'deleted_at' => null,
+        ]);
+
+        $response = $this->actingAs($consumer, 'api')->json('DELETE', "api/v1/users/{$user->id}");
 
         $response->assertStatus(404);
 
@@ -296,11 +425,14 @@ class UserControllerTest extends TestCase
 
     public function test_can_delete_revoked_user()
     {
+        $consumer = $this->getAuthorizedUser('force-delete', 'users');
+
         $user = factory(User::class)->create([
+            'facility_id' => $consumer->facility_id,
             'deleted_at' => date('Y-m-d H:i:s'),
         ]);
 
-        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/users/{$user->id}");
+        $response = $this->actingAs($consumer, 'api')->json('DELETE', "api/v1/users/{$user->id}");
 
         $response->assertStatus(204);
 
@@ -309,5 +441,222 @@ class UserControllerTest extends TestCase
         $this->assertDatabaseMissing('users', [
             'id' => $user->id,
         ]);
+    }
+
+    public function test_a_user_can_confirm_their_password()
+    {
+        $user = factory(User::class)->create([
+            'password' => Hash::make('correct-password'),
+        ]);
+
+        // ...
+
+        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/users/password', [
+            'password' => 'wrong-password',
+        ]);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'password',
+            ],
+        ]);
+
+        // ...
+
+        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/users/password', [
+            'password' => 'correct-password',
+        ]);
+
+        $response->assertStatus(204);
+
+        $this->assertEquals('', $response->getContent());
+    }
+
+    public function test_a_user_can_change_their_password()
+    {
+        $user = factory(User::class)->create([
+            'password' => Hash::make('current-password'),
+        ]);
+
+        // ...
+
+        $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/users/password', [
+            'password' => 'wrong-current-password',
+            'new_password' => 'new-password',
+            'new_password_confirmation' => 'new-password',
+        ]);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'password',
+            ],
+        ]);
+
+        // ...
+
+        $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/users/password', [
+            'password' => 'current-password',
+            'new_password' => 'new-password',
+            'new_password_confirmation' => 'new-password',
+        ]);
+
+        $response->assertStatus(204);
+
+        $this->assertEquals('', $response->getContent());
+
+        $user->refresh();
+
+        $this->assertTrue(password_verify('new-password', $user->password));
+    }
+
+    /**
+     * Create client credentials grant client app.
+     *
+     * @return void
+     */
+    protected function createClient()
+    {
+        $client = new \App\Models\Client();
+        $client->id = Uuid::uuid4()->toString();
+        $client->user_id = null;
+        $client->name = 'test-client-grant-client';
+        $client->secret = Str::random('40');
+        $client->redirect = '';
+        $client->personal_access_client = false;
+        $client->password_client = false;
+        $client->revoked = false;
+        $client->save();
+
+        return $client;
+    }
+
+    /**
+     * @see https://laravel.com/docs/6.x/passport#testing
+     */
+    public function test_an_app_can_validate_a_user_by_email()
+    {
+        Passport::actingAsClient($this->createClient(), ['validate-email']);
+
+        // ...
+
+        $user = factory(User::class)->create([
+            'email' => 'correct@example.com',
+        ]);
+
+        // ...
+
+        $response = $this->json('POST', 'api/v1/users/email', [
+            'email' => 'wrong@example.com',
+        ]);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'email',
+            ],
+        ]);
+
+        // ...
+
+        $response = $this->json('POST', 'api/v1/users/email', [
+            'email' => 'correct@example.com',
+        ]);
+
+        $response->assertStatus(204);
+
+        $this->assertEquals('', $response->getContent());
+    }
+
+    public function test_an_app_can_confirm_user_email_verification()
+    {
+        Passport::actingAsClient($this->createClient(), ['confirm-email']);
+
+        // ...
+
+        $user = factory(User::class)->create([
+            'email' => 'correct@example.com',
+        ]);
+
+        // ...
+
+        $response = $this->json('PUT', 'api/v1/users/email', [
+            'email' => 'wrong@example.com',
+        ]);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'email',
+            ],
+        ]);
+
+        // ...
+
+        $response = $this->json('PUT', 'api/v1/users/email', [
+            'email' => 'correct@example.com',
+        ]);
+
+        $response->assertStatus(204);
+
+        $this->assertEquals('', $response->getContent());
+
+        $user->refresh();
+
+        $this->assertNotNull($user->email_verified_at);
+    }
+
+    public function test_an_app_can_reset_forgotten_user_password()
+    {
+        Passport::actingAsClient($this->createClient(), ['reset-password']);
+
+        // ...
+
+        $user = factory(User::class)->create([
+            'email' => 'jdoe@example.com',
+            'password' => Hash::make('forgotten_pswd'),
+        ]);
+
+        // ...
+
+        $response = $this->json('PUT', 'api/v1/users/password/reset', [
+            'email' => 'wrong@example.com',
+            'new_password' => 'new-password',
+            'new_password_confirmation' => 'new-password',
+        ]);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'email',
+            ],
+        ]);
+
+        // ...
+
+        $response = $this->json('PUT', 'api/v1/users/password/reset', [
+            'email' => 'jdoe@example.com',
+            'new_password' => 'new-password',
+            'new_password_confirmation' => 'new-password',
+        ]);
+
+        $response->assertStatus(204);
+
+        $this->assertEquals('', $response->getContent());
+
+        $user->refresh();
+
+        $this->assertTrue(password_verify('new-password', $user->password));
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Traits;
 
 use Ramsey\Uuid\Uuid;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * Trait Uuids.
@@ -19,7 +20,7 @@ trait Uuids
     {
         parent::boot();
 
-        static::creating(function ($model) {
+        static::creating(function (Model $model): void {
             $model->{$model->getKeyName()} = Uuid::uuid4()->toString();
         });
     }

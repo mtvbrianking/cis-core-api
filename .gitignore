@@ -5,8 +5,12 @@
 /vendor
 .env
 .env.backup
+.idea
+.phpstorm.meta.php
 .php_cs.cache
 .phpunit.result.cache
+_ide_helper.php
+_ide_helper_models.php
 coverage
 coverage.clover
 docs

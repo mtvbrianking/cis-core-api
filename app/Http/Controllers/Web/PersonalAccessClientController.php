@@ -186,6 +186,8 @@ class PersonalAccessClientController extends Controller
      *
      * @param string $id
      *
+     * @throws \Exception
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
@@ -209,6 +211,8 @@ class PersonalAccessClientController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
+     *
+     * @throws \League\OAuth2\Server\Exception\OAuthServerException
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -274,6 +278,8 @@ class PersonalAccessClientController extends Controller
      * Dispatch the given request to the authorization server.
      *
      * @param \Zend\Diactoros\ServerRequest $request
+     *
+     * @throws \League\OAuth2\Server\Exception\OAuthServerException
      *
      * @return array Token
      */

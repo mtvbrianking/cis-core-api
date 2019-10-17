@@ -36,7 +36,9 @@ class AccessTokenController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return \Illuminate\Http\Response
      */
     public function issueToken(Request $request)
     {

@@ -12,10 +12,22 @@ class ModulesTableSeeder extends Seeder
      */
     public function run()
     {
-        $module = new Module();
-        $module->name = 'modules';
-        $module->description = "Modules' module.";
-
-        $module->save();
+        Module::insert([
+            [
+                'name' => 'facilities',
+            ],
+            [
+                'name' => 'modules',
+            ],
+            [
+                'name' => 'permissions',
+            ],
+            [
+                'name' => 'roles',
+            ],
+            [
+                'name' => 'users',
+            ],
+        ]);
     }
 }

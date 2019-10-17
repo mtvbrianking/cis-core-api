@@ -22,9 +22,13 @@ class RoleControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        factory(Role::class)->create([
-            'facility_id' => $user->facility_id,
-        ]);
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/roles');
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view-any', 'roles');
 
         $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/roles');
 
@@ -35,7 +39,6 @@ class RoleControllerTest extends TestCase
                 '*' => [
                     'id',
                     'facility_id',
-                    'user_id',
                     'name',
                     'description',
                     'created_at',
@@ -46,19 +49,32 @@ class RoleControllerTest extends TestCase
         ]);
     }
 
-    public function test_can_get_specified_role()
+    public function test_can_user_can_get_their_role_info()
     {
-        $user = factory(User::class)->create();
-
         $roleName = 'Role name';
 
         $attrs = [
             'name' => $roleName,
             'description' => 'Role description.',
-            'facility_id' => $user->facility_id,
         ];
 
         $role = factory(Role::class)->create($attrs);
+
+        // ...
+
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$role->id}");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $role->facility()->associate($user->facility);
+        $role->save();
+
+        $user->role()->associate($role);
+        $user->save();
 
         $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$role->id}");
 
@@ -67,7 +83,51 @@ class RoleControllerTest extends TestCase
         $response->assertJsonStructure([
             'id',
             'facility_id',
-            'user_id',
+            'name',
+            'description',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+        ]);
+
+        $attrs['name'] = Str::title($roleName);
+
+        $response->assertJson($attrs);
+    }
+
+    public function test_can_get_any_role_info()
+    {
+        $roleName = 'Role name';
+
+        $attrs = [
+            'name' => $roleName,
+            'description' => 'Role description.',
+        ];
+
+        $role = factory(Role::class)->create($attrs);
+
+        // ...
+
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$role->id}");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view', 'roles');
+
+        $role->facility()->associate($user->facility);
+        $role->save();
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$role->id}");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'id',
+            'facility_id',
             'name',
             'description',
             'created_at',
@@ -84,6 +144,14 @@ class RoleControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
+        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/roles', []);
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('create', 'roles');
+
         $roleName = 'Role name';
 
         $attrs = [
@@ -98,13 +166,11 @@ class RoleControllerTest extends TestCase
         $response->assertJsonStructure([
             'id',
             'facility_id',
-            'user_id',
             'name',
             'description',
             'created_at',
             'updated_at',
             'deleted_at',
-            'creator',
             'facility',
         ]);
 
@@ -116,10 +182,8 @@ class RoleControllerTest extends TestCase
 
     public function test_can_update_specified_role()
     {
-        $user = factory(User::class)->create();
-
         $role = factory(Role::class)->create([
-            'facility_id' => $user->facility_id,
+            // 'facility_id' => $user->facility_id,
         ]);
 
         $roleName = 'Role name';
@@ -129,6 +193,21 @@ class RoleControllerTest extends TestCase
             'description' => 'Role description.',
         ];
 
+        // ...
+
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/roles', []);
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('update', 'roles');
+
+        $role->facility()->associate($user->facility);
+        $role->save();
+
         $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$role->id}", $attrs);
 
         $response->assertStatus(200);
@@ -136,7 +215,6 @@ class RoleControllerTest extends TestCase
         $response->assertJsonStructure([
             'id',
             'facility_id',
-            'user_id',
             'name',
             'description',
             'created_at',
@@ -153,9 +231,22 @@ class RoleControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
+        // ...
+
         $role = factory(Role::class)->create([
             'facility_id' => $user->facility_id,
         ]);
+
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$role->id}/revoke");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('soft-delete', 'roles');
+
+        $role->facility()->associate($user->facility);
+        $role->save();
 
         $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$role->id}/revoke");
 
@@ -165,7 +256,6 @@ class RoleControllerTest extends TestCase
             'name',
             'description',
             'facility_id',
-            'user_id',
             'created_at',
             'updated_at',
             'deleted_at',
@@ -180,9 +270,22 @@ class RoleControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
+        // ...
+
         $role = factory(Role::class)->create([
             'facility_id' => $user->facility_id,
         ]);
+
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$role->id}/restore");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('restore', 'roles');
+
+        $role->facility()->associate($user->facility);
+        $role->save();
 
         $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$role->id}/restore");
 
@@ -197,10 +300,23 @@ class RoleControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
+        // ...
+
         $role = factory(Role::class)->create([
             'facility_id' => $user->facility_id,
             'deleted_at' => date('Y-m-d H:i:s'),
         ]);
+
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$role->id}/restore");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('restore', 'roles');
+
+        $role->facility()->associate($user->facility);
+        $role->save();
 
         $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$role->id}/restore");
 
@@ -209,7 +325,6 @@ class RoleControllerTest extends TestCase
         $response->assertJsonStructure([
             'id',
             'facility_id',
-            'user_id',
             'name',
             'description',
             'created_at',
@@ -226,11 +341,24 @@ class RoleControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $role = factory(Role::class)->create([
-            'facility_id' => $user->facility_id,
-        ]);
+        // ...
 
-        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/roles/{$role->id}");
+        // $role = factory(Role::class)->create([
+        //     'facility_id' => $user->facility_id,
+        // ]);
+
+        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/roles/{$user->role_id}");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('force-delete', 'roles');
+
+        // $role->facility()->associate($user->facility);
+        // $role->save();
+
+        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/roles/{$user->role_id}");
 
         $response->assertStatus(404);
 
@@ -242,6 +370,14 @@ class RoleControllerTest extends TestCase
     public function test_can_delete_revoked_role()
     {
         $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/roles/{$user->role_id}");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('force-delete', 'roles');
 
         $role = factory(Role::class)->create([
             'facility_id' => $user->facility_id,
@@ -263,11 +399,15 @@ class RoleControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $role = factory(Role::class)->create([
-            'facility_id' => $user->facility_id,
-        ]);
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$user->role_id}/permissions");
 
-        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$role->id}/permissions");
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view-permissions', 'roles');
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$user->role_id}/permissions");
 
         $response->assertStatus(200);
 
@@ -275,7 +415,6 @@ class RoleControllerTest extends TestCase
             'permissions' => [
                 '*' => [
                     'id',
-                    'user_id',
                     'module_name',
                     'description',
                     'created_at',
@@ -285,29 +424,96 @@ class RoleControllerTest extends TestCase
         ]);
     }
 
+    public function test_can_get_granted_permissions_for_a_specified_role()
+    {
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$user->role_id}/permissions/granted");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view-permissions', 'roles');
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$user->role_id}/permissions/granted");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'permissions' => [
+                '*' => [
+                    'id',
+                    'name',
+                    'granted',
+                    'module' => [
+                        'name',
+                        'category',
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    public function test_can_get_users_with_specified_role()
+    {
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$user->role_id}/users");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view-any', 'users');
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$user->role_id}/users");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'users' => [
+                '*' => [
+                    'id',
+                    'facility_id',
+                    'role_id',
+                    'alias',
+                    'name',
+                    'email',
+                    'email_verified_at',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                ],
+            ],
+        ]);
+    }
+
     public function test_can_assign_permissions_to_a_role()
     {
-        $facility = factory(Facility::class)->create();
+        $user = factory(User::class)->create();
 
-        $user = factory(User::class)->create([
-            'facility_id' => $facility->id,
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$user->role_id}/permissions", []);
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('assign-permissions', 'permissions');
+
+        $module = factory(Module::class)->create([
+            'name' => 'pharmacies',
         ]);
 
-        $module = factory(Module::class)->create();
+        $user->facility->modules()->attach($module);
+        $user->facility->save();
 
-        $facility->modules()->attach($module);
-        $facility->save();
-
-        $permission = factory(Permission::class)->create();
-
-        $permission->module()->associate($module);
-        $permission->save();
-
-        $role = factory(Role::class)->create([
-            'facility_id' => $user->facility_id,
+        $permission = factory(Permission::class)->create([
+            'module_name' => 'pharmacies',
+            'name' => 'view-any',
         ]);
 
-        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$role->id}/permissions", [
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$user->role_id}/permissions", [
             'permissions' => [
                 $permission->id,
             ],
@@ -317,7 +523,6 @@ class RoleControllerTest extends TestCase
 
         $response->assertJsonStructure([
             'id',
-            'user_id',
             'facility_id',
             'name',
             'description',
@@ -327,7 +532,6 @@ class RoleControllerTest extends TestCase
             'permissions' => [
                 '*' => [
                     'id',
-                    'user_id',
                     'module_name',
                     'description',
                     'created_at',
@@ -338,7 +542,7 @@ class RoleControllerTest extends TestCase
 
         $this->assertDatabaseHas('role_permission', [
             'permission_id' => $permission->id,
-            'role_id' => $role->id,
+            'role_id' => $user->role_id,
         ]);
     }
 }

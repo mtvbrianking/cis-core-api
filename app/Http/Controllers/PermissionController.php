@@ -21,10 +21,14 @@ class PermissionController extends Controller
     /**
      * Get permissions.
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
+        $this->authorize('viewAny', [Permission::class]);
+
         $permissions = Permission::get();
 
         return response(['permissions' => $permissions]);
@@ -35,10 +39,15 @@ class PermissionController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
+     * @throws ValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
+        $this->authorize('create', [Permission::class]);
+
         $validator = Validator::make($request->all(), [
             'name'          => 'required',
             'description'   => 'sometimes|max:25',
@@ -77,10 +86,14 @@ class PermissionController extends Controller
      *
      * @param string $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
+        $this->authorize('view', [Permission::class]);
+
         $permission = Permission::findOrFail($id);
 
         return response($permission);
@@ -92,10 +105,15 @@ class PermissionController extends Controller
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
      *
+     * @throws ValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
+        $this->authorize('update', [Permission::class]);
+
         $validator = Validator::make($request->all(), [
             'name'          => 'required',
             'module_name'   => 'required|exists:modules,name',
@@ -135,10 +153,15 @@ class PermissionController extends Controller
      *
      * @param string $id
      *
+     * @throws \Exception
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
+        $this->authorize('delete', [Permission::class]);
+
         $permission = Permission::findOrFail($id);
 
         $permission->delete();

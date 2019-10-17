@@ -15,16 +15,15 @@ class CreatePermissionsTable extends Migration
     {
         Schema::create('permissions', function (Blueprint $table) {
             $table->increments('id');
-            $table->uuid('user_id')->nullable();
-            $table->string('module_name');
-            $table->string('name');
-            $table->string('description')->nullable();
+            $table->string('module_name', 100);
+            $table->string('name', 50);
+            $table->string('description', 100)->nullable();
             $table->timestamps();
 
             $table->unique(['module_name', 'name']);
 
-            $table->foreign('module_name')->references('name')->on('modules');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('set null');
+            $table->foreign('module_name')->references('name')->on('modules')
+                ->onUpdate('cascade')->onDelete('restrict');
         });
     }
 
@@ -37,7 +36,6 @@ class CreatePermissionsTable extends Migration
     {
         Schema::table('permissions', function (Blueprint $table) {
             $table->dropForeign(['module_name']);
-            $table->dropForeign(['user_id']);
         });
 
         Schema::dropIfExists('permissions');
