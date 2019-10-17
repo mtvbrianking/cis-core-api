@@ -13,6 +13,16 @@ use Illuminate\Database\Eloquent\Model;
  */
 trait Uuids
 {
+    public function getIncrementing()
+    {
+        return false;
+    }
+
+    public function getKeyType()
+    {
+        return 'string';
+    }
+
     /**
      * Boot function from laravel.
      */
@@ -21,7 +31,9 @@ trait Uuids
         parent::boot();
 
         static::creating(function (Model $model): void {
-            $model->{$model->getKeyName()} = Uuid::uuid4()->toString();
+            if (! $model->getKey()) {
+                $model->{$model->getKeyName()} = Uuid::uuid4()->toString();
+            }
         });
     }
 }

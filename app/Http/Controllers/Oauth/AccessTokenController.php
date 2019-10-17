@@ -74,7 +74,7 @@ class AccessTokenController extends Controller
         try {
             $serverResponse = $this->server->respondToAccessTokenRequest($serverRequest, new Psr7Response);
         } catch (OAuthServerException $e) {
-            return new Response(['error' => $e->getMessage()], 500);
+            return new Response(['error' => $e->getMessage()], 401);
         }
 
         return new Response(
