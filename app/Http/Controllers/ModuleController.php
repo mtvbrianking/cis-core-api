@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Module;
+use App\Models\Permission;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -21,10 +22,14 @@ class ModuleController extends Controller
     /**
      * Get modules.
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
+        $this->authorize('viewAny', [Module::class]);
+
         $modules = Module::withTrashed()->get();
 
         return response(['modules' => $modules]);
@@ -35,10 +40,15 @@ class ModuleController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
+     * @throws ValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
+        $this->authorize('create', [Module::class]);
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:20',
             'description' => 'sometimes|max:25',
@@ -73,10 +83,14 @@ class ModuleController extends Controller
      *
      * @param string $name
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($name)
     {
+        $this->authorize('view', [Module::class]);
+
         $module = Module::withTrashed()->findOrFail($name);
 
         return response($module);
@@ -88,10 +102,15 @@ class ModuleController extends Controller
      * @param \Illuminate\Http\Request $request
      * @param string                   $name
      *
+     * @throws ValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $name)
     {
+        $this->authorize('update', [Module::class]);
+
         $module = Module::findOrFail($name);
 
         $this->validate($request, [
@@ -111,10 +130,15 @@ class ModuleController extends Controller
      *
      * @param string $name
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Exception
+     *
      * @return \Illuminate\Http\Response
      */
     public function revoke($name)
     {
+        $this->authorize('soft-delete', [Module::class]);
+
         $module = Module::findOrFail($name);
 
         $module->delete();
@@ -129,10 +153,14 @@ class ModuleController extends Controller
      *
      * @param string $name
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function restore($name)
     {
+        $this->authorize('restore', [Module::class]);
+
         $module = Module::onlyTrashed()->findOrFail($name);
 
         $module->restore();
@@ -147,11 +175,25 @@ class ModuleController extends Controller
      *
      * @param string $name
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($name)
     {
+        $this->authorize('force-delete', [Module::class]);
+
         $module = Module::onlyTrashed()->findOrFail($name);
+
+        // ...
+
+        $dependants = Permission::where('module_name', $name)->count();
+
+        if ($dependants) {
+            return response(['message' => "Can't delete non-orphaned module."], 400);
+        }
+
+        // ...
 
         $module->forceDelete();
 

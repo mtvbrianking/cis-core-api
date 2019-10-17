@@ -66,9 +66,8 @@
             </div>
 
             <div class="links">
-                <a href="#">API</a>
                 <a href="{{ route('clients.index') }}">Clients</a>
-                <a href="#">Docs</a>
+                <a href="{{ route('documentation') }}">Documentation</a>
                 <a href="{{ route('routes') }}">Routes</a>
             </div>
         </div>

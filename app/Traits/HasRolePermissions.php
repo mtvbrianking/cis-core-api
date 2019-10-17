@@ -2,6 +2,7 @@
 
 namespace App\Traits;
 
+use App\Models\Permission;
 use Illuminate\Database\Eloquent\Collection;
 
 /**
@@ -36,7 +37,7 @@ trait HasRolePermissions
     /**
      * Determine if a user has a given permission.
      *
-     * @param \App\Models\Permissions $permission
+     * @param \App\Models\Permission $permission
      *
      * @return bool
      */

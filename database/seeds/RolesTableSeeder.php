@@ -21,7 +21,7 @@ class RolesTableSeeder extends Seeder
         $role->facility()->associate($facility);
         $role->save();
 
-        // Assign all permissions to this role.
+        // Assign all existing permissions to this role.
 
         $permissions = range(1, Permission::count());
         $role->permissions()->attach($permissions);

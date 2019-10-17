@@ -18,19 +18,27 @@ class UserController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api');
+        $this->middleware('auth:api')->except([
+            'resetPassword',
+            'validateEmail',
+            'confirmEmailVerification',
+        ]);
     }
 
     /**
      * Get users.
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        $user = Auth::guard('api')->user();
+        $this->authorize('viewAny', [User::class]);
 
-        $users = User::onlyRelated($user)->withTrashed()->get();
+        $consumer = Auth::guard('api')->user();
+
+        $users = User::onlyRelated($consumer)->withTrashed()->get();
 
         return response(['users' => $users]);
     }
@@ -40,14 +48,18 @@ class UserController extends Controller
      *
      * @param string $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
-        $user = Auth::guard('api')->user();
+        $this->authorize('view', [User::class, $id]);
+
+        $consumer = Auth::guard('api')->user();
 
         $user = User::with(['role', 'facility'])
-            ->onlyRelated($user)
+            ->onlyRelated($consumer)
             ->withTrashed()
             ->findOrFail($id);
 
@@ -60,23 +72,24 @@ class UserController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @throws \Illuminate\Validation\ValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
+        $this->authorize('create', [User::class]);
+
         $this->validate($request, [
             'name' => 'required|max:25',
             'alias' => 'required|unique:users,alias',
             'email' => 'required|unique:users,email',
-            // 'password' => 'nullable|min:6|confirmed',
-            // 'email_verified_at' => 'nullable|date_format:Y-m-d H:i:s',
             'role_id' => 'required|uuid',
         ]);
 
-        $creator = Auth::guard('api')->user();
+        $registrar = Auth::guard('api')->user();
 
-        $role = Role::onlyRelated($creator)->find($request->role_id);
+        $role = Role::onlyRelated($registrar)->find($request->role_id);
 
         if (! $role) {
             $validator = Validator::make([], []);
@@ -89,11 +102,8 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->alias = $request->alias;
         $user->email = $request->email;
-        // $user->email_verified_at = $request->email_verified_at;
-        // $user->password = Hash::make($request->input('password', Str::random(10)));
         $user->password = Hash::make(Str::random(10));
-        $user->creator()->associate($creator);
-        $user->facility()->associate($creator->facility);
+        $user->facility()->associate($registrar->facility);
         $user->role()->associate($role);
         $user->save();
 
@@ -109,14 +119,17 @@ class UserController extends Controller
      * @param string                   $id
      *
      * @throws \Illuminate\Validation\ValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
-        $creator = Auth::guard('api')->user();
+        $this->authorize('update', [User::class, $id]);
 
-        $user = User::onlyRelated($creator)->findOrFail($id);
+        $registrar = Auth::guard('api')->user();
+
+        $user = User::with(['role', 'facility'])->onlyRelated($registrar)->findOrFail($id);
 
         $this->validate($request, [
             'name' => 'sometimes|max:25',
@@ -126,7 +139,7 @@ class UserController extends Controller
         ]);
 
         if ($request->filled('role_id')) {
-            $role = Role::onlyRelated($creator)->find($request->role_id);
+            $role = Role::onlyRelated($registrar)->find($request->role_id);
 
             if (! $role) {
                 $validator = Validator::make([], []);
@@ -157,13 +170,17 @@ class UserController extends Controller
      *
      * @param string $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function revoke($id)
     {
+        $this->authorize('softDelete', [User::class, $id]);
+
         $user = Auth::guard('api')->user();
 
-        $user = User::onlyRelated($user)->findOrFail($id);
+        $user = User::with(['role', 'facility'])->onlyRelated($user)->findOrFail($id);
 
         $user->delete();
 
@@ -177,13 +194,17 @@ class UserController extends Controller
      *
      * @param string $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function restore($id)
     {
+        $this->authorize('restore', [User::class, $id]);
+
         $user = Auth::guard('api')->user();
 
-        $user = User::onlyRelated($user)->onlyTrashed()->findOrFail($id);
+        $user = User::with(['role', 'facility'])->onlyRelated($user)->onlyTrashed()->findOrFail($id);
 
         $user->restore();
 
@@ -197,15 +218,156 @@ class UserController extends Controller
      *
      * @param string $id
      *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
     {
+        $this->authorize('forceDelete', [User::class, $id]);
+
         $user = Auth::guard('api')->user();
 
         $user = User::onlyRelated($user)->onlyTrashed()->findOrFail($id);
 
         $user->forceDelete();
+
+        return response(null, 204);
+    }
+
+    /**
+     * Confirm your account password.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function confirmPassword(Request $request)
+    {
+        $user = Auth::guard('api')->user();
+
+        $this->validate($request, [
+            'password' => 'required',
+        ]);
+
+        if (! password_verify($request->password, $user->password)) {
+            $validator = Validator::make([], []);
+            $validator->errors()->add('password', 'Wrong password.');
+
+            throw new ValidationException($validator);
+        }
+
+        return response(null, 204);
+    }
+
+    /**
+     * Change your account password.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function updatePassword(Request $request)
+    {
+        $user = Auth::guard('api')->user();
+
+        $this->validate($request, [
+            'password' => 'required',
+            'new_password' => 'required|min:6|confirmed',
+        ]);
+
+        if (! password_verify($request->password, $user->password)) {
+            $validator = Validator::make([], []);
+            $validator->errors()->add('password', 'Wrong password.');
+
+            throw new ValidationException($validator);
+        }
+
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return response(null, 204);
+    }
+
+    /**
+     * Determine if a user exists with the given email address.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function validateEmail(Request $request)
+    {
+        $this->validate($request, [
+            'email' => 'required|email|exists:users,email',
+        ]);
+
+        return response(null, 204);
+    }
+
+    /**
+     * Confirm a user has verified their email address.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function confirmEmailVerification(Request $request)
+    {
+        $this->validate($request, [
+            'email' => 'required|email',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user) {
+            $validator = Validator::make([], []);
+            $validator->errors()->add('email', 'Wrong email address.');
+
+            throw new ValidationException($validator);
+        }
+
+        $user->email_verified_at = date('Y-m-d H:i:s');
+        $user->save();
+
+        return response(null, 204);
+    }
+
+    /**
+     * Reset a user's forgotten password.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function resetPassword(Request $request)
+    {
+        $this->validate($request, [
+            'email' => 'required|email',
+            'new_password' => 'required|min:6|confirmed',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (! $user) {
+            $validator = Validator::make([], []);
+            $validator->errors()->add('email', 'Wrong email address.');
+
+            throw new ValidationException($validator);
+        }
+
+        $user->password = Hash::make($request->new_password);
+        $user->save();
 
         return response(null, 204);
     }

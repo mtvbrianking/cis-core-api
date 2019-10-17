@@ -24,6 +24,10 @@ class PermissionServiceProvider extends ServiceProvider
      * @var array
      */
     protected $policies = [
+        'App\Models\Facility' => 'App\Policies\FacilityPolicy',
+        'App\Models\Module' => 'App\Policies\ModulePolicy',
+        'App\Models\Permission' => 'App\Policies\PermissionPolicy',
+        'App\Models\Role' => 'App\Policies\RolePolicy',
         'App\Models\User' => 'App\Policies\UserPolicy',
     ];
 

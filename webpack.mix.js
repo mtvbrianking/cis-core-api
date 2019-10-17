@@ -52,7 +52,7 @@ mix.copy(
 
 // mix.copyDirectory('resources/js/pages', 'public/js/pages'); <- Copy, No minify
 
-mix.copy('resources/js/api-usage.json', 'public/js/api-usage.json');
+mix.copy('resources/js/api-usage.yml', 'public/js/api-usage.yml');
 
 mix.js('resources/js/pages/routes.js', 'public/js/pages/routes.js');
 

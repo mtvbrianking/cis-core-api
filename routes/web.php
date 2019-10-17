@@ -41,7 +41,7 @@ Route::get('/', 'HomeController@index')->name('home');
 
 Route::get('/routes', 'HomeController@showApplicationRoutes')->name('routes');
 
-Route::get('/usage', 'HomeController@showApiUsageDoc')->name('doc.usage');
+Route::get('/usage', 'HomeController@showApiUsageDoc')->name('documentation');
 
 Route::pattern('client', $uuid);
 
