@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Zend\Diactoros\Response as Psr7Response;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Exception\OAuthServerException;
@@ -45,7 +46,6 @@ class AccessTokenController extends Controller
         $this->validate($request, [
             'client_id' => 'required|uuid',
             'client_secret' => 'required',
-            'user_id' => 'sometimes|uuid',
 
             'grant_type' => ['required', Rule::in(['authorization_code', 'client_credentials', 'password', 'refresh_token'])],
             'code' => 'required_if:grant_type,authorization_code',
@@ -62,7 +62,6 @@ class AccessTokenController extends Controller
             'grant_type' => $request->grant_type,
             'client_id' => $request->client_id,
             'client_secret' => $request->client_secret,
-            'user_id' => $request->user_id,
             'code' => $request->code,
             'redirect_uri' => $request->redirect_uri,
             'refresh_token' => $request->refresh_token,
@@ -77,8 +76,14 @@ class AccessTokenController extends Controller
             return new Response(['error' => $e->getMessage()], 401);
         }
 
+        $token = json_decode($serverResponse->getBody(), true);
+
+        if ($request->grant_type === 'password') {
+            $token['user'] = User::where('email', $request->username)->first();
+        }
+
         return new Response(
-            $serverResponse->getBody(),
+            $token,
             $serverResponse->getStatusCode(),
             $serverResponse->getHeaders()
         );
