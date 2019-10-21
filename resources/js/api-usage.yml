@@ -37,10 +37,6 @@ securityDefinitions:
     type: oauth2
     flow: application
     tokenUrl: 'http://localhost:8000/api/v1/oauth/token'
-    scopes:
-      confirm-email: "Indicate that a user has verified their email."
-      reset-password: "Change a user's forgot password."
-      validate-email: 'Check if a user account exists for given email.'
   authorization_code_grant:
     description: Get access to data while protecting your account credentials.
     type: oauth2
@@ -52,6 +48,11 @@ securityDefinitions:
     type: oauth2
     flow: password
     tokenUrl: 'http://localhost:8000/api/v1/oauth/token'
+    scopes:
+      authenticate-user: 'Login, logout a user.'
+      confirm-email: 'Indicate that a user has verified their email.'
+      reset-password: "Change a user's forgot password."
+      validate-email: 'Check if a user account exists for given email.'
 x-servers:
   - url: '//localhost:8000/api/v1'
     description: Production server
@@ -69,7 +70,7 @@ paths:
         Requires `view-any` permission on `facilities` module.
       operationId: getFacilities
       # security:
-      # - client_credentials_grant:
+      # - password_grant:
       #   - "view-any:facilities"
       consumes:
         - application/json
@@ -1343,6 +1344,84 @@ paths:
                 "email":"jdoe@example.com",
                 "role_id":"1bc27b9c-a963-4fda-b79b-91b125ba0ed1"
               }'
+  /users/auth:
+    post:
+      tags:
+        - user
+      summary: Authenticate user
+      description: |-
+        Requires `authenticate-user` scope.
+      operationId: authenticateUser
+      security:
+        - password_grant:
+          - "authenticate-user"
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: email
+          in: formData
+          required: true
+          type: string
+          format: email
+        - name: password
+          in: formData
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/UserModel'
+              - properties:
+                  role:
+                    $ref: '#/definitions/RoleModel'
+                  facility:
+                    $ref: '#/definitions/FacilityModel'
+                  token:
+                    $ref: '#/definitions/TokenModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+              http://localhost:8000/api/v1/users/auth \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}' \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "email": "jdoe@example.com",
+                "password": "Gm%Pm5^("
+              }'
+  /users/deauth:
+    post:
+      tags:
+        - user
+      summary: Deauthenticate user
+      description: |-
+        Invalidates existing user tokens to calling client app.
+
+        Requires `authenticate-user` scope.
+      operationId: deauthenticateUser
+      security:
+        - password_grant:
+          - "authenticate-user"
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+      produces:
+        - application/json
+      responses:
+        '204':
+          description: No Content
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+              http://localhost:8000/api/v1/users/deauth \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}'
   /users/email:
     post:
       tags:
@@ -1354,7 +1433,7 @@ paths:
         Requires `validate-email` scope.
       operationId: validateEmail
       security:
-        - client_credentials_grant:
+        - password_grant:
           - "validate-email"
       consumes:
         - application/json
@@ -1513,6 +1592,15 @@ paths:
           description: Email for account to reset passport.
           required: true
           type: string
+        - name: email_verified_at
+          in: formData
+          description: |-
+            When a user verified their email.
+
+            Normally, if password reset was via email, the email is verified implicitly.
+          type: string
+          format: date-time
+          required: false
         - name: password
           in: formData
           description: |-
