@@ -37,6 +37,10 @@ securityDefinitions:
     type: oauth2
     flow: application
     tokenUrl: 'http://localhost:8000/api/v1/oauth/token'
+    scopes:
+      confirm-email: "Indicate that a user has verified their email."
+      reset-password: "Change a user's forgot password."
+      validate-email: 'Check if a user account exists for given email.'
   authorization_code_grant:
     description: Get access to data while protecting your account credentials.
     type: oauth2
@@ -48,10 +52,6 @@ securityDefinitions:
     type: oauth2
     flow: password
     tokenUrl: 'http://localhost:8000/api/v1/oauth/token'
-    scopes:
-      confirm-email: "Indicate that a user has verified their email."
-      reset-password: "Change a user's forgot password."
-      validate-email: 'Check if a user account exists for given email.'
 x-servers:
   - url: '//localhost:8000/api/v1'
     description: Production server
@@ -69,7 +69,7 @@ paths:
         Requires `view-any` permission on `facilities` module.
       operationId: getFacilities
       # security:
-      # - password_grant:
+      # - client_credentials_grant:
       #   - "view-any:facilities"
       consumes:
         - application/json
@@ -1354,7 +1354,7 @@ paths:
         Requires `validate-email` scope.
       operationId: validateEmail
       security:
-        - password_grant:
+        - client_credentials_grant:
           - "validate-email"
       consumes:
         - application/json

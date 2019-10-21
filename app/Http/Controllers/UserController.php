@@ -356,7 +356,8 @@ class UserController extends Controller
     {
         $this->validate($request, [
             'email' => 'required|email',
-            'new_password' => 'required|min:6|confirmed',
+            'email_verified_at' => 'sometimes|date_format:Y-m-d H:i:s',
+            'password' => 'required|min:6|confirmed',
         ]);
 
         $user = User::where('email', $request->email)->first();
@@ -368,7 +369,8 @@ class UserController extends Controller
             throw new ValidationException($validator);
         }
 
-        $user->password = Hash::make($request->new_password);
+        $user->email_verified_at = $request->input('email_verified_at', $user->email_verified_at);
+        $user->password = Hash::make($request->password);
         $user->save();
 
         return response(null, 204);
