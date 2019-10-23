@@ -1409,7 +1409,6 @@ paths:
           - "authenticate-user"
       consumes:
         - application/x-www-form-urlencoded
-      parameters:
       produces:
         - application/json
       responses:
@@ -1528,7 +1527,9 @@ paths:
       description: |-
         Update your <strong>own</strong> password.
 
-        See <a href=''#operation/updateUser''>update user</a>.
+        \* This will invalidate all existing user access tokens.
+
+        See <a href='#operation/resetPassword'>reset password</a>.
       operationId: updatePassword
       consumes:
         - application/x-www-form-urlencoded
@@ -1578,12 +1579,17 @@ paths:
         - user
       summary: Reset password
       description: |-
-        Reset a user's password.
+        Reset password on behalf of the user.
 
         Requires `reset-password` scope.
 
+        \* This will invalidate all existing user access tokens.
+
         See <a href='#operation/updatePassword'>update password</a>.
       operationId: resetPassword
+      security:
+        - password_grant:
+          - "reset-password"
       consumes:
         - application/x-www-form-urlencoded
       parameters:
@@ -2249,7 +2255,7 @@ definitions:
     properties:
       message:
         type: string
-        example: 'Exceed the max number of requests per minute.'
+        example: 'Exceeded API request rate limit. Default: throttle:60,1'.
   500HttpResponse:
     type: object
     properties:
