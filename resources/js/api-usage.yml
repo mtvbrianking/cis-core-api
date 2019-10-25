@@ -1100,6 +1100,8 @@ paths:
         Get all permissions available to this role, indicating weather granted or not.
 
         Requires `view-permissions` permission on `roles` module.
+
+        A user can still access permissions granted to their role regardless.
       operationId: getRolePermissionsGranted
       consumes:
         - application/json
@@ -2255,7 +2257,7 @@ definitions:
     properties:
       message:
         type: string
-        example: 'Exceeded API request rate limit. Default: throttle:60,1'.
+        example: 'Exceeded API request rate limit. Default: throttle:60,1'
   500HttpResponse:
     type: object
     properties:

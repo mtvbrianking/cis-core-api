@@ -424,19 +424,37 @@ class RoleControllerTest extends TestCase
         ]);
     }
 
-    public function test_can_get_granted_permissions_for_a_specified_role()
+    public function test_can_get_granted_permissions_to_a_role()
     {
+        // Can't access permissions granted to a role otherthan theirs if not authorized
+
+        $user = factory(User::class)->create();
+
+        $role = factory(Role::class)->create([
+            'facility_id' => $user->facility_id,
+        ]);
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$role->id}/permissions/granted");
+
+        $response->assertStatus(403);
+
+        // Can access permissions granted to their role
+
         $user = factory(User::class)->create();
 
         $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$user->role_id}/permissions/granted");
 
-        $response->assertStatus(403);
+        $response->assertStatus(200);
 
-        // ...
+        // Can access permissions granted to any role if authorized
 
         $user = $this->getAuthorizedUser('view-permissions', 'roles');
 
-        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$user->role_id}/permissions/granted");
+        $role = factory(Role::class)->create([
+            'facility_id' => $user->facility_id,
+        ]);
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$role->id}/permissions/granted");
 
         $response->assertStatus(200);
 
