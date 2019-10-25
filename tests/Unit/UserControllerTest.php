@@ -630,8 +630,8 @@ class UserControllerTest extends TestCase
 
         $response = $this->json('PUT', 'api/v1/users/password/reset', [
             'email' => 'wrong@example.com',
-            'new_password' => 'new-password',
-            'new_password_confirmation' => 'new-password',
+            'password' => 'new-password',
+            'password_confirmation' => 'new-password',
         ]);
 
         $response->assertStatus(422);
@@ -647,8 +647,8 @@ class UserControllerTest extends TestCase
 
         $response = $this->json('PUT', 'api/v1/users/password/reset', [
             'email' => 'jdoe@example.com',
-            'new_password' => 'new-password',
-            'new_password_confirmation' => 'new-password',
+            'password' => 'new-password',
+            'password_confirmation' => 'new-password',
         ]);
 
         $response->assertStatus(204);
