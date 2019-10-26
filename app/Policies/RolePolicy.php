@@ -103,11 +103,16 @@ class RolePolicy
      * Determine whether the user can view any permissions on this role.
      *
      * @param \App\Models\User $user
+     * @param string           $roleId
      *
      * @return bool
      */
-    public function viewPermissions(User $user)
+    public function viewPermissions(User $user, string $roleId = null)
     {
+        if ($roleId && $user->role_id == $roleId) {
+            return true;
+        }
+
         return $user->hasPermissionTo('view-permissions', 'roles');
     }
 }

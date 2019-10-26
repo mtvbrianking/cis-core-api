@@ -44,9 +44,8 @@ class AccessTokenController extends Controller
     public function issueToken(Request $request)
     {
         $this->validate($request, [
-            'client_id' => 'required|uuid',
-            'client_secret' => 'required',
-
+            'client_id' => 'sometimes|uuid',
+            'client_secret' => 'sometimes',
             'grant_type' => ['required', Rule::in(['authorization_code', 'client_credentials', 'password', 'refresh_token'])],
             'code' => 'required_if:grant_type,authorization_code',
             'redirect_uri' => 'nullable|url',

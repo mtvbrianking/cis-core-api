@@ -49,7 +49,8 @@ securityDefinitions:
     flow: password
     tokenUrl: 'http://localhost:8000/api/v1/oauth/token'
     scopes:
-      confirm-email: "Indicate that a user has verified their email."
+      authenticate-user: 'Login, logout a user.'
+      confirm-email: 'Indicate that a user has verified their email.'
       reset-password: "Change a user's forgot password."
       validate-email: 'Check if a user account exists for given email.'
 x-servers:
@@ -1099,6 +1100,8 @@ paths:
         Get all permissions available to this role, indicating weather granted or not.
 
         Requires `view-permissions` permission on `roles` module.
+
+        A user can still access permissions granted to their role regardless.
       operationId: getRolePermissionsGranted
       consumes:
         - application/json
@@ -1343,6 +1346,83 @@ paths:
                 "email":"jdoe@example.com",
                 "role_id":"1bc27b9c-a963-4fda-b79b-91b125ba0ed1"
               }'
+  /users/auth:
+    post:
+      tags:
+        - user
+      summary: Authenticate user
+      description: |-
+        Requires `authenticate-user` scope.
+      operationId: authenticateUser
+      security:
+        - password_grant:
+          - "authenticate-user"
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: email
+          in: formData
+          required: true
+          type: string
+          format: email
+        - name: password
+          in: formData
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/UserModel'
+              - properties:
+                  role:
+                    $ref: '#/definitions/RoleModel'
+                  facility:
+                    $ref: '#/definitions/FacilityModel'
+                  token:
+                    $ref: '#/definitions/TokenModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+              http://localhost:8000/api/v1/users/auth \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}' \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "email": "jdoe@example.com",
+                "password": "Gm%Pm5^("
+              }'
+  /users/deauth:
+    post:
+      tags:
+        - user
+      summary: Deauthenticate user
+      description: |-
+        Invalidates existing user tokens to calling client app.
+
+        Requires `authenticate-user` scope.
+      operationId: deauthenticateUser
+      security:
+        - password_grant:
+          - "authenticate-user"
+      consumes:
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      responses:
+        '204':
+          description: No Content
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+              http://localhost:8000/api/v1/users/deauth \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}'
   /users/email:
     post:
       tags:
@@ -1449,7 +1529,9 @@ paths:
       description: |-
         Update your <strong>own</strong> password.
 
-        See <a href=''#operation/updateUser''>update user</a>.
+        \* This will invalidate all existing user access tokens.
+
+        See <a href='#operation/resetPassword'>reset password</a>.
       operationId: updatePassword
       consumes:
         - application/x-www-form-urlencoded
@@ -1499,12 +1581,17 @@ paths:
         - user
       summary: Reset password
       description: |-
-        Reset a user's password.
+        Reset password on behalf of the user.
 
         Requires `reset-password` scope.
 
+        \* This will invalidate all existing user access tokens.
+
         See <a href='#operation/updatePassword'>update password</a>.
       operationId: resetPassword
+      security:
+        - password_grant:
+          - "reset-password"
       consumes:
         - application/x-www-form-urlencoded
       parameters:
@@ -1513,6 +1600,15 @@ paths:
           description: Email for account to reset passport.
           required: true
           type: string
+        - name: email_verified_at
+          in: formData
+          description: |-
+            When a user verified their email.
+
+            Normally, if password reset was via email, the email is verified implicitly.
+          type: string
+          format: date-time
+          required: false
         - name: password
           in: formData
           description: |-
@@ -2161,7 +2257,7 @@ definitions:
     properties:
       message:
         type: string
-        example: 'Exceed the max number of requests per minute.'
+        example: 'Exceeded API request rate limit. Default: throttle:60,1'
   500HttpResponse:
     type: object
     properties:

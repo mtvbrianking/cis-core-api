@@ -254,7 +254,7 @@ class RoleController extends Controller
      */
     public function permissionsGranted($id)
     {
-        $this->authorize('viewPermissions', [Role::class]);
+        $this->authorize('viewPermissions', [Role::class, $id]);
 
         $user = Auth::guard('api')->user();
 
@@ -280,9 +280,6 @@ class RoleController extends Controller
                     'category' => $permission->module->category,
                 ],
             ];
-
-            // $permission->granted = (bool) count($permission->roles);
-            // return $permission;
         });
 
         return response(['permissions' => $permissions]);

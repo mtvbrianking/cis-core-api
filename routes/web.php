@@ -37,7 +37,7 @@ Route::group(['namespace' => 'Auth', 'prefix' => '', 'as' => ''], function () {
     Route::post('email/resend', 'VerificationController@resend')->name('verification.resend');
 });
 
-Route::get('/', 'HomeController@index')->name('home');
+Route::get('/', 'HomeController@index')->name('home')->middleware('verified');
 
 Route::get('/routes', 'HomeController@showApplicationRoutes')->name('routes');
 
