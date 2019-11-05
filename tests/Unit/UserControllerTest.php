@@ -30,7 +30,7 @@ class UserControllerTest extends TestCase
 
         $consumer = $this->getAuthorizedUser('view-any', 'users');
 
-        $response = $this->actingAs($consumer, 'api')->json('GET', 'api/v1/users');
+        $response = $this->actingAs($consumer, 'api')->json('GET', 'api/v1/users?paginate=0');
 
         $response->assertStatus(200);
 
