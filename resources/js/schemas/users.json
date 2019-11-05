@@ -1,0 +1,194 @@
+{
+  "$id": "#/schema/user",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "User model schema",
+  "type": "object",
+  "properties": {
+    "with": {
+      "$id": "#/properties/with",
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "#/definitions/role"
+          },
+          {
+            "$ref": "#/definitions/facility"
+          }
+        ]
+      }
+    },
+    "select": {
+      "$id": "#/properties/select",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "additionalItems": false,
+      "items": {
+        "$id": "#/properties/select/items",
+        "type": "string",
+        "enum": [
+          "users.id",
+          "users.role_id",
+          "users.facility_id",
+          "users.name"
+        ]
+      }
+    },
+    "where": {
+      "$id": "#/properties/where",
+      "type": "array",
+      "items": {
+        "$id": "#/properties/where/items",
+        "type": "object",
+        "required": [
+          "field",
+          "operator",
+          "value"
+        ],
+        "properties": {
+          "field": {
+            "$id": "#/properties/where/items/properties/field",
+            "type": "string",
+            "enum": [
+              "users.id",
+              "users.role_id",
+              "users.facility_id",
+              "users.name"
+            ]
+          },
+          "operator": {
+            "$id": "#/properties/where/items/properties/operator",
+            "type": "string",
+            "enum": [
+              "=",
+              "!=",
+              "<>",
+              ">",
+              "<",
+              ">=",
+              "<=",
+              "!<",
+              "!>",
+              "like",
+              "ilike",
+              "in",
+              "between"
+            ]
+          },
+          "value": {
+            "$id": "#/properties/where/items/properties/value",
+            "type": [
+              "array",
+              "string",
+              "integer"
+            ]
+          }
+        }
+      }
+    },
+    "sort": {
+      "$id": "#/properties/sort",
+      "type": "array",
+      "items": {
+        "$id": "#/properties/sort/items",
+        "type": "object",
+        "required": [
+          "field",
+          "direction"
+        ],
+        "properties": {
+          "field": {
+            "$id": "#/properties/sort/items/properties/field",
+            "type": "string",
+            "enum": [
+              "users.id",
+              "users.role_id",
+              "users.facility_id",
+              "users.name",
+              "users.created_at"
+            ]
+          },
+          "direction": {
+            "$id": "#/properties/sort/items/properties/direction",
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          }
+        }
+      }
+    },
+    "limit": {
+      "$id": "#/properties/limit",
+      "type": "integer",
+      "default": 15
+    },
+    "page": {
+      "$id": "#/properties/page",
+      "type": "integer"
+    }
+  },
+  "definitions": {
+    "role": {
+      "$id": "#/definitions/role",
+      "type": "object",
+      "required": [
+        "relation"
+      ],
+      "properties": {
+        "relation": {
+          "$id": "#/properties/relation",
+          "type": "string",
+          "enum": [
+            "role"
+          ]
+        },
+        "select": {
+          "$id": "#/properties/select",
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$id": "#/properties/select/items",
+            "type": "string",
+            "enum": [
+              "roles.id",
+              "roles.name"
+            ]
+          }
+        }
+      }
+    },
+    "facility": {
+      "$id": "#/definitions/facility",
+      "type": "object",
+      "required": [
+        "relation"
+      ],
+      "properties": {
+        "relation": {
+          "$id": "#/properties/relation",
+          "type": "string",
+          "enum": [
+            "facility"
+          ]
+        },
+        "select": {
+          "$id": "#/properties/select",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$id": "#/properties/select/items",
+            "type": "string",
+            "enum": [
+              "facilities.id",
+              "facilities.name"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

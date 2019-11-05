@@ -9,15 +9,26 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use JsonSchema\Constraints\Constraint;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use JsonSchema\Constraints\BaseConstraint as JsonConstrainer;
 
 class UserController extends Controller
 {
     /**
-     * Constructor.
+     * Json schema constrainer.
+     *
+     * @var \JsonSchema\Constraints\BaseConstraint
      */
-    public function __construct()
+    protected $JsonConstrainer;
+
+    /**
+     * Constructor.
+     *
+     * @param \JsonSchema\Constraints\BaseConstraint $JsonConstrainer
+     */
+    public function __construct(JsonConstrainer $JsonConstrainer)
     {
         $this->middleware('auth:api')->except([
             'authenticate',
@@ -25,22 +36,107 @@ class UserController extends Controller
             'validateEmail',
             'confirmEmailVerification',
         ]);
+
+        $this->JsonConstrainer = $JsonConstrainer;
     }
 
     /**
      * Get users.
      *
+     * @param \Illuminate\http\Request $request
+     *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', [User::class]);
 
+        // ----------------------------------
+        // Validate request query parameters.
+        // ----------------------------------
+
+        $schema = (object) [
+            '$ref' => 'file:///'.resource_path('js/schemas/users.json'),
+        ];
+
+        $queryParams = json_decode(json_encode($request->query(), JSON_NUMERIC_CHECK));
+
+        $this->JsonConstrainer->validate($queryParams, $schema, Constraint::CHECK_MODE_APPLY_DEFAULTS);
+
+        if (! $this->JsonConstrainer->isValid()) {
+            return response([
+                'message' => 'The given data was invalid.',
+                'errors' => $this->JsonConstrainer->getErrors(),
+            ], 400);
+        }
+
+        // ...
+
         $consumer = Auth::guard('api')->user();
 
-        $users = User::onlyRelated($consumer)->withTrashed()->get();
+        $query = User::query();
+
+        $query->onlyRelated($consumer)->withTrashed();
+
+        // --------------------------------------------------
+        // Build databse query from request query parameters.
+        // --------------------------------------------------
+
+        // Include relations
+
+        if ($request->filled('with')) {
+            foreach ($request->with as $join) {
+                $relation = $join['relation'];
+
+                if (isset($join['select'])) {
+                    $fields = $join['select'];
+
+                    $query->with(["{$relation}" => function ($query) use ($fields) {
+                        $query->select($fields);
+                    }]);
+                } else {
+                    $query->with($relation);
+                }
+            }
+        }
+
+        // Select fields
+
+        if ($request->filled('select')) {
+            $query->select($request->select);
+        }
+
+        // Filter
+
+        if ($request->filled('where')) {
+            foreach ($request->where as $filter) {
+                if ($filter['operator'] == 'in') {
+                    $query->whereIn($filter['field'], $filter['value']);
+                } elseif ($filter['operator'] == 'between') {
+                    $query->whereBetween($filter['field'], $filter['value']);
+                } else {
+                    $query->where($filter['field'], $filter['operator'], $filter['value']);
+                }
+            }
+        }
+
+        // Sort
+
+        if ($request->filled('sort')) {
+            foreach ($request->sort as $sort) {
+                $query->orderBy($sort['field'], $sort['direction']);
+            }
+        }
+
+        // Paginate
+
+        $limit = $request->input('limit', 15);
+
+        $users = $request->input('paginate', true) ? $query->paginate($limit) : $query->take($limit)->get();
+
+        // $users->withPath(url()->full());
 
         return response(['users' => $users]);
     }
