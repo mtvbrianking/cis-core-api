@@ -3,15 +3,15 @@
 namespace App\Traits;
 
 use JsonSchema\Constraints\Constraint;
+use JsonSchema\Validator;
 use App\Exceptions\InvalidJsonException;
-use JsonSchema\Constraints\BaseConstraint;
 
-trait JsonValidator
+trait JsonValidation
 {
     /**
      * Validate JSON against a schema.
      *
-     * @param \JsonSchema\Constraints\BaseConstraint $baseConstraint
+     * @param \JsonSchema\Validator $validator
      * @param string                                 $schemaPath
      * @param string                                 $json
      *
@@ -19,7 +19,7 @@ trait JsonValidator
      *
      * @return void
      */
-    public static function validateJson(BaseConstraint $baseConstraint, string $schemaPath, string $json):void
+    public static function validateJson(Validator $validator, string $schemaPath, string $json):void
     {
         $schema = (object) [
             '$ref' => "file:///{$schemaPath}",
@@ -27,10 +27,10 @@ trait JsonValidator
 
         $value = json_decode($json, false);
 
-        $baseConstraint->validate($value, $schema, Constraint::CHECK_MODE_APPLY_DEFAULTS);
+        $validator->validate($value, $schema, Constraint::CHECK_MODE_APPLY_DEFAULTS);
 
-        if (! $baseConstraint->isValid()) {
-            throw new InvalidJsonException($baseConstraint->getErrors());
+        if (! $validator->isValid()) {
+            throw new InvalidJsonException($validator->getErrors());
         }
     }
 }

@@ -4,34 +4,35 @@ namespace App\Http\Controllers;
 
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use App\Traits\JsonValidator;
-use App\Traits\QueryDecorator;
+use App\Traits\JsonValidation;
+use App\Traits\QueryDecoration;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use JsonSchema\Constraints\BaseConstraint as JsonConstraint;
+use JsonSchema\Validator as JsonValidator;
 
 class UserController extends Controller
 {
-    use JsonValidator, QueryDecorator;
+    use JsonValidation, QueryDecoration;
 
     /**
-     * Json schema constraint.
+     * Json schema validator.
      *
-     * @var \JsonSchema\Constraints\BaseConstraint
+     * @var \JsonSchema\Validator
      */
-    protected $jsonConstraint;
+    protected $jsonValidator;
 
     /**
      * Constructor.
      *
-     * @param \JsonSchema\Constraints\BaseConstraint $jsonConstraint
+     * @param \JsonSchema\Validator $jsonValidator
      */
-    public function __construct(JsonConstraint $jsonConstraint)
+    public function __construct(JsonValidator $jsonValidator)
     {
         $this->middleware('auth:api')->except([
             'authenticate',
@@ -40,7 +41,7 @@ class UserController extends Controller
             'confirmEmailVerification',
         ]);
 
-        $this->jsonConstraint = $jsonConstraint;
+        $this->jsonValidator = $jsonValidator;
     }
 
     /**
@@ -63,7 +64,7 @@ class UserController extends Controller
 
         $queryParts = json_encode($request->query(), JSON_NUMERIC_CHECK);
 
-        static::validateJson($this->jsonConstraint, $schemaPath, $queryParts);
+        static::validateJson($this->jsonValidator, $schemaPath, $queryParts);
 
         // Query users.
 

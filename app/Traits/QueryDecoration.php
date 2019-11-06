@@ -5,7 +5,7 @@ namespace App\Traits;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
 
-trait QueryDecorator
+trait QueryDecoration
 {
     /**
      * Build eloquent query from request query parameters.
