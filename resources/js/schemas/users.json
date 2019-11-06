@@ -123,7 +123,9 @@
     "limit": {
       "$id": "#/properties/limit",
       "type": "integer",
-      "default": 15
+      "default": 15,
+      "minimum": 0,
+      "maximum": 100
     },
     "page": {
       "$id": "#/properties/page",

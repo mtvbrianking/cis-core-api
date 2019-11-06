@@ -6,29 +6,32 @@ use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Traits\JsonValidator;
+use App\Traits\QueryDecorator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use JsonSchema\Constraints\Constraint;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
-use JsonSchema\Constraints\BaseConstraint as JsonConstrainer;
+use JsonSchema\Constraints\BaseConstraint as JsonConstraint;
 
 class UserController extends Controller
 {
+    use JsonValidator, QueryDecorator;
+
     /**
-     * Json schema constrainer.
+     * Json schema constraint.
      *
      * @var \JsonSchema\Constraints\BaseConstraint
      */
-    protected $JsonConstrainer;
+    protected $jsonConstraint;
 
     /**
      * Constructor.
      *
-     * @param \JsonSchema\Constraints\BaseConstraint $JsonConstrainer
+     * @param \JsonSchema\Constraints\BaseConstraint $jsonConstraint
      */
-    public function __construct(JsonConstrainer $JsonConstrainer)
+    public function __construct(JsonConstraint $jsonConstraint)
     {
         $this->middleware('auth:api')->except([
             'authenticate',
@@ -37,7 +40,7 @@ class UserController extends Controller
             'confirmEmailVerification',
         ]);
 
-        $this->JsonConstrainer = $JsonConstrainer;
+        $this->jsonConstraint = $jsonConstraint;
     }
 
     /**
@@ -46,6 +49,7 @@ class UserController extends Controller
      * @param \Illuminate\http\Request $request
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \App\Exceptions\InvalidJsonException
      *
      * @return \Illuminate\Http\Response
      */
@@ -53,26 +57,15 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', [User::class]);
 
-        // ----------------------------------
         // Validate request query parameters.
-        // ----------------------------------
 
-        $schema = (object) [
-            '$ref' => 'file:///'.resource_path('js/schemas/users.json'),
-        ];
+        $schemaPath = resource_path('js/schemas/users.json');
 
-        $queryParams = json_decode(json_encode($request->query(), JSON_NUMERIC_CHECK));
+        $queryParts = json_encode($request->query(), JSON_NUMERIC_CHECK);
 
-        $this->JsonConstrainer->validate($queryParams, $schema, Constraint::CHECK_MODE_APPLY_DEFAULTS);
+        static::validateJson($this->jsonConstraint, $schemaPath, $queryParts);
 
-        if (! $this->JsonConstrainer->isValid()) {
-            return response([
-                'message' => 'The given data was invalid.',
-                'errors' => $this->JsonConstrainer->getErrors(),
-            ], 400);
-        }
-
-        // ...
+        // Query users.
 
         $consumer = Auth::guard('api')->user();
 
@@ -80,57 +73,11 @@ class UserController extends Controller
 
         $query->onlyRelated($consumer)->withTrashed();
 
-        // --------------------------------------------------
-        // Build databse query from request query parameters.
-        // --------------------------------------------------
+        // Apply user constraints to query.
 
-        // Include relations
+        $query = static::applyConstraintsToQuery($query, $request);
 
-        if ($request->filled('with')) {
-            foreach ($request->with as $join) {
-                $relation = $join['relation'];
-
-                if (isset($join['select'])) {
-                    $fields = $join['select'];
-
-                    $query->with(["{$relation}" => function ($query) use ($fields) {
-                        $query->select($fields);
-                    }]);
-                } else {
-                    $query->with($relation);
-                }
-            }
-        }
-
-        // Select fields
-
-        if ($request->filled('select')) {
-            $query->select($request->select);
-        }
-
-        // Filter
-
-        if ($request->filled('where')) {
-            foreach ($request->where as $filter) {
-                if ($filter['operator'] == 'in') {
-                    $query->whereIn($filter['field'], $filter['value']);
-                } elseif ($filter['operator'] == 'between') {
-                    $query->whereBetween($filter['field'], $filter['value']);
-                } else {
-                    $query->where($filter['field'], $filter['operator'], $filter['value']);
-                }
-            }
-        }
-
-        // Sort
-
-        if ($request->filled('sort')) {
-            foreach ($request->sort as $sort) {
-                $query->orderBy($sort['field'], $sort['direction']);
-            }
-        }
-
-        // Paginate
+        // Pagination.
 
         $limit = $request->input('limit', 15);
 

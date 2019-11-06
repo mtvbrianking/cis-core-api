@@ -13,7 +13,7 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        //
+        // InvalidJsonException::class,
     ];
 
     /**
@@ -30,6 +30,8 @@ class Handler extends ExceptionHandler
      * Report or log an exception.
      *
      * @param \Exception $exception
+     *
+     * @throws Exception
      *
      * @return void
      */
@@ -48,6 +50,15 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        if ($exception instanceof InvalidJsonException) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $exception->getMessage(),
+                    'errors' => $exception->getValidationErrors(),
+                ], 400);
+            }
+        }
+
         return parent::render($request, $exception);
     }
 }
