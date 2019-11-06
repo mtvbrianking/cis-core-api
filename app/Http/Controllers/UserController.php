@@ -62,7 +62,7 @@ class UserController extends Controller
 
         $schemaPath = resource_path('js/schemas/users.json');
 
-        $queryParts = json_encode($request->query(), JSON_NUMERIC_CHECK);
+        $queryParts = json_encode($request->query(), JSON_FORCE_OBJECT|JSON_NUMERIC_CHECK);
 
         static::validateJson($this->jsonValidator, $schemaPath, $queryParts);
 

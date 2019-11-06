@@ -3,8 +3,6 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use JsonSchema\Constraints\BaseConstraint;
-use JsonSchema\Validator;
 use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
@@ -18,8 +16,8 @@ class AppServiceProvider extends ServiceProvider
     {
         Passport::ignoreMigrations();
 
-        $this->app->bind(BaseConstraint::class, function () {
-            return new Validator();
+        $this->app->bind(\JsonSchema\Validator::class, function () {
+            return new \JsonSchema\Validator();
         });
     }
 

@@ -21,11 +21,11 @@ trait JsonValidation
      */
     public static function validateJson(Validator $validator, string $schemaPath, string $json):void
     {
+        $value = json_decode($json, false);
+
         $schema = (object) [
             '$ref' => "file:///{$schemaPath}",
         ];
-
-        $value = json_decode($json, false);
 
         $validator->validate($value, $schema, Constraint::CHECK_MODE_APPLY_DEFAULTS);
 

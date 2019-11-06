@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/mtvbrianking/cis-core-api.svg?branch=master)](https://travis-ci.org/mtvbrianking/cis-core-api)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mtvbrianking/cis-core-api/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/mtvbrianking/cis-core-api/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/mtvbrianking/cis-core-api/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/mtvbrianking/cis-core-api/?branch=master)
 [![StyleCI](https://github.styleci.io/repos/204977143/shield?branch=master)](https://github.styleci.io/repos/204977143)
 [![Documentation](https://img.shields.io/badge/API-Documentation-Blue)](https://mtvbrianking.github.io/cis-core-api)
 

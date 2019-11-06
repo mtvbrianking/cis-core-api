@@ -29,9 +29,15 @@
         "type": "string",
         "enum": [
           "users.id",
-          "users.role_id",
           "users.facility_id",
-          "users.name"
+          "users.role_id",
+          "users.alias",
+          "users.name",
+          "users.email",
+          "users.email_verified_at",
+          "users.created_at",
+          "users.updated_at",
+          "users.deleted_at"
         ]
       }
     },
@@ -52,9 +58,15 @@
             "type": "string",
             "enum": [
               "users.id",
-              "users.role_id",
               "users.facility_id",
-              "users.name"
+              "users.role_id",
+              "users.alias",
+              "users.name",
+              "users.email",
+              "users.email_verified_at",
+              "users.created_at",
+              "users.updated_at",
+              "users.deleted_at"
             ]
           },
           "operator": {
@@ -103,10 +115,15 @@
             "type": "string",
             "enum": [
               "users.id",
-              "users.role_id",
               "users.facility_id",
+              "users.role_id",
+              "users.alias",
               "users.name",
-              "users.created_at"
+              "users.email",
+              "users.email_verified_at",
+              "users.created_at",
+              "users.updated_at",
+              "users.deleted_at"
             ]
           },
           "direction": {
@@ -157,7 +174,12 @@
             "type": "string",
             "enum": [
               "roles.id",
-              "roles.name"
+              "roles.facility_id",
+              "roles.name",
+              "roles.description",
+              "roles.created_at",
+              "roles.updated_at",
+              "roles.deleted_at"
             ]
           }
         }
@@ -186,7 +208,15 @@
             "type": "string",
             "enum": [
               "facilities.id",
-              "facilities.name"
+              "facilities.name",
+              "facilities.description",
+              "facilities.address",
+              "facilities.email",
+              "facilities.website",
+              "facilities.phone",
+              "facilities.created_at",
+              "facilities.updated_at",
+              "facilities.deleted_at"
             ]
           }
         }

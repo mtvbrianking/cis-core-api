@@ -17,7 +17,7 @@ trait QueryDecoration
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public static function applyConstraintsToQuery(Builder $query, Request $request)
+    public static function applyConstraintsToQuery(Builder $query, Request $request): Builder
     {
         // Include relations
 

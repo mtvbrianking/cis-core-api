@@ -27,7 +27,7 @@ class FacilityControllerTest extends TestCase
 
         $user = $this->getAuthorizedUser('view-any', 'facilities');
 
-        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/facilities');
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/facilities?paginate=0');
 
         $response->assertStatus(200);
 

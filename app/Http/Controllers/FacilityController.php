@@ -7,33 +7,78 @@ use App\Models\Module;
 use App\Models\Role;
 use App\Models\User;
 use App\Rules\Tel;
+use App\Traits\JsonValidation;
+use App\Traits\QueryDecoration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use JsonSchema\Validator as JsonValidator;
 
 class FacilityController extends Controller
 {
+    use JsonValidation, QueryDecoration;
+
+    /**
+     * Json schema validator.
+     *
+     * @var \JsonSchema\Validator
+     */
+    protected $jsonValidator;
+
     /**
      * Constructor.
+     *
+     * @param \JsonSchema\Validator $jsonValidator
      */
-    public function __construct()
+    public function __construct(JsonValidator $jsonValidator)
     {
         $this->middleware('auth:api');
+
+        $this->jsonValidator = $jsonValidator;
     }
 
     /**
      * Get all facilities.
      *
+     * @param \Illuminate\Http\Request $request
+     *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \App\Exceptions\InvalidJsonException
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', [Facility::class]);
 
-        $facilities = Facility::withTrashed()->get();
+        // Validate request query parameters.
+
+        $schemaPath = resource_path('js/schemas/facilities.json');
+
+        $queryParts = json_encode($request->query(), JSON_FORCE_OBJECT|JSON_NUMERIC_CHECK);
+
+        static::validateJson($this->jsonValidator, $schemaPath, $queryParts);
+
+        // Query users.
+
+        $query = Facility::query();
+
+        $query->withTrashed();
+
+        // Apply user constraints to query.
+
+        $query = static::applyConstraintsToQuery($query, $request);
+
+        // Pagination.
+
+        $limit = $request->input('limit', 15);
+
+        $facilities = $request->input('paginate', true)
+            ? $query->paginate($limit)
+            : $query->take($limit)->get();
+
+        // $users->withPath(url()->full());
 
         return response(['facilities' => $facilities]);
     }

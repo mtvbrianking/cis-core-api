@@ -1,0 +1,138 @@
+{
+  "$id": "#/schema/facility",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Facility model schema",
+  "type": "object",
+  "properties": {
+    "select": {
+      "$id": "#/properties/select",
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "additionalItems": false,
+      "items": {
+        "$id": "#/properties/select/items",
+        "type": "string",
+        "enum": [
+          "facilities.id",
+          "facilities.name",
+          "facilities.description",
+          "facilities.address",
+          "facilities.email",
+          "facilities.website",
+          "facilities.phone",
+          "facilities.created_at",
+          "facilities.updated_at",
+          "facilities.deleted_at"
+        ]
+      }
+    },
+    "where": {
+      "$id": "#/properties/where",
+      "type": "array",
+      "items": {
+        "$id": "#/properties/where/items",
+        "type": "object",
+        "required": [
+          "field",
+          "operator",
+          "value"
+        ],
+        "properties": {
+          "field": {
+            "$id": "#/properties/where/items/properties/field",
+            "type": "string",
+            "enum": [
+              "facilities.id",
+              "facilities.name",
+              "facilities.description",
+              "facilities.address",
+              "facilities.email",
+              "facilities.website",
+              "facilities.phone",
+              "facilities.created_at",
+              "facilities.updated_at",
+              "facilities.deleted_at"
+            ]
+          },
+          "operator": {
+            "$id": "#/properties/where/items/properties/operator",
+            "type": "string",
+            "enum": [
+              "=",
+              "!=",
+              "<>",
+              ">",
+              "<",
+              ">=",
+              "<=",
+              "!<",
+              "!>",
+              "like",
+              "ilike",
+              "in",
+              "between"
+            ]
+          },
+          "value": {
+            "$id": "#/properties/where/items/properties/value",
+            "type": [
+              "array",
+              "string",
+              "integer"
+            ]
+          }
+        }
+      }
+    },
+    "sort": {
+      "$id": "#/properties/sort",
+      "type": "array",
+      "items": {
+        "$id": "#/properties/sort/items",
+        "type": "object",
+        "required": [
+          "field",
+          "direction"
+        ],
+        "properties": {
+          "field": {
+            "$id": "#/properties/sort/items/properties/field",
+            "type": "string",
+            "enum": [
+              "facilities.id",
+              "facilities.name",
+              "facilities.description",
+              "facilities.address",
+              "facilities.email",
+              "facilities.website",
+              "facilities.phone",
+              "facilities.created_at",
+              "facilities.updated_at",
+              "facilities.deleted_at"
+            ]
+          },
+          "direction": {
+            "$id": "#/properties/sort/items/properties/direction",
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          }
+        }
+      }
+    },
+    "limit": {
+      "$id": "#/properties/limit",
+      "type": "integer",
+      "default": 15,
+      "minimum": 0,
+      "maximum": 100
+    },
+    "page": {
+      "$id": "#/properties/page",
+      "type": "integer"
+    }
+  }
+}
