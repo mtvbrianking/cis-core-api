@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Rules\Tel;
+use App\Models\Facility;
+use App\Models\Module;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\Module;
-use App\Models\Facility;
+use App\Rules\Tel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;

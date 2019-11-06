@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\Auth;
 
-use Tests\TestCase;
 use App\Models\User;
-use Ramsey\Uuid\Uuid;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Ramsey\Uuid\Uuid;
+use Tests\TestCase;
 
 /**
  * @see \App\Http\Controllers\Web\Auth\LoginController

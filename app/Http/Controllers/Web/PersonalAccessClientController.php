@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers\Web;
 
-use App\Models\Token;
-use App\Models\Client;
-use Lcobucci\JWT\Parser;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Zend\Diactoros\Response;
-use Laravel\Passport\Passport;
-use Zend\Diactoros\ServerRequest;
 use App\Http\Controllers\Controller;
+use App\Models\Client;
 use App\Models\PersonalAccessClient;
+use App\Models\Token;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Lcobucci\JWT\Parser as JwtParser;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
+use Laravel\Passport\Passport;
+use Lcobucci\JWT\Parser;
+use Lcobucci\JWT\Parser as JwtParser;
 use League\OAuth2\Server\AuthorizationServer;
+use Zend\Diactoros\Response;
+use Zend\Diactoros\ServerRequest;
 
 /**
  * Personal Access Clients.

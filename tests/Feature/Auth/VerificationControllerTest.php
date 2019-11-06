@@ -2,15 +2,15 @@
 
 namespace Tests\Feature\Auth;
 
-use Carbon\Carbon;
-use Tests\TestCase;
 use App\Models\User;
-use Ramsey\Uuid\Uuid;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Notification;
+use Carbon\Carbon;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\URL;
+use Ramsey\Uuid\Uuid;
+use Tests\TestCase;
 
 /**
  * @see \App\Http\Controllers\Web\Auth\VerificationController

@@ -2,8 +2,8 @@
 
 namespace App\Traits;
 
-use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 
 trait QueryDecoration
 {

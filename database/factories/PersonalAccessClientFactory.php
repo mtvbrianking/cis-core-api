@@ -1,8 +1,8 @@
 <?php
 
 use App\Models\Client;
-use Faker\Generator as Faker;
 use App\Models\PersonalAccessClient;
+use Faker\Generator as Faker;
 
 /*
 |--------------------------------------------------------------------------

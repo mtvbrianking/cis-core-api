@@ -2,13 +2,13 @@
 
 namespace Tests;
 
+use App\Models\Facility;
+use App\Models\Module;
+use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\Module;
-use App\Models\Facility;
-use App\Models\Permission;
-use Laravel\Passport\Passport;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Laravel\Passport\Passport;
 
 abstract class TestCase extends BaseTestCase
 {

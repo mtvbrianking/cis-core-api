@@ -2,9 +2,9 @@
 
 namespace App\Traits;
 
+use App\Exceptions\InvalidJsonException;
 use JsonSchema\Constraints\Constraint;
 use JsonSchema\Validator;
-use App\Exceptions\InvalidJsonException;
 
 trait JsonValidation
 {
@@ -12,8 +12,8 @@ trait JsonValidation
      * Validate JSON against a schema.
      *
      * @param \JsonSchema\Validator $validator
-     * @param string                                 $schemaPath
-     * @param string                                 $json
+     * @param string                $schemaPath
+     * @param string                $json
      *
      * @throws \App\Exceptions\InvalidJsonException
      *

@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers\Oauth;
 
+use App\Http\Controllers\Controller;
 use App\Models\Token;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
-use App\Http\Controllers\Controller;
-use Zend\Diactoros\Response as Psr7Response;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use Zend\Diactoros\Response as Psr7Response;
 
 class AccessTokenController extends Controller
 {

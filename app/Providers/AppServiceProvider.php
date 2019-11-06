@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
-use JsonSchema\Validator;
-use Laravel\Passport\Passport;
 use Illuminate\Support\ServiceProvider;
 use JsonSchema\Constraints\BaseConstraint;
+use JsonSchema\Validator;
+use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
 {

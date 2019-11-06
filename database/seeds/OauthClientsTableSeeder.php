@@ -1,9 +1,9 @@
 <?php
 
-use App\Models\User;
 use App\Models\Client;
-use Illuminate\Database\Seeder;
 use App\Models\PersonalAccessClient;
+use App\Models\User;
+use Illuminate\Database\Seeder;
 
 class OauthClientsTableSeeder extends Seeder
 {

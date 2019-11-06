@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Module;
 use App\Models\Facility;
+use App\Models\Module;
 use Illuminate\Database\Seeder;
 
 class FacilitiesTableSeeder extends Seeder
