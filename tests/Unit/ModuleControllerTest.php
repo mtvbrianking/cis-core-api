@@ -27,7 +27,7 @@ class ModuleControllerTest extends TestCase
 
         $user = $this->getAuthorizedUser('view-any', 'modules');
 
-        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/modules');
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/modules?paginate=0');
 
         $response->assertStatus(200);
 

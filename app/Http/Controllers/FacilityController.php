@@ -56,17 +56,15 @@ class FacilityController extends Controller
 
         $schemaPath = resource_path('js/schemas/facilities.json');
 
-        $queryParts = json_encode($request->query(), JSON_FORCE_OBJECT|JSON_NUMERIC_CHECK);
+        static::validateJson($this->jsonValidator, $schemaPath, $request);
 
-        static::validateJson($this->jsonValidator, $schemaPath, $queryParts);
-
-        // Query users.
+        // Query facilities.
 
         $query = Facility::query();
 
         $query->withTrashed();
 
-        // Apply user constraints to query.
+        // Apply constraints to query.
 
         $query = static::applyConstraintsToQuery($query, $request);
 
@@ -78,7 +76,7 @@ class FacilityController extends Controller
             ? $query->paginate($limit)
             : $query->take($limit)->get();
 
-        // $users->withPath(url()->full());
+        // $facilities->withPath(url()->full());
 
         return response(['facilities' => $facilities]);
     }

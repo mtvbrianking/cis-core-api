@@ -62,19 +62,17 @@ class UserController extends Controller
 
         $schemaPath = resource_path('js/schemas/users.json');
 
-        $queryParts = json_encode($request->query(), JSON_FORCE_OBJECT|JSON_NUMERIC_CHECK);
-
-        static::validateJson($this->jsonValidator, $schemaPath, $queryParts);
+        static::validateJson($this->jsonValidator, $schemaPath, $request);
 
         // Query users.
 
-        $consumer = Auth::guard('api')->user();
-
         $query = User::query();
+
+        $consumer = Auth::guard('api')->user();
 
         $query->onlyRelated($consumer)->withTrashed();
 
-        // Apply user constraints to query.
+        // Apply constraints to query.
 
         $query = static::applyConstraintsToQuery($query, $request);
 

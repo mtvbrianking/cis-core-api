@@ -28,7 +28,7 @@ class PermissionControllerTest extends TestCase
 
         $user = $this->getAuthorizedUser('view-any', 'permissions');
 
-        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/permissions');
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/permissions?paginate=0');
 
         $response->assertStatus(200);
 
