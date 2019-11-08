@@ -82,6 +82,119 @@ class FacilityController extends Controller
     }
 
     /**
+     * Get facilities for jQuery datatables.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Exception
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function indexDt(Request $request)
+    {
+        $this->authorize('viewAny', [Facility::class]);
+
+        $query = Facility::query();
+
+        $query->withTrashed();
+
+        $availableFacilities = $query->count();
+
+        // Datatables
+
+        $allowedCols = [
+            'facilities.id',
+            'facilities.name',
+            'facilities.description',
+            'facilities.address',
+            'facilities.email',
+            'facilities.website',
+            'facilities.phone',
+            'facilities.created_at',
+            'facilities.updated_at',
+            'facilities.deleted_at',
+        ];
+
+        $params = $request->query();
+
+        $cols = array_get($params, 'columns', []);
+
+        $askedCols = array_map(function ($col) {
+            return $col['data'];
+        }, $cols);
+
+        $validCols = array_intersect($askedCols, $allowedCols);
+
+        // Select
+
+        $query->select($validCols);
+
+        // Filter
+
+        foreach ($cols as $col) {
+            if (! in_array($col['data'], $validCols)) {
+                continue;
+            }
+
+            if (! $col['searchable']) {
+                continue;
+            }
+
+            // Column filter
+
+            if ($term = $col['search']['value']) {
+                $query->orWhere($col['data'], 'ilike', "%{$term}%");
+
+                continue;
+            }
+
+            // Global filter
+
+            if ($term = $params['search']['value']) {
+                $query->orWhere($col['data'], 'ilike', "%{$term}%");
+            }
+        }
+
+        // Order
+
+        foreach ($params['order'] as $order) {
+            $colIdx = $order['column'];
+
+            $col = $cols[$colIdx];
+
+            if (! in_array($col['data'], $validCols)) {
+                continue;
+            }
+
+            if (! $col['orderable']) {
+                continue;
+            }
+
+            $query->orderBy($col['data'], $order['dir']);
+        }
+
+        // Paginate
+
+        $query->skip($params['start']);
+
+        // Limit
+
+        $query->take($params['length']);
+
+        // $query->dump();
+
+        $facilities = $query->get();
+
+        return response([
+            'draw' => ++$params['draw'],
+            'recordsTotal' => $availableFacilities,
+            'recordsFiltered' => $facilities->count(),
+            'data' => $facilities,
+        ]);
+    }
+
+    /**
      * Store a newly created facility in storage.
      *
      * @param \Illuminate\Http\Request $request

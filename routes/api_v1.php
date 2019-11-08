@@ -49,6 +49,7 @@ Route::pattern('facility', $uuid);
 
 Route::group(['prefix' => 'facilities'], function () {
     Route::get('/', 'FacilityController@index');
+    Route::get('/dt', 'FacilityController@indexDt');
     Route::post('/', 'FacilityController@store');
     Route::get('/{facility}', 'FacilityController@show');
     Route::put('/{facility}', 'FacilityController@update');
