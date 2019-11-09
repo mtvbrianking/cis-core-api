@@ -118,13 +118,15 @@ class FacilityController extends Controller
 
         $params = $request->query();
 
-        $cols = array_get($params, 'columns', []);
+        $cols = array_get((array) $params, 'columns', []);
 
         $askedCols = array_map(function ($col) {
-            return $col['data'];
+            return $col['name'];
         }, $cols);
 
         $validCols = array_intersect($askedCols, $allowedCols);
+
+        // dd($validCols);
 
         // Select
 
@@ -132,38 +134,42 @@ class FacilityController extends Controller
 
         // Filter
 
+        $hasFiltered = false;
+
         foreach ($cols as $col) {
-            if (! in_array($col['data'], $validCols)) {
+            if (! in_array($col['name'], $validCols)) {
                 continue;
             }
 
-            if (! $col['searchable']) {
+            if (! array_get($col, 'searchable')) {
                 continue;
             }
 
             // Column filter
 
-            if ($term = $col['search']['value']) {
-                $query->orWhere($col['data'], 'ilike', "%{$term}%");
+            if ($term = array_get($col, 'search.value')) {
+                $query->orWhere($col['name'], 'ilike', "%{$term}%");
+                $hasFiltered = true;
 
                 continue;
             }
 
             // Global filter
 
-            if ($term = $params['search']['value']) {
-                $query->orWhere($col['data'], 'ilike', "%{$term}%");
+            if ($term = array_get($params, 'search.value')) {
+                $hasFiltered = true;
+                $query->orWhere($col['name'], 'ilike', "%{$term}%");
             }
         }
 
         // Order
 
-        foreach ($params['order'] as $order) {
+        foreach (array_get($params, 'order', []) as $order) {
             $colIdx = $order['column'];
 
             $col = $cols[$colIdx];
 
-            if (! in_array($col['data'], $validCols)) {
+            if (! in_array($col['name'], $validCols)) {
                 continue;
             }
 
@@ -171,7 +177,7 @@ class FacilityController extends Controller
                 continue;
             }
 
-            $query->orderBy($col['data'], $order['dir']);
+            $query->orderBy($col['name'], $order['dir']);
         }
 
         // Paginate
@@ -186,10 +192,23 @@ class FacilityController extends Controller
 
         $facilities = $query->get();
 
+        // Clean Up
+
+        // $data = $facilities->map(function($facility) use($allowedCols) {
+        //     $row  = [];
+        //     foreach($allowedCols as $col) {
+        //         $tableField = explode('.', $col);
+        //         $field = array_pop($tableField);
+        //         $row[$col] = $facility[$field];
+        //     }
+
+        //     return $row;
+        // });
+
         return response([
             'draw' => ++$params['draw'],
             'recordsTotal' => $availableFacilities,
-            'recordsFiltered' => $facilities->count(),
+            'recordsFiltered' => $hasFiltered ? $facilities->count() : $availableFacilities,
             'data' => $facilities,
         ]);
     }
