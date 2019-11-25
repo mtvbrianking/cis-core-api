@@ -7,17 +7,17 @@ use App\Models\Module;
 use App\Models\Role;
 use App\Models\User;
 use App\Rules\Tel;
+use App\Traits\JqueryDatatables;
 use App\Traits\JsonValidation;
 use App\Traits\QueryDecoration;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use JsonSchema\Validator as JsonValidator;
 
 class FacilityController extends Controller
 {
-    use JsonValidation, QueryDecoration;
+    use JsonValidation, JqueryDatatables, QueryDecoration;
 
     /**
      * Json schema validator.
@@ -86,7 +86,6 @@ class FacilityController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
-     * @throws \Exception
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
@@ -98,10 +97,6 @@ class FacilityController extends Controller
         $query = Facility::query();
 
         $query->withTrashed();
-
-        $availableFacilities = $query->count();
-
-        // Datatables
 
         $allowedCols = [
             'facilities.id',
@@ -116,101 +111,7 @@ class FacilityController extends Controller
             'facilities.deleted_at',
         ];
 
-        $params = $request->query();
-
-        $cols = array_get((array) $params, 'columns', []);
-
-        $askedCols = array_map(function ($col) {
-            return $col['name'];
-        }, $cols);
-
-        $validCols = array_intersect($askedCols, $allowedCols);
-
-        // dd($validCols);
-
-        // Select
-
-        $query->select($validCols);
-
-        // Filter
-
-        $hasFiltered = false;
-
-        foreach ($cols as $col) {
-            if (! in_array($col['name'], $validCols)) {
-                continue;
-            }
-
-            if (! array_get($col, 'searchable')) {
-                continue;
-            }
-
-            // Column filter
-
-            if ($term = array_get($col, 'search.value')) {
-                $query->orWhere($col['name'], 'ilike', "%{$term}%");
-                $hasFiltered = true;
-
-                continue;
-            }
-
-            // Global filter
-
-            if ($term = array_get($params, 'search.value')) {
-                $hasFiltered = true;
-                $query->orWhere($col['name'], 'ilike', "%{$term}%");
-            }
-        }
-
-        // Order
-
-        foreach (array_get($params, 'order', []) as $order) {
-            $colIdx = $order['column'];
-
-            $col = $cols[$colIdx];
-
-            if (! in_array($col['name'], $validCols)) {
-                continue;
-            }
-
-            if (! $col['orderable']) {
-                continue;
-            }
-
-            $query->orderBy($col['name'], $order['dir']);
-        }
-
-        // Paginate
-
-        $query->skip($params['start']);
-
-        // Limit
-
-        $query->take($params['length']);
-
-        // $query->dump();
-
-        $facilities = $query->get();
-
-        // Clean Up
-
-        // $data = $facilities->map(function($facility) use($allowedCols) {
-        //     $row  = [];
-        //     foreach($allowedCols as $col) {
-        //         $tableField = explode('.', $col);
-        //         $field = array_pop($tableField);
-        //         $row[$col] = $facility[$field];
-        //     }
-
-        //     return $row;
-        // });
-
-        return response([
-            'draw' => ++$params['draw'],
-            'recordsTotal' => $availableFacilities,
-            'recordsFiltered' => $hasFiltered ? $facilities->count() : $availableFacilities,
-            'data' => $facilities,
-        ]);
+        return static::queryForDatatables($query, $request, $allowedCols);
     }
 
     /**
@@ -218,7 +119,7 @@ class FacilityController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
-     * @throws ValidationException
+     * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
@@ -235,8 +136,6 @@ class FacilityController extends Controller
             'website' => 'nullable|url|max:50',
             'phone' => ['nullable', new Tel, 'max:25'],
         ]);
-
-        $user = Auth::guard('api')->user();
 
         $facility = new Facility();
         $facility->name = $request->name;
@@ -276,7 +175,7 @@ class FacilityController extends Controller
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
      *
-     * @throws ValidationException
+     * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
@@ -293,8 +192,6 @@ class FacilityController extends Controller
             'website' => 'nullable|url|max:50',
             'phone' => ['nullable', new Tel, 'max:25'],
         ]);
-
-        $user = Auth::guard('api')->user();
 
         $facility = Facility::findOrFail($id);
         $facility->name = $request->input('name', $facility->name);
@@ -395,7 +292,7 @@ class FacilityController extends Controller
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
      *
-     * @throws ValidationException
+     * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response

@@ -8,9 +8,9 @@ if (! function_exists('array_get')) {
      * array_get($arr, 'users.role.name', null)
      * ```
      *
-     * @param array $haystack The array
-     * @param mixed $needle   The searched value
-     * @param mixed $default
+     * @param array  $haystack The array
+     * @param string $needle   The searched value
+     * @param mixed  $default
      *
      * @return mixed
      */
@@ -23,7 +23,7 @@ if (! function_exists('array_get')) {
                 return $default;
             }
 
-            if ($idx === (sizeOf($keys) - 1)) {
+            if ($idx === (sizeof($keys) - 1)) {
                 return $haystack[$needle];
             }
 
