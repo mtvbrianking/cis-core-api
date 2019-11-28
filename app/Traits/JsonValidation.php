@@ -14,7 +14,7 @@ trait JsonValidation
      * @see https://json-schema.org/specification.html JSON Schema Specification
      * @see https://jsonschema.net JSON Schema Generator
      * @see https://www.jsonschemavalidator.net JSON Schema Validator
-     * @see  https://json-schema.org/understanding-json-schema/structuring.html Tutorial
+     * @see https://json-schema.org/understanding-json-schema/structuring.html Tutorial
      *
      * @param \JsonSchema\Validator $validator
      * @param string                $schemaPath

@@ -58,6 +58,11 @@ return PhpCsFixer\Config::create()
             'ordered_imports' => [
                 'sort_algorithm' => 'alpha',
             ],
+            'single_line_comment_style' => [
+                'comment_types' => [
+                    'hash',
+                ],
+            ],
             // null coalesc requires php v7.X
             // 'ternary_to_null_coalescing' => true,
 

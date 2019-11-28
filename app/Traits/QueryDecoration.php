@@ -11,11 +11,10 @@ trait QueryDecoration
      * Build eloquent query from request query parameters.
      *
      * @see https://stackoverflow.com/a/43783574 Order By eager loaded relation.
+     * @see https://m.dotdev.co/writing-advanced-eloquent-search-query-filters-de8b6c2598db Tutorial
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @param \Illuminate\Http\Request              $request
-     *
-     * @link https://m.dotdev.co/writing-advanced-eloquent-search-query-filters-de8b6c2598db Tutorial
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
