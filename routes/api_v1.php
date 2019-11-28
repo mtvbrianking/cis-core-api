@@ -105,6 +105,7 @@ Route::pattern('user', $uuid);
 
 Route::group(['prefix' => 'users'], function () {
     Route::get('/', 'UserController@index');
+    Route::get('/dt', 'UserController@indexDt');
     Route::post('/', 'UserController@store');
     Route::post('/auth', 'UserController@authenticate')->middleware('client:authenticate-user');
     Route::post('/deauth', 'UserController@deauthenticate');

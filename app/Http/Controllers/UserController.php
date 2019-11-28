@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Role;
 use App\Models\User;
+use App\Traits\JqueryDatatables;
 use App\Traits\JsonValidation;
 use App\Traits\QueryDecoration;
 use Illuminate\Http\Request;
@@ -18,7 +19,7 @@ use JsonSchema\Validator as JsonValidator;
 
 class UserController extends Controller
 {
-    use JsonValidation, QueryDecoration;
+    use JsonValidation, JqueryDatatables, QueryDecoration;
 
     /**
      * Json schema validator.
@@ -62,7 +63,7 @@ class UserController extends Controller
 
         $schemaPath = resource_path('js/schemas/users.json');
 
-        static::validateJson($this->jsonValidator, $schemaPath, $request);
+        static::validateJson($this->jsonValidator, $schemaPath, $request->query());
 
         // Query users.
 
@@ -80,11 +81,62 @@ class UserController extends Controller
 
         $limit = $request->input('limit', 15);
 
-        $users = $request->input('paginate', true) ? $query->paginate($limit) : $query->take($limit)->get();
+        $users = $request->input('paginate', true)
+            ? $query->paginate($limit)
+            : $query->take($limit)->get();
 
         // $users->withPath(url()->full());
 
         return response(['users' => $users]);
+    }
+
+    /**
+     * Get users for jQuery datatables.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function indexDt(Request $request)
+    {
+        $this->authorize('viewAny', [User::class]);
+
+        // ...
+
+        $query = User::query();
+
+        $consumer = Auth::guard('api')->user();
+
+        $query->onlyRelated($consumer)->withTrashed();
+
+        // ...
+
+        $relationships = [
+            'facility' => [
+                'pk' => 'id',
+                'fk' => 'facility_id',
+            ],
+            'role' => [
+                'pk' => 'id',
+                'fk' => 'role_id',
+            ],
+        ];
+
+        $constraints = static::prepareQueryParameters($request->query(), $relationships);
+
+        // return response($constraints);
+
+        // ...
+
+        $schemaPath = resource_path('js/schemas/users.json');
+
+        static::validateJson($this->jsonValidator, $schemaPath, $constraints);
+
+        // ...
+
+        return static::queryForDatatables($query, $constraints);
     }
 
     /**

@@ -2,17 +2,15 @@
   "$id": "#/schema/role",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "description": "Role model schema",
-  "type": "object",
+  "additionalProperties": true,
   "properties": {
-    "with": {
-      "$id": "#/properties/with",
-      "type": "array",
-      "items": {
-        "anyOf": [
-          {
-            "$ref": "#/definitions/facility"
-          }
-        ]
+    "join": {
+      "$id": "#/properties/join",
+      "type": "object",
+      "properties": {
+        "facility": {
+          "$ref": "../schemas/facilities.json"
+        }
       }
     },
     "select": {
@@ -22,79 +20,20 @@
       "uniqueItems": true,
       "additionalItems": false,
       "items": {
-        "$id": "#/properties/select/items",
-        "type": "string",
-        "enum": [
-          "roles.id",
-          "roles.facility_id",
-          "roles.name",
-          "roles.description",
-          "roles.created_at",
-          "roles.updated_at",
-          "roles.deleted_at"
-        ]
+        "$ref": "#/definitions/field"
       }
     },
     "where": {
-      "$id": "#/properties/where",
-      "type": "array",
-      "items": {
-        "$id": "#/properties/where/items",
-        "type": "object",
-        "required": [
-          "field",
-          "operator",
-          "value"
-        ],
-        "properties": {
-          "field": {
-            "$id": "#/properties/where/items/properties/field",
-            "type": "string",
-            "enum": [
-              "roles.id",
-              "roles.facility_id",
-              "roles.name",
-              "roles.description",
-              "roles.created_at",
-              "roles.updated_at",
-              "roles.deleted_at"
-            ]
-          },
-          "operator": {
-            "$id": "#/properties/where/items/properties/operator",
-            "type": "string",
-            "enum": [
-              "=",
-              "!=",
-              "<>",
-              ">",
-              "<",
-              ">=",
-              "<=",
-              "!<",
-              "!>",
-              "like",
-              "ilike",
-              "in",
-              "between"
-            ]
-          },
-          "value": {
-            "$id": "#/properties/where/items/properties/value",
-            "type": [
-              "array",
-              "string",
-              "integer"
-            ]
-          }
-        }
-      }
+      "$ref": "#/definitions/where"
     },
-    "sort": {
-      "$id": "#/properties/sort",
+    "or-where": {
+      "$ref": "#/definitions/where"
+    },
+    "order-by": {
+      "$id": "#/properties/order-by",
       "type": "array",
       "items": {
-        "$id": "#/properties/sort/items",
+        "$id": "#/properties/order-by/items",
         "type": "object",
         "required": [
           "field",
@@ -102,20 +41,10 @@
         ],
         "properties": {
           "field": {
-            "$id": "#/properties/sort/items/properties/field",
-            "type": "string",
-            "enum": [
-              "roles.id",
-              "roles.facility_id",
-              "roles.name",
-              "roles.description",
-              "roles.created_at",
-              "roles.updated_at",
-              "roles.deleted_at"
-            ]
+            "$ref": "#/definitions/field"
           },
           "direction": {
-            "$id": "#/properties/sort/items/properties/direction",
+            "$id": "#/properties/order-by/items/properties/direction",
             "type": "string",
             "enum": [
               "asc",
@@ -125,6 +54,10 @@
         }
       }
     },
+    "offset": {
+      "$id": "#/properties/offset",
+      "type": "integer"
+    },
     "limit": {
       "$id": "#/properties/limit",
       "type": "integer",
@@ -132,44 +65,68 @@
       "minimum": 0,
       "maximum": 100
     },
-    "page": {
-      "$id": "#/properties/page",
+    "draw": {
+      "$id": "#/properties/draw",
       "type": "integer"
     }
   },
   "definitions": {
-    "facility": {
-      "$id": "#/definitions/facility",
-      "type": "object",
-      "required": [
-        "relation"
-      ],
-      "properties": {
-        "relation": {
-          "$id": "#/properties/relation",
-          "type": "string",
-          "enum": [
-            "facility"
-          ]
-        },
-        "select": {
-          "$id": "#/properties/select",
-          "type": "array",
-          "minItems": 1,
-          "items": {
-            "$id": "#/properties/select/items",
-            "type": "string",
-            "enum": [
-              "facilities.id",
-              "facilities.name",
-              "facilities.description",
-              "facilities.address",
-              "facilities.email",
-              "facilities.website",
-              "facilities.phone",
-              "facilities.created_at",
-              "facilities.updated_at",
-              "facilities.deleted_at"
+    "field": {
+      "$id": "#/definitions/field",
+      "type": "string",
+      "enum": [
+        "id",
+        "facility_id",
+        "name",
+        "description",
+        "created_at",
+        "updated_at",
+        "deleted_at"
+      ]
+    },
+    "operator": {
+      "$id": "#/definitions/operator",
+      "type": "string",
+      "enum": [
+        "=",
+        "!=",
+        "<>",
+        ">",
+        "<",
+        ">=",
+        "<=",
+        "!<",
+        "!>",
+        "like",
+        "ilike",
+        "in",
+        "between"
+      ]
+    },
+    "where": {
+      "$id": "#/definitions/where",
+      "type": "array",
+      "items": {
+        "$id": "#/definitions/where/items",
+        "type": "object",
+        "required": [
+          "field",
+          "operator",
+          "value"
+        ],
+        "properties": {
+          "field": {
+            "$ref": "#/definitions/field"
+          },
+          "operator": {
+            "$ref": "#/definitions/operator"
+          },
+          "value": {
+            "$id": "#/definitions/where/items/properties/value",
+            "type": [
+              "array",
+              "string",
+              "integer"
             ]
           }
         }

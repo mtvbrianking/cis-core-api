@@ -54,7 +54,7 @@ class RoleController extends Controller
 
         $schemaPath = resource_path('js/schemas/roles.json');
 
-        static::validateJson($this->jsonValidator, $schemaPath, $request);
+        static::validateJson($this->jsonValidator, $schemaPath, $request->query());
 
         // Query roles.
 

@@ -53,7 +53,7 @@ class ModuleController extends Controller
 
         $schemaPath = resource_path('js/schemas/modules.json');
 
-        static::validateJson($this->jsonValidator, $schemaPath, $request);
+        static::validateJson($this->jsonValidator, $schemaPath, $request->query());
 
         // Query modules.
 

@@ -56,7 +56,7 @@ class FacilityController extends Controller
 
         $schemaPath = resource_path('js/schemas/facilities.json');
 
-        static::validateJson($this->jsonValidator, $schemaPath, $request);
+        static::validateJson($this->jsonValidator, $schemaPath, $request->query());
 
         // Query facilities.
 
@@ -94,24 +94,25 @@ class FacilityController extends Controller
     {
         $this->authorize('viewAny', [Facility::class]);
 
+        // ...
+
         $query = Facility::query();
 
         $query->withTrashed();
 
-        $allowedCols = [
-            'facilities.id',
-            'facilities.name',
-            'facilities.description',
-            'facilities.address',
-            'facilities.email',
-            'facilities.website',
-            'facilities.phone',
-            'facilities.created_at',
-            'facilities.updated_at',
-            'facilities.deleted_at',
-        ];
+        // ...
 
-        return static::queryForDatatables($query, $request, $allowedCols);
+        $constraints = static::prepareQueryParameters($request->query());
+
+        // ...
+
+        $schemaPath = resource_path('js/schemas/facilities.json');
+
+        static::validateJson($this->jsonValidator, $schemaPath, $constraints);
+
+        // ...
+
+        return static::queryForDatatables($query, $constraints);
     }
 
     /**

@@ -52,7 +52,7 @@ class PermissionController extends Controller
 
         $schemaPath = resource_path('js/schemas/permissions.json');
 
-        static::validateJson($this->jsonValidator, $schemaPath, $request);
+        static::validateJson($this->jsonValidator, $schemaPath, $request->query());
 
         // Query permissions.
 
