@@ -119,6 +119,6 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function scopeOnlyRelated($query, $user)
     {
-        return $query->where('facility_id', $user->facility_id);
+        return $query->where('users.facility_id', $user->facility_id);
     }
 }

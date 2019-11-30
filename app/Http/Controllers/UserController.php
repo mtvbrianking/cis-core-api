@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Role;
 use App\Models\User;
+use App\Support\Datatable;
 use App\Traits\JqueryDatatables;
 use App\Traits\JsonValidation;
 use App\Traits\QueryDecoration;
@@ -113,30 +114,52 @@ class UserController extends Controller
 
         // ...
 
-        $relationships = [
-            'facility' => [
-                'pk' => 'id',
-                'fk' => 'facility_id',
-            ],
-            'role' => [
-                'pk' => 'id',
-                'fk' => 'role_id',
-            ],
-        ];
+        // $relationships = [
+        //     'facility' => [
+        //         'fk' => 'facility_id',
+        //         'table' => 'facilities',
+        //         'pk' => 'id',
+        //     ],
+        //     'role' => [
+        //         'fk' => 'role_id',
+        //         'table' => 'roles',
+        //         'pk' => 'id',
+        //     ],
+        // ];
 
-        $constraints = static::prepareQueryParameters($request->query(), $relationships);
+        // $constraints = static::oldPrepareQueryParameters($request->query(), $relationships);
+
+        $constraints = Datatable::prepareQueryParameters($request->query());
 
         // return response($constraints);
 
         // ...
 
-        $schemaPath = resource_path('js/schemas/users.json');
+        // $schemaPath = resource_path('js/schemas/users.json');
 
-        static::validateJson($this->jsonValidator, $schemaPath, $constraints);
+        // static::validateJson($this->jsonValidator, $schemaPath, $constraints);
 
         // ...
 
-        return static::queryForDatatables($query, $constraints);
+        $tables = Datatable::extraTables($constraints['select']);
+
+        if (in_array('roles', $tables)) {
+            $query->leftJoin('roles', 'roles.id', '=', 'users.role_id');
+        }
+
+        if (in_array('facilities', $tables)) {
+            $query->leftJoin('facilities', 'facilities.id', '=', 'users.facility_id');
+        }
+
+        // $query->dump();
+
+        $tableModelMap = [
+            'users' => null,
+            'roles' => 'role',
+            'facilities' => 'facility',
+        ];
+
+        return static::queryForDatatables($query, $constraints, $tableModelMap);
     }
 
     /**

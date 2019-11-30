@@ -1,0 +1,168 @@
+<?php
+
+namespace App\Support;
+
+class Datatable
+{
+    /**
+     * Restructure jquery datatables' request query parameters for eloquent builder.
+     *
+     * @param array  $params
+     * @param string $table
+     *
+     * @return array
+     */
+    public static function prepareQueryParameters(array $params): array
+    {
+        $constraints = $tables = $select = $orWhere = $orderBy = [];
+
+        foreach ($params['columns'] as $col) {
+            // Select
+
+            if (! isset($col['name'])) {
+                continue;
+            }
+
+            $constraints['select'][] = $col['name'];
+
+            // Search
+
+            if (! (bool) $col['searchable']) {
+                continue;
+            }
+
+            // Column search
+
+            if ($term = array_get($col['search'], 'value')) {
+                $constraints['where'][] = [
+                    'field' => $col['name'],
+                    'operator' => 'ilike',
+                    'value' => "%{$term}%",
+                ];
+            }
+
+            // Global search
+
+            if ($term = array_get($params['search'], 'value')) {
+                $constraints['or-where-group'][] = [
+                    'field' => $col['name'],
+                    'operator' => 'ilike',
+                    'value' => "%{$term}%",
+                ];
+            }
+
+            continue;
+        }
+
+        // Sort
+        $constraints['order-by'] = static::extraSort($params);
+
+        // Paginate
+        $constraints['offset'] = $params['start'];
+
+        // Limit
+        $constraints['limit'] = $params['length'];
+
+        // Draw
+        $constraints['draw'] = $params['draw'];
+
+        return $constraints;
+    }
+
+    public static function extraTables(array $columns): array
+    {
+        $tables = [];
+
+        foreach ($columns as $column) {
+            $parts = explode('.', $column);
+
+            $table = null;
+
+            if (count($parts) > 1) {
+                $table = $parts[0];
+            }
+
+            if (in_array($table, $tables)) {
+                continue;
+            }
+
+            $tables[] = $table;
+        }
+
+        return $tables;
+    }
+
+    public static function extraSort(array $params): array
+    {
+        $orderBy = [];
+
+        foreach ($params['order'] as $order) {
+            $colIdx = $order['column'];
+
+            $col = $params['columns'][$colIdx];
+
+            if (! $col['orderable']) {
+                continue;
+            }
+
+            if (! isset($col['name'])) {
+                continue;
+            }
+
+            $orderBy[] = [
+                'field' => $col['name'],
+                'direction' => $order['dir'],
+            ];
+        }
+
+        return $orderBy;
+    }
+
+    public static function applyFilter(Builder $query, array $filter, string $type = 'and'): Builder
+    {
+        $find = $type == 'or' ? 'orWhere' : 'where';
+
+        if ($filter['operator'] == 'in') {
+            $query->{$find.'In'}($filter['field'], $filter['value']);
+        } elseif ($filter['operator'] == 'between') {
+            $query->{$find.'Between'}($filter['field'], $filter['value']);
+        } else {
+            $query->{$find}($filter['field'], $filter['operator'], $filter['value']);
+        }
+
+        return $query;
+    }
+
+    public static function prefixFields(array $fields): array
+    {
+        $rawFields = [];
+        foreach ($fields as $field) {
+            $rawFields[] = "{$field} AS {$field}";
+        }
+
+        return $rawFields;
+    }
+
+    public static function sqlToModel(array $rows, array $tblModel): array
+    {
+        $_data = [];
+        foreach ($rows as $row) {
+            $_datum = [];
+            foreach ($row as $key => $value) {
+                $tblField = explode('.', $key);
+                $table = $tblField[0];
+                $field = $tblField[1];
+                $model = $tblModel[$table];
+                if (is_null($model)) {
+                    $_datum[$field] = $value;
+
+                    continue;
+                }
+                $_datum[$model][$field] = $value;
+            }
+            $_data[] = $_datum;
+        }
+
+        return $_data;
+    }
+}

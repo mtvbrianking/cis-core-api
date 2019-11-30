@@ -33,3 +33,27 @@ if (! function_exists('array_get')) {
         return $default;
     }
 }
+
+if (! function_exists('array_remove_empty')) {
+    /**
+     * Remove empty elements from array.
+     *
+     * @param array $haystack The array
+     *
+     * @return mixed
+     */
+    function array_remove_empty(array $haystack)
+    {
+        foreach ($haystack as $key => $value) {
+            if (is_array($value)) {
+                $haystack[$key] = array_remove_empty($haystack[$key]);
+            }
+
+            if (empty($haystack[$key]) && $haystack[$key] != 0) {
+                unset($haystack[$key]);
+            }
+        }
+
+        return $haystack;
+    }
+}

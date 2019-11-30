@@ -104,6 +104,8 @@ class FacilityController extends Controller
 
         $constraints = static::prepareQueryParameters($request->query());
 
+        // return response($constraints);
+
         // ...
 
         $schemaPath = resource_path('js/schemas/facilities.json');
