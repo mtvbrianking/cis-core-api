@@ -146,7 +146,7 @@ class Datatable
             $find = $group['type'] == 'or' ? 'orWhere' : 'where';
             $filters = $group['where'];
             $query->{$find}(function ($query) use ($filters) {
-                $query = static::applyFilters($query, $filters);
+                static::applyFilters($query, $filters);
             });
         }
 

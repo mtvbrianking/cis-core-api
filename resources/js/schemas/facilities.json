@@ -18,8 +18,30 @@
     "where": {
       "$ref": "#/definitions/where"
     },
-    "or-where": {
-      "$ref": "#/definitions/where"
+    "where-group": {
+      "$id": "#/definitions/where-group",
+      "type": "array",
+      "items": {
+        "$id": "#/definitions/where-group/items",
+        "type": "object",
+        "required": [
+          "type",
+          "where"
+        ],
+        "properties": {
+          "type": {
+            "$id": "#/definitions/where-group/items/properties/type",
+            "type": "string",
+            "enum": [
+              "and",
+              "or"
+            ]
+          },
+          "where": {
+            "$ref": "#/definitions/where"
+          }
+        }
+      }
     },
     "order-by": {
       "$id": "#/properties/order-by",
@@ -67,16 +89,16 @@
       "$id": "#/definitions/field",
       "type": "string",
       "enum": [
-        "id",
-        "name",
-        "description",
-        "address",
-        "email",
-        "website",
-        "phone",
-        "created_at",
-        "updated_at",
-        "deleted_at"
+        "facilities.id",
+        "facilities.name",
+        "facilities.description",
+        "facilities.address",
+        "facilities.email",
+        "facilities.website",
+        "facilities.phone",
+        "facilities.created_at",
+        "facilities.updated_at",
+        "facilities.deleted_at"
       ]
     },
     "operator": {
@@ -105,11 +127,20 @@
         "$id": "#/definitions/where/items",
         "type": "object",
         "required": [
+          "type",
           "field",
           "operator",
           "value"
         ],
         "properties": {
+          "type": {
+            "$id": "#/definitions/where/items/properties/type",
+            "type": "string",
+            "enum": [
+              "and",
+              "or"
+            ]
+          },
           "field": {
             "$ref": "#/definitions/field"
           },
