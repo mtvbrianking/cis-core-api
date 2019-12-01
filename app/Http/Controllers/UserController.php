@@ -114,30 +114,15 @@ class UserController extends Controller
 
         // ...
 
-        // $relationships = [
-        //     'facility' => [
-        //         'fk' => 'facility_id',
-        //         'table' => 'facilities',
-        //         'pk' => 'id',
-        //     ],
-        //     'role' => [
-        //         'fk' => 'role_id',
-        //         'table' => 'roles',
-        //         'pk' => 'id',
-        //     ],
-        // ];
-
-        // $constraints = static::oldPrepareQueryParameters($request->query(), $relationships);
-
         $constraints = Datatable::prepareQueryParameters($request->query());
 
         // return response($constraints);
 
         // ...
 
-        // $schemaPath = resource_path('js/schemas/users.json');
+        $schemaPath = resource_path('js/schemas/users.json');
 
-        // static::validateJson($this->jsonValidator, $schemaPath, $constraints);
+        static::validateJson($this->jsonValidator, $schemaPath, $constraints);
 
         // ...
 
@@ -150,8 +135,6 @@ class UserController extends Controller
         if (in_array('facilities', $tables)) {
             $query->leftJoin('facilities', 'facilities.id', '=', 'users.facility_id');
         }
-
-        // $query->dump();
 
         $tableModelMap = [
             'users' => null,

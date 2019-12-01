@@ -5,18 +5,6 @@
   "type": "object",
   "additionalProperties": true,
   "properties": {
-    "join": {
-      "$id": "#/properties/join",
-      "type": "object",
-      "properties": {
-        "facility": {
-          "$ref": "../schemas/facilities.json"
-        },
-        "role": {
-          "$ref": "../schemas/roles.json"
-        }
-      }
-    },
     "select": {
       "$id": "#/properties/select",
       "type": "array",
@@ -30,8 +18,30 @@
     "where": {
       "$ref": "#/definitions/where"
     },
-    "or-where": {
-      "$ref": "#/definitions/where"
+    "where-group": {
+      "$id": "#/definitions/where-group",
+      "type": "array",
+      "items": {
+        "$id": "#/definitions/where-group/items",
+        "type": "object",
+        "required": [
+          "type",
+          "where"
+        ],
+        "properties": {
+          "type": {
+            "$id": "#/definitions/where-group/items/properties/type",
+            "type": "string",
+            "enum": [
+              "and",
+              "or"
+            ]
+          },
+          "where": {
+            "$ref": "#/definitions/where"
+          }
+        }
+      }
     },
     "order-by": {
       "$id": "#/properties/order-by",
@@ -79,16 +89,35 @@
       "$id": "#/definitions/field",
       "type": "string",
       "enum": [
-        "id",
-        "facility_id",
-        "role_id",
-        "alias",
-        "name",
-        "email",
-        "email_verified_at",
-        "created_at",
-        "updated_at",
-        "deleted_at"
+        "users.id",
+        "users.facility_id",
+        "users.role_id",
+        "users.alias",
+        "users.name",
+        "users.email",
+        "users.email_verified_at",
+        "users.created_at",
+        "users.updated_at",
+        "users.deleted_at",
+
+        "facilities.id",
+        "facilities.name",
+        "facilities.description",
+        "facilities.address",
+        "facilities.email",
+        "facilities.website",
+        "facilities.phone",
+        "facilities.created_at",
+        "facilities.updated_at",
+        "facilities.deleted_at",
+
+        "roles.id",
+        "roles.facility_id",
+        "roles.name",
+        "roles.description",
+        "roles.created_at",
+        "roles.updated_at",
+        "roles.deleted_at"
       ]
     },
     "operator": {
@@ -117,11 +146,20 @@
         "$id": "#/definitions/where/items",
         "type": "object",
         "required": [
+          "type",
           "field",
           "operator",
           "value"
         ],
         "properties": {
+          "type": {
+            "$id": "#/definitions/where/items/properties/type",
+            "type": "string",
+            "enum": [
+              "and",
+              "or"
+            ]
+          },
           "field": {
             "$ref": "#/definitions/field"
           },

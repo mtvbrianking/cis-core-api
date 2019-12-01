@@ -2,6 +2,8 @@
 
 namespace App\Support;
 
+use Illuminate\Database\Eloquent\Builder;
+
 class Datatable
 {
     /**
@@ -14,7 +16,7 @@ class Datatable
      */
     public static function prepareQueryParameters(array $params): array
     {
-        $constraints = $tables = $select = $orWhere = $orderBy = [];
+        $constraints = [];
 
         foreach ($params['columns'] as $col) {
             // Select
@@ -35,6 +37,7 @@ class Datatable
 
             if ($term = array_get($col['search'], 'value')) {
                 $constraints['where'][] = [
+                    'type' => 'and',
                     'field' => $col['name'],
                     'operator' => 'ilike',
                     'value' => "%{$term}%",
@@ -44,7 +47,9 @@ class Datatable
             // Global search
 
             if ($term = array_get($params['search'], 'value')) {
-                $constraints['or-where-group'][] = [
+                $constraints['where-group'][0]['type'] = 'and';
+                $constraints['where-group'][0]['where'][] = [
+                    'type' => 'or',
                     'field' => $col['name'],
                     'operator' => 'ilike',
                     'value' => "%{$term}%",
@@ -118,16 +123,31 @@ class Datatable
         return $orderBy;
     }
 
-    public static function applyFilter(Builder $query, array $filter, string $type = 'and'): Builder
+    public static function applyFilters(Builder $query, array $filters): Builder
     {
-        $find = $type == 'or' ? 'orWhere' : 'where';
+        foreach ($filters as $filter) {
+            $find = $filter['type'] == 'or' ? 'orWhere' : 'where';
 
-        if ($filter['operator'] == 'in') {
-            $query->{$find.'In'}($filter['field'], $filter['value']);
-        } elseif ($filter['operator'] == 'between') {
-            $query->{$find.'Between'}($filter['field'], $filter['value']);
-        } else {
-            $query->{$find}($filter['field'], $filter['operator'], $filter['value']);
+            if ($filter['operator'] == 'in') {
+                $query->{$find.'In'}($filter['field'], $filter['value']);
+            } elseif ($filter['operator'] == 'between') {
+                $query->{$find.'Between'}($filter['field'], $filter['value']);
+            } else {
+                $query->{$find}($filter['field'], $filter['operator'], $filter['value']);
+            }
+        }
+
+        return $query;
+    }
+
+    public static function applyGroupedFilters(Builder $query, array $groups): Builder
+    {
+        foreach ($groups as $group) {
+            $find = $group['type'] == 'or' ? 'orWhere' : 'where';
+            $filters = $group['where'];
+            $query->{$find}(function ($query) use ($filters) {
+                $query = static::applyFilters($query, $filters);
+            });
         }
 
         return $query;

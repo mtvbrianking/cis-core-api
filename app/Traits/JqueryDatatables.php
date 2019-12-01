@@ -34,38 +34,14 @@ trait JqueryDatatables
 
         // ..........
 
-        if ($where = array_get($constraints, 'where')) {
+        if ($filters = array_get($constraints, 'where')) {
             $isFiltered = true;
-            foreach ($where as $filter) {
-                $query = Datatable::applyFilter($query, $filter);
-            }
+            $query = Datatable::applyFilters($query, $filters);
         }
 
-        if ($orWhere = array_get($constraints, 'or-where')) {
+        if ($filterGroups = array_get($constraints, 'where-group')) {
             $isFiltered = true;
-            foreach ($orWhere as $filter) {
-                $query = Datatable::applyFilter($query, $filter, 'or');
-            }
-        }
-
-        // .....
-
-        if ($whereGroup = array_get($constraints, 'where-group')) {
-            $isFiltered = true;
-            $query->where(function ($query) use ($whereGroup) {
-                foreach ($whereGroup as $filter) {
-                    $query = Datatable::applyFilter($query, $filter, 'or');
-                }
-            });
-        }
-
-        if ($orWhereGroup = array_get($constraints, 'or-where-group')) {
-            $isFiltered = true;
-            $query->where(function ($query) use ($orWhereGroup) {
-                foreach ($orWhereGroup as $filter) {
-                    $query = Datatable::applyFilter($query, $filter, 'or');
-                }
-            });
+            $query = Datatable::applyGroupedFilters($query, $filterGroups);
         }
 
         // ..........
@@ -80,7 +56,7 @@ trait JqueryDatatables
 
         $query->take($constraints['limit']);
 
-        $query->dump();
+        // $query->dump();
 
         $matchedRecords = $query->get();
 
