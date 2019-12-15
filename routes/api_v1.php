@@ -89,6 +89,7 @@ Route::pattern('role', $uuid);
 
 Route::group(['prefix' => 'roles'], function () {
     Route::get('/', 'RoleController@index');
+    Route::get('/dt', 'RoleController@indexDt');
     Route::post('/', 'RoleController@store');
     Route::get('/{role}', 'RoleController@show');
     Route::put('/{role}', 'RoleController@update');
