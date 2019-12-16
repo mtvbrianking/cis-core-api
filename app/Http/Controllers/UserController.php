@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Role;
 use App\Models\User;
+use App\Support\Datatable;
 use App\Traits\JqueryDatatables;
 use App\Traits\JsonValidation;
 use App\Traits\QueryDecoration;
@@ -113,18 +114,7 @@ class UserController extends Controller
 
         // ...
 
-        $relationships = [
-            'facility' => [
-                'pk' => 'id',
-                'fk' => 'facility_id',
-            ],
-            'role' => [
-                'pk' => 'id',
-                'fk' => 'role_id',
-            ],
-        ];
-
-        $constraints = static::prepareQueryParameters($request->query(), $relationships);
+        $constraints = Datatable::prepareQueryParameters($request->query());
 
         // return response($constraints);
 
@@ -136,7 +126,23 @@ class UserController extends Controller
 
         // ...
 
-        return static::queryForDatatables($query, $constraints);
+        $tables = Datatable::extraTables($constraints['select']);
+
+        if (in_array('roles', $tables)) {
+            $query->leftJoin('roles', 'roles.id', '=', 'users.role_id');
+        }
+
+        if (in_array('facilities', $tables)) {
+            $query->leftJoin('facilities', 'facilities.id', '=', 'users.facility_id');
+        }
+
+        $tableModelMap = [
+            'users' => null,
+            'roles' => 'role',
+            'facilities' => 'facility',
+        ];
+
+        return static::queryForDatatables($query, $constraints, $tableModelMap);
     }
 
     /**

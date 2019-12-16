@@ -35,7 +35,7 @@ trait QueryDecoration
                 }
 
                 if (isset($join['where'])) {
-                    $query->whereHas("{$relation}", function ($query) {
+                    $query->whereHas("{$relation}", function ($query) use ($join) {
                         foreach ($join['where'] as $filter) {
                             if ($filter['operator'] == 'in') {
                                 $query->whereIn($filter['field'], $filter['value']);
@@ -49,7 +49,7 @@ trait QueryDecoration
                 }
 
                 if (isset($join['or-where'])) {
-                    $query->orWhereHas("{$relation}", function ($query) {
+                    $query->orWhereHas("{$relation}", function ($query) use ($join) {
                         foreach ($join['or-where'] as $filter) {
                             if ($filter['operator'] == 'in') {
                                 $query->whereIn($filter['field'], $filter['value']);

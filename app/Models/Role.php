@@ -134,6 +134,6 @@ class Role extends Model
      */
     public function scopeOnlyRelated($query, $user)
     {
-        return $query->where('facility_id', $user->facility_id);
+        return $query->where('roles.facility_id', $user->facility_id);
     }
 }

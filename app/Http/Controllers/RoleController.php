@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Support\Datatable;
+use App\Traits\JqueryDatatables;
 use App\Traits\JsonValidation;
 use App\Traits\QueryDecoration;
 use Illuminate\Http\Request;
@@ -15,7 +17,7 @@ use JsonSchema\Validator as JsonValidator;
 
 class RoleController extends Controller
 {
-    use JsonValidation, QueryDecoration;
+    use JsonValidation, JqueryDatatables, QueryDecoration;
 
     /**
      * Json schema validator.
@@ -81,6 +83,44 @@ class RoleController extends Controller
         // $roles->withPath(url()->full());
 
         return response(['roles' => $roles]);
+    }
+
+    /**
+     * Get facilities for jQuery datatables.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function indexDt(Request $request)
+    {
+        $this->authorize('viewAny', [Role::class]);
+
+        // ...
+
+        $query = Role::query();
+
+        // ...
+
+        $constraints = Datatable::prepareQueryParameters($request->query());
+
+        // return response($constraints);
+
+        // ...
+
+        $schemaPath = resource_path('js/schemas/roles.json');
+
+        static::validateJson($this->jsonValidator, $schemaPath, $constraints);
+
+        // ...
+
+        $tableModelMap = [
+            'roles' => null,
+        ];
+
+        return static::queryForDatatables($query, $constraints, $tableModelMap);
     }
 
     /**

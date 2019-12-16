@@ -7,6 +7,7 @@ use App\Models\Module;
 use App\Models\Role;
 use App\Models\User;
 use App\Rules\Tel;
+use App\Support\Datatable;
 use App\Traits\JqueryDatatables;
 use App\Traits\JsonValidation;
 use App\Traits\QueryDecoration;
@@ -98,11 +99,11 @@ class FacilityController extends Controller
 
         $query = Facility::query();
 
-        $query->withTrashed();
-
         // ...
 
-        $constraints = static::prepareQueryParameters($request->query());
+        $constraints = Datatable::prepareQueryParameters($request->query());
+
+        // return response($constraints);
 
         // ...
 
@@ -112,7 +113,11 @@ class FacilityController extends Controller
 
         // ...
 
-        return static::queryForDatatables($query, $constraints);
+        $tableModelMap = [
+            'facilities' => null,
+        ];
+
+        return static::queryForDatatables($query, $constraints, $tableModelMap);
     }
 
     /**
