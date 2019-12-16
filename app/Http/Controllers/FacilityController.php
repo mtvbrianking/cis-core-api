@@ -2,40 +2,122 @@
 
 namespace App\Http\Controllers;
 
-use App\Rules\Tel;
+use App\Models\Facility;
+use App\Models\Module;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\Module;
-use App\Models\Facility;
+use App\Rules\Tel;
+use App\Support\Datatable;
+use App\Traits\JqueryDatatables;
+use App\Traits\JsonValidation;
+use App\Traits\QueryDecoration;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use JsonSchema\Validator as JsonValidator;
 
 class FacilityController extends Controller
 {
+    use JsonValidation, JqueryDatatables, QueryDecoration;
+
+    /**
+     * Json schema validator.
+     *
+     * @var \JsonSchema\Validator
+     */
+    protected $jsonValidator;
+
     /**
      * Constructor.
+     *
+     * @param \JsonSchema\Validator $jsonValidator
      */
-    public function __construct()
+    public function __construct(JsonValidator $jsonValidator)
     {
         $this->middleware('auth:api');
+
+        $this->jsonValidator = $jsonValidator;
     }
 
     /**
      * Get all facilities.
      *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \App\Exceptions\InvalidJsonException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        $this->authorize('viewAny', [Facility::class]);
+
+        // Validate request query parameters.
+
+        $schemaPath = resource_path('js/schemas/facilities.json');
+
+        static::validateJson($this->jsonValidator, $schemaPath, $request->query());
+
+        // Query facilities.
+
+        $query = Facility::query();
+
+        $query->withTrashed();
+
+        // Apply constraints to query.
+
+        $query = static::applyConstraintsToQuery($query, $request);
+
+        // Pagination.
+
+        $limit = $request->input('limit', 15);
+
+        $facilities = $request->input('paginate', true)
+            ? $query->paginate($limit)
+            : $query->take($limit)->get();
+
+        // $facilities->withPath(url()->full());
+
+        return response(['facilities' => $facilities]);
+    }
+
+    /**
+     * Get facilities for jQuery datatables.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function indexDt(Request $request)
     {
         $this->authorize('viewAny', [Facility::class]);
 
-        $facilities = Facility::withTrashed()->get();
+        // ...
 
-        return response(['facilities' => $facilities]);
+        $query = Facility::query();
+
+        // ...
+
+        $constraints = Datatable::prepareQueryParameters($request->query());
+
+        // return response($constraints);
+
+        // ...
+
+        $schemaPath = resource_path('js/schemas/facilities.json');
+
+        static::validateJson($this->jsonValidator, $schemaPath, $constraints);
+
+        // ...
+
+        $tableModelMap = [
+            'facilities' => null,
+        ];
+
+        return static::queryForDatatables($query, $constraints, $tableModelMap);
     }
 
     /**
@@ -43,7 +125,7 @@ class FacilityController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
-     * @throws ValidationException
+     * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
@@ -60,8 +142,6 @@ class FacilityController extends Controller
             'website' => 'nullable|url|max:50',
             'phone' => ['nullable', new Tel, 'max:25'],
         ]);
-
-        $user = Auth::guard('api')->user();
 
         $facility = new Facility();
         $facility->name = $request->name;
@@ -101,7 +181,7 @@ class FacilityController extends Controller
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
      *
-     * @throws ValidationException
+     * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
@@ -118,8 +198,6 @@ class FacilityController extends Controller
             'website' => 'nullable|url|max:50',
             'phone' => ['nullable', new Tel, 'max:25'],
         ]);
-
-        $user = Auth::guard('api')->user();
 
         $facility = Facility::findOrFail($id);
         $facility->name = $request->input('name', $facility->name);
@@ -220,7 +298,7 @@ class FacilityController extends Controller
      * @param \Illuminate\Http\Request $request
      * @param string                   $id
      *
-     * @throws ValidationException
+     * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response

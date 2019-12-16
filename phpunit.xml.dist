@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit backupGlobals="false"
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="./vendor/phpunit/phpunit/phpunit.xsd"
+         backupGlobals="false"
          backupStaticAttributes="false"
-         bootstrap="tests/bootstrap.php"
+         bootstrap="vendor/autoload.php"
          colors="true"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
@@ -27,12 +29,14 @@
         <server name="APP_KEY" value="base64:NJWzkcD0taLlJA1OZXKSXAml0MTQAPff9C2NL226X84=" />
         <server name="APP_URL" value="http://localhost" />
 
-        <!-- <server name="DB_CONNECTION" value="pgsql"/>
+        <!--
+        <server name="DB_CONNECTION" value="pgsql"/>
         <server name="DB_HOST" value="localhost"/>
         <server name="DB_PORT" value="5432"/>
         <server name="DB_DATABASE" value="travis_ci_test"/>
         <server name="DB_USERNAME" value="postgres"/>
-        <server name="DB_PASSWORD" value=""/> -->
+        <server name="DB_PASSWORD" value=""/>
+        -->
 
         <server name="DB_CONNECTION" value="sqlite"/>
         <server name="DB_DATABASE" value=":memory:"/>

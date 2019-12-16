@@ -49,6 +49,7 @@ Route::pattern('facility', $uuid);
 
 Route::group(['prefix' => 'facilities'], function () {
     Route::get('/', 'FacilityController@index');
+    Route::get('/dt', 'FacilityController@indexDt');
     Route::post('/', 'FacilityController@store');
     Route::get('/{facility}', 'FacilityController@show');
     Route::put('/{facility}', 'FacilityController@update');
@@ -88,6 +89,7 @@ Route::pattern('role', $uuid);
 
 Route::group(['prefix' => 'roles'], function () {
     Route::get('/', 'RoleController@index');
+    Route::get('/dt', 'RoleController@indexDt');
     Route::post('/', 'RoleController@store');
     Route::get('/{role}', 'RoleController@show');
     Route::put('/{role}', 'RoleController@update');
@@ -104,6 +106,7 @@ Route::pattern('user', $uuid);
 
 Route::group(['prefix' => 'users'], function () {
     Route::get('/', 'UserController@index');
+    Route::get('/dt', 'UserController@indexDt');
     Route::post('/', 'UserController@store');
     Route::post('/auth', 'UserController@authenticate')->middleware('client:authenticate-user');
     Route::post('/deauth', 'UserController@deauthenticate');

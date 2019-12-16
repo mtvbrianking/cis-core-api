@@ -2,12 +2,12 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Module;
 use App\Models\Permission;
-use Illuminate\Support\Str;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
+use Tests\TestCase;
 
 /**
  * @see \App\Http\Controllers\PermissionController
@@ -28,7 +28,7 @@ class PermissionControllerTest extends TestCase
 
         $user = $this->getAuthorizedUser('view-any', 'permissions');
 
-        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/permissions');
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/permissions?paginate=0');
 
         $response->assertStatus(200);
 

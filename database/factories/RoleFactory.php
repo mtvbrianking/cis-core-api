@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Role;
 use App\Models\Facility;
+use App\Models\Role;
 use Faker\Generator as Faker;
 
 /*

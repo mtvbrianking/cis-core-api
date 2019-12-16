@@ -2,8 +2,8 @@
 
 namespace App\Providers;
 
-use Laravel\Passport\Passport;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,6 +15,10 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         Passport::ignoreMigrations();
+
+        $this->app->bind(\JsonSchema\Validator::class, function () {
+            return new \JsonSchema\Validator();
+        });
     }
 
     /**

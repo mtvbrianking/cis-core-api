@@ -2,8 +2,8 @@
 
 namespace App\Traits;
 
-use Ramsey\Uuid\Uuid;
 use Illuminate\Database\Eloquent\Model;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Trait Uuids.
@@ -13,12 +13,12 @@ use Illuminate\Database\Eloquent\Model;
  */
 trait Uuids
 {
-    public function getIncrementing()
+    public function getIncrementing():bool
     {
         return false;
     }
 
-    public function getKeyType()
+    public function getKeyType():string
     {
         return 'string';
     }
@@ -26,7 +26,7 @@ trait Uuids
     /**
      * Boot function from laravel.
      */
-    protected static function boot()
+    protected static function boot():void
     {
         parent::boot();
 

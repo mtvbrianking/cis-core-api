@@ -2,11 +2,11 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Module;
-use Illuminate\Support\Str;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
+use Tests\TestCase;
 
 /**
  * @see \App\Http\Controllers\ModuleController
@@ -27,7 +27,7 @@ class ModuleControllerTest extends TestCase
 
         $user = $this->getAuthorizedUser('view-any', 'modules');
 
-        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/modules');
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/modules?paginate=0');
 
         $response->assertStatus(200);
 

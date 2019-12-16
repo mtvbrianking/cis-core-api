@@ -2,40 +2,125 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\Permission;
+use App\Support\Datatable;
+use App\Traits\JqueryDatatables;
+use App\Traits\JsonValidation;
+use App\Traits\QueryDecoration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use JsonSchema\Validator as JsonValidator;
 
 class RoleController extends Controller
 {
+    use JsonValidation, JqueryDatatables, QueryDecoration;
+
+    /**
+     * Json schema validator.
+     *
+     * @var \JsonSchema\Validator
+     */
+    protected $jsonValidator;
+
     /**
      * Constructor.
+     *
+     * @param \JsonSchema\Validator $jsonValidator
      */
-    public function __construct()
+    public function __construct(JsonValidator $jsonValidator)
     {
         $this->middleware('auth:api');
+
+        $this->jsonValidator = $jsonValidator;
     }
 
     /**
      * Get roles.
      *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \App\Exceptions\InvalidJsonException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        $this->authorize('viewAny', [Role::class]);
+
+        // Validate request query parameters.
+
+        $schemaPath = resource_path('js/schemas/roles.json');
+
+        static::validateJson($this->jsonValidator, $schemaPath, $request->query());
+
+        // Query roles.
+
+        $query = Role::query();
+
+        $user = Auth::guard('api')->user();
+
+        $query->onlyRelated($user);
+
+        $query->withTrashed();
+
+        // Apply constraints to query.
+
+        $query = static::applyConstraintsToQuery($query, $request);
+
+        // Pagination.
+
+        $limit = $request->input('limit', 15);
+
+        $roles = $request->input('paginate', true)
+            ? $query->paginate($limit)
+            : $query->take($limit)->get();
+
+        // $roles->withPath(url()->full());
+
+        return response(['roles' => $roles]);
+    }
+
+    /**
+     * Get facilities for jQuery datatables.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function indexDt(Request $request)
     {
         $this->authorize('viewAny', [Role::class]);
 
-        $user = Auth::guard('api')->user();
+        // ...
 
-        $roles = Role::onlyRelated($user)->withTrashed()->get();
+        $query = Role::query();
 
-        return response(['roles' => $roles]);
+        // ...
+
+        $constraints = Datatable::prepareQueryParameters($request->query());
+
+        // return response($constraints);
+
+        // ...
+
+        $schemaPath = resource_path('js/schemas/roles.json');
+
+        static::validateJson($this->jsonValidator, $schemaPath, $constraints);
+
+        // ...
+
+        $tableModelMap = [
+            'roles' => null,
+        ];
+
+        return static::queryForDatatables($query, $constraints, $tableModelMap);
     }
 
     /**

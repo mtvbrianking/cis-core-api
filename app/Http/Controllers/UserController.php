@@ -4,20 +4,37 @@ namespace App\Http\Controllers;
 
 use App\Models\Role;
 use App\Models\User;
-use Illuminate\Support\Str;
+use App\Support\Datatable;
+use App\Traits\JqueryDatatables;
+use App\Traits\JsonValidation;
+use App\Traits\QueryDecoration;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use JsonSchema\Validator as JsonValidator;
 
 class UserController extends Controller
 {
+    use JsonValidation, JqueryDatatables, QueryDecoration;
+
+    /**
+     * Json schema validator.
+     *
+     * @var \JsonSchema\Validator
+     */
+    protected $jsonValidator;
+
     /**
      * Constructor.
+     *
+     * @param \JsonSchema\Validator $jsonValidator
      */
-    public function __construct()
+    public function __construct(JsonValidator $jsonValidator)
     {
         $this->middleware('auth:api')->except([
             'authenticate',
@@ -25,24 +42,107 @@ class UserController extends Controller
             'validateEmail',
             'confirmEmailVerification',
         ]);
+
+        $this->jsonValidator = $jsonValidator;
     }
 
     /**
      * Get users.
      *
+     * @param \Illuminate\http\Request $request
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \App\Exceptions\InvalidJsonException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        $this->authorize('viewAny', [User::class]);
+
+        // Validate request query parameters.
+
+        $schemaPath = resource_path('js/schemas/users.json');
+
+        static::validateJson($this->jsonValidator, $schemaPath, $request->query());
+
+        // Query users.
+
+        $query = User::query();
+
+        $consumer = Auth::guard('api')->user();
+
+        $query->onlyRelated($consumer)->withTrashed();
+
+        // Apply constraints to query.
+
+        $query = static::applyConstraintsToQuery($query, $request);
+
+        // Pagination.
+
+        $limit = $request->input('limit', 15);
+
+        $users = $request->input('paginate', true)
+            ? $query->paginate($limit)
+            : $query->take($limit)->get();
+
+        // $users->withPath(url()->full());
+
+        return response(['users' => $users]);
+    }
+
+    /**
+     * Get users for jQuery datatables.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function indexDt(Request $request)
     {
         $this->authorize('viewAny', [User::class]);
 
+        // ...
+
+        $query = User::query();
+
         $consumer = Auth::guard('api')->user();
 
-        $users = User::onlyRelated($consumer)->withTrashed()->get();
+        $query->onlyRelated($consumer)->withTrashed();
 
-        return response(['users' => $users]);
+        // ...
+
+        $constraints = Datatable::prepareQueryParameters($request->query());
+
+        // return response($constraints);
+
+        // ...
+
+        $schemaPath = resource_path('js/schemas/users.json');
+
+        static::validateJson($this->jsonValidator, $schemaPath, $constraints);
+
+        // ...
+
+        $tables = Datatable::extraTables($constraints['select']);
+
+        if (in_array('roles', $tables)) {
+            $query->leftJoin('roles', 'roles.id', '=', 'users.role_id');
+        }
+
+        if (in_array('facilities', $tables)) {
+            $query->leftJoin('facilities', 'facilities.id', '=', 'users.facility_id');
+        }
+
+        $tableModelMap = [
+            'users' => null,
+            'roles' => 'role',
+            'facilities' => 'facility',
+        ];
+
+        return static::queryForDatatables($query, $constraints, $tableModelMap);
     }
 
     /**

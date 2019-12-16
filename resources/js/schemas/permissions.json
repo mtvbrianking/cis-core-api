@@ -1,0 +1,126 @@
+{
+  "$id": "#/schema/Permission",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Permission model schema",
+  "additionalProperties": true,
+  "type": "object",
+  "properties": {
+    "join": {
+      "$id": "#/properties/join",
+      "type": "object",
+      "properties": {
+        "module": {
+          "$ref": "../schemas/modules.json"
+        }
+      }
+    },
+    "where": {
+      "$ref": "#/definitions/where"
+    },
+    "or-where": {
+      "$ref": "#/definitions/where"
+    },
+    "order-by": {
+      "$id": "#/properties/order-by",
+      "type": "array",
+      "items": {
+        "$id": "#/properties/order-by/items",
+        "type": "object",
+        "required": [
+          "field",
+          "direction"
+        ],
+        "properties": {
+          "field": {
+            "$ref": "#/definitions/field"
+          },
+          "direction": {
+            "$id": "#/properties/order-by/items/properties/direction",
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          }
+        }
+      }
+    },
+    "offset": {
+      "$id": "#/properties/offset",
+      "type": "integer"
+    },
+    "limit": {
+      "$id": "#/properties/limit",
+      "type": "integer",
+      "default": 15,
+      "minimum": 0,
+      "maximum": 100
+    },
+    "draw": {
+      "$id": "#/properties/draw",
+      "type": "integer"
+    }
+  },
+  "definitions": {
+    "field": {
+      "$id": "#/definitions/field",
+      "type": "string",
+      "enum": [
+        "id",
+        "module_name",
+        "name",
+        "description",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "operator": {
+      "$id": "#/definitions/operator",
+      "type": "string",
+      "enum": [
+        "=",
+        "!=",
+        "<>",
+        ">",
+        "<",
+        ">=",
+        "<=",
+        "!<",
+        "!>",
+        "like",
+        "ilike",
+        "in",
+        "between"
+      ]
+    },
+    "where": {
+      "$id": "#/definitions/where",
+      "type": "array",
+      "items": {
+        "$id": "#/definitions/where/items",
+        "type": "object",
+        "required": [
+          "field",
+          "operator",
+          "value"
+        ],
+        "properties": {
+          "field": {
+            "$ref": "#/definitions/field"
+          },
+          "operator": {
+            "$ref": "#/definitions/operator"
+          },
+          "value": {
+            "$id": "#/definitions/where/items/properties/value",
+            "type": [
+              "array",
+              "string",
+              "integer"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

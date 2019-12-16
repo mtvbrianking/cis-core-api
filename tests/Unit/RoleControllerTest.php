@@ -2,14 +2,14 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
+use App\Models\Facility;
+use App\Models\Module;
+use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\Module;
-use App\Models\Facility;
-use App\Models\Permission;
-use Illuminate\Support\Str;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
+use Tests\TestCase;
 
 /**
  * @see \App\Http\Controllers\RoleController
@@ -30,7 +30,7 @@ class RoleControllerTest extends TestCase
 
         $user = $this->getAuthorizedUser('view-any', 'roles');
 
-        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/roles');
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/roles?paginate=0');
 
         $response->assertStatus(200);
 

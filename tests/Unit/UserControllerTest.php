@@ -2,14 +2,14 @@
 
 namespace Tests\Unit;
 
-use Tests\TestCase;
 use App\Models\Role;
 use App\Models\User;
-use Ramsey\Uuid\Uuid;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Passport\Passport;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Ramsey\Uuid\Uuid;
+use Tests\TestCase;
 
 /**
  * @see \App\Http\Controllers\UserController
@@ -30,7 +30,7 @@ class UserControllerTest extends TestCase
 
         $consumer = $this->getAuthorizedUser('view-any', 'users');
 
-        $response = $this->actingAs($consumer, 'api')->json('GET', 'api/v1/users');
+        $response = $this->actingAs($consumer, 'api')->json('GET', 'api/v1/users?paginate=0');
 
         $response->assertStatus(200);
 

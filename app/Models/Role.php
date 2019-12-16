@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use App\Traits\Uuids;
-use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 /**
  * Roles model.
@@ -134,6 +134,6 @@ class Role extends Model
      */
     public function scopeOnlyRelated($query, $user)
     {
-        return $query->where('facility_id', $user->facility_id);
+        return $query->where('roles.facility_id', $user->facility_id);
     }
 }

@@ -3,33 +3,74 @@
 namespace App\Http\Controllers;
 
 use App\Models\Permission;
-use Illuminate\Support\Str;
+use App\Traits\JsonValidation;
+use App\Traits\QueryDecoration;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use JsonSchema\Validator as JsonValidator;
 
 class PermissionController extends Controller
 {
+    use JsonValidation, QueryDecoration;
+
+    /**
+     * Json schema validator.
+     *
+     * @var \JsonSchema\Validator
+     */
+    protected $jsonValidator;
+
     /**
      * Constructor.
+     *
+     * @param \JsonSchema\Validator $jsonValidator
      */
-    public function __construct()
+    public function __construct(JsonValidator $jsonValidator)
     {
         $this->middleware('auth:api');
+
+        $this->jsonValidator = $jsonValidator;
     }
 
     /**
      * Get permissions.
      *
+     * @param \Illuminate\Http\Request $request
+     *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \App\Exceptions\InvalidJsonException
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', [Permission::class]);
 
-        $permissions = Permission::get();
+        // Validate request query parameters.
+
+        $schemaPath = resource_path('js/schemas/permissions.json');
+
+        static::validateJson($this->jsonValidator, $schemaPath, $request->query());
+
+        // Query permissions.
+
+        $query = Permission::query();
+
+        // Apply constraints to query.
+
+        $query = static::applyConstraintsToQuery($query, $request);
+
+        // Pagination.
+
+        $limit = $request->input('limit', 15);
+
+        $permissions = $request->input('paginate', true)
+            ? $query->paginate($limit)
+            : $query->take($limit)->get();
+
+        // $permissions->withPath(url()->full());
 
         return response(['permissions' => $permissions]);
     }
