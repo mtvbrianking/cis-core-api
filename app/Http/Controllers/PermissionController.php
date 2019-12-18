@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Permission;
+use App\Support\Datatable;
+use App\Traits\JqueryDatatables;
 use App\Traits\JsonValidation;
 use App\Traits\QueryDecoration;
 use Illuminate\Http\Request;
@@ -13,7 +15,7 @@ use JsonSchema\Validator as JsonValidator;
 
 class PermissionController extends Controller
 {
-    use JsonValidation, QueryDecoration;
+    use JsonValidation, JqueryDatatables, QueryDecoration;
 
     /**
      * Json schema validator.
@@ -73,6 +75,44 @@ class PermissionController extends Controller
         // $permissions->withPath(url()->full());
 
         return response(['permissions' => $permissions]);
+    }
+
+    /**
+     * Get permissions for jQuery datatables.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function indexDt(Request $request)
+    {
+        $this->authorize('viewAny', [Permission::class]);
+
+        // ...
+
+        $query = Permission::query();
+
+        // ...
+
+        $constraints = Datatable::prepareQueryParameters($request->query());
+
+        // return response($constraints);
+
+        // ...
+
+        $schemaPath = resource_path('js/schemas/permissions.json');
+
+        static::validateJson($this->jsonValidator, $schemaPath, $constraints);
+
+        // ...
+
+        $tableModelMap = [
+            'permissions' => null,
+        ];
+
+        return static::queryForDatatables($query, $constraints, $tableModelMap);
     }
 
     /**

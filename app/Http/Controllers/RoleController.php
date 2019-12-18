@@ -86,7 +86,7 @@ class RoleController extends Controller
     }
 
     /**
-     * Get facilities for jQuery datatables.
+     * Get roles for jQuery datatables.
      *
      * @param \Illuminate\Http\Request $request
      *
@@ -408,7 +408,7 @@ class RoleController extends Controller
 
         if ($unknown_perms) {
             $validator = Validator::make([], []);
-            $validator->errors()->add('permissions', 'Unknown permissions: '.implode(', ', $unknown_perms));
+            $validator->errors()->add('permissions', 'Unknown permissions: ' . implode(', ', $unknown_perms));
 
             throw new ValidationException($validator);
         }
