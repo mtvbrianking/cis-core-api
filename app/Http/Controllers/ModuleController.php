@@ -14,7 +14,6 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use JsonSchema\Validator as JsonValidator;
 
-
 class ModuleController extends Controller
 {
     use JsonValidation, JqueryDatatables, QueryDecoration;
