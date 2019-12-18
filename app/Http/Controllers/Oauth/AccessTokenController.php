@@ -12,7 +12,6 @@ use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use Zend\Diactoros\Response as Psr7Response;
 
-
 class AccessTokenController extends Controller
 {
     /**
