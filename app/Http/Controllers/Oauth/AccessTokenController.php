@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Oauth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Token;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
@@ -60,7 +61,6 @@ class AccessTokenController extends Controller
             'grant_type' => $request->grant_type,
             'client_id' => $request->client_id,
             'client_secret' => $request->client_secret,
-            'user_id' => $request->user_id,
             'code' => $request->code,
             'redirect_uri' => $request->redirect_uri,
             'refresh_token' => $request->refresh_token,
@@ -75,8 +75,14 @@ class AccessTokenController extends Controller
             return new Response(['error' => $e->getMessage()], 401);
         }
 
+        $token = json_decode($serverResponse->getBody(), true);
+
+        if ($request->grant_type === 'password') {
+            $token['user'] = User::where('email', $request->username)->first();
+        }
+
         return new Response(
-            $serverResponse->getBody(),
+            $token,
             $serverResponse->getStatusCode(),
             $serverResponse->getHeaders()
         );

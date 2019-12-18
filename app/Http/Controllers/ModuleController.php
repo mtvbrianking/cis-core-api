@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Module;
 use App\Models\Permission;
+use App\Support\Datatable;
+use App\Traits\JqueryDatatables;
 use App\Traits\JsonValidation;
 use App\Traits\QueryDecoration;
 use Illuminate\Http\Request;
@@ -14,7 +16,7 @@ use JsonSchema\Validator as JsonValidator;
 
 class ModuleController extends Controller
 {
-    use JsonValidation, QueryDecoration;
+    use JsonValidation, JqueryDatatables, QueryDecoration;
 
     /**
      * Json schema validator.
@@ -76,6 +78,44 @@ class ModuleController extends Controller
         // $modules->withPath(url()->full());
 
         return response(['modules' => $modules]);
+    }
+
+    /**
+     * Get modules for jQuery datatables.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function indexDt(Request $request)
+    {
+        $this->authorize('viewAny', [Module::class]);
+
+        // ...
+
+        $query = Module::query();
+
+        // ...
+
+        $constraints = Datatable::prepareQueryParameters($request->query());
+
+        // return response($constraints);
+
+        // ...
+
+        $schemaPath = resource_path('js/schemas/modules.json');
+
+        static::validateJson($this->jsonValidator, $schemaPath, $constraints);
+
+        // ...
+
+        $tableModelMap = [
+            'modules' => null,
+        ];
+
+        return static::queryForDatatables($query, $constraints, $tableModelMap);
     }
 
     /**

@@ -65,6 +65,7 @@ Route::pattern('module', $slug);
 
 Route::group(['prefix' => 'modules'], function () {
     Route::get('/', 'ModuleController@index');
+    Route::get('/dt', 'ModuleController@indexDt');
     Route::post('/', 'ModuleController@store');
     Route::get('/{module}', 'ModuleController@show');
     Route::put('/{module}', 'ModuleController@update');
@@ -78,6 +79,7 @@ Route::pattern('permission', $int);
 
 Route::group(['prefix' => 'permissions'], function () {
     Route::get('/', 'PermissionController@index');
+    Route::get('/dt', 'PermissionController@indexDt');
     Route::post('/', 'PermissionController@store');
     Route::get('/{permission}', 'PermissionController@show');
     Route::put('/{permission}', 'PermissionController@update');

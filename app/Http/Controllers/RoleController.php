@@ -86,7 +86,7 @@ class RoleController extends Controller
     }
 
     /**
-     * Get facilities for jQuery datatables.
+     * Get roles for jQuery datatables.
      *
      * @param \Illuminate\Http\Request $request
      *
