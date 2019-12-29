@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
-use App\Traits\Uuids;
+use Bmatovu\Uuid\Traits\HasUuidKey;
 
 class Client extends \Laravel\Passport\Client
 {
-    use Uuids;
+    use HasUuidKey;
 
     /**
      * The database table used by the model.

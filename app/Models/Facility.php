@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-use App\Traits\Uuids;
+use Bmatovu\Uuid\Traits\HasUuidKey;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Facility extends Model
 {
-    use SoftDeletes, Uuids;
+    use HasUuidKey, SoftDeletes;
 
     /**
      * The table associated with the model.
