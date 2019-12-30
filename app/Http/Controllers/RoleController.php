@@ -158,19 +158,19 @@ class RoleController extends Controller
     /**
      * Get specific role.
      *
-     * @param string $id
+     * @param string $roleId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($roleId)
     {
-        $this->authorize('view', [Role::class, $id]);
+        $this->authorize('view', [Role::class, $roleId]);
 
         $user = Auth::guard('api')->user();
 
-        $role = Role::onlyRelated($user)->withTrashed()->findOrFail($id);
+        $role = Role::onlyRelated($user)->withTrashed()->findOrFail($roleId);
 
         return response($role);
     }
@@ -179,20 +179,20 @@ class RoleController extends Controller
      * Update specific role.
      *
      * @param \Illuminate\Http\Request $request
-     * @param string                   $id
+     * @param string                   $roleId
      *
      * @throws ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $roleId)
     {
         $this->authorize('update', [Role::class]);
 
         $user = Auth::guard('api')->user();
 
-        $role = Role::onlyRelated($user)->findOrFail($id);
+        $role = Role::onlyRelated($user)->findOrFail($roleId);
 
         $this->validate($request, [
             'name' => 'required|max:25',
@@ -211,19 +211,19 @@ class RoleController extends Controller
     /**
      * Temporarily delete (ban) the specific role.
      *
-     * @param string $id
+     * @param string $roleId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function revoke($id)
+    public function revoke($roleId)
     {
         $this->authorize('softDelete', [Role::class]);
 
         $user = Auth::guard('api')->user();
 
-        $role = Role::onlyRelated($user)->findOrFail($id);
+        $role = Role::onlyRelated($user)->findOrFail($roleId);
 
         $role->delete();
 
@@ -235,19 +235,19 @@ class RoleController extends Controller
     /**
      * Restore the specific banned role.
      *
-     * @param string $id
+     * @param string $roleId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function restore($id)
+    public function restore($roleId)
     {
         $this->authorize('restore', [Role::class]);
 
         $user = Auth::guard('api')->user();
 
-        $role = Role::onlyRelated($user)->onlyTrashed()->findOrFail($id);
+        $role = Role::onlyRelated($user)->onlyTrashed()->findOrFail($roleId);
 
         $role->restore();
 
@@ -259,23 +259,23 @@ class RoleController extends Controller
     /**
      * Permanently delete the specific role.
      *
-     * @param string $id
+     * @param string $roleId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($roleId)
     {
         $this->authorize('forceDelete', [Role::class]);
 
         $user = Auth::guard('api')->user();
 
-        $role = Role::onlyRelated($user)->onlyTrashed()->findOrFail($id);
+        $role = Role::onlyRelated($user)->onlyTrashed()->findOrFail($roleId);
 
         // ...
 
-        $dependants = User::withTrashed()->where('role_id', $id)->count();
+        $dependants = User::withTrashed()->where('role_id', $roleId)->count();
 
         if ($dependants) {
             return response(['message' => "Can't delete non-orphaned role."], 400);
@@ -291,19 +291,19 @@ class RoleController extends Controller
     /**
      * Get users assigned this role.
      *
-     * @param string $id
+     * @param string $roleId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function users($id)
+    public function users($roleId)
     {
         $this->authorize('viewAny', [User::class]);
 
         $user = Auth::guard('api')->user();
 
-        $role = Role::onlyRelated($user)->findOrFail($id);
+        $role = Role::onlyRelated($user)->findOrFail($roleId);
 
         return response(['users' => $role->users]);
     }
@@ -311,19 +311,19 @@ class RoleController extends Controller
     /**
      * All permissions available to this role.
      *
-     * @param string $id
+     * @param string $roleId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function permissions($id)
+    public function permissions($roleId)
     {
         $this->authorize('viewPermissions', [Role::class]);
 
         $user = Auth::guard('api')->user();
 
-        $role = Role::onlyRelated($user)->findOrFail($id);
+        $role = Role::onlyRelated($user)->findOrFail($roleId);
 
         return response()->json(['permissions' => $role->permissions]);
     }
@@ -331,19 +331,19 @@ class RoleController extends Controller
     /**
      * Only permissions granted to this role.
      *
-     * @param string $id
+     * @param string $roleId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function permissionsGranted($id)
+    public function permissionsGranted($roleId)
     {
-        $this->authorize('viewPermissions', [Role::class, $id]);
+        $this->authorize('assignPermissions', [Permission::class]);
 
         $user = Auth::guard('api')->user();
 
-        $role = Role::onlyRelated($user)->findOrFail($id);
+        $role = Role::onlyRelated($user)->findOrFail($roleId);
 
         $permissions = Permission::query()
             ->whereHas('module.facilities', function ($query) use ($user) {
@@ -374,18 +374,18 @@ class RoleController extends Controller
      * Sync role permissions.
      *
      * @param \Illuminate\Http\Request $request
-     * @param string                   $id
+     * @param string                   $roleId
      *
      * @throws ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function syncPermissions(Request $request, $id)
+    public function syncPermissions(Request $request, $roleId)
     {
         $this->authorize('assignPermissions', [Permission::class]);
 
-        $role = Role::findOrFail($id);
+        $role = Role::findOrFail($roleId);
 
         $this->validate($request, [
             'permissions' => 'required|array',
@@ -417,7 +417,7 @@ class RoleController extends Controller
         $role->permissions()->sync($request->permissions, true);
         $role->save();
 
-        $role = Role::with('permissions')->find($id);
+        $role = Role::with('permissions')->find($roleId);
 
         return response($role);
     }

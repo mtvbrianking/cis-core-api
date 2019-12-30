@@ -160,17 +160,17 @@ class FacilityController extends Controller
     /**
      * Get the specified facility.
      *
-     * @param string $id
+     * @param string $facilityId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($facilityId)
     {
-        $this->authorize('view', [Facility::class, $id]);
+        $this->authorize('view', [Facility::class, $facilityId]);
 
-        $facility = Facility::withTrashed()->findOrFail($id);
+        $facility = Facility::withTrashed()->findOrFail($facilityId);
 
         return response($facility);
     }
@@ -179,14 +179,14 @@ class FacilityController extends Controller
      * Update the specified facility in storage.
      *
      * @param \Illuminate\Http\Request $request
-     * @param string                   $id
+     * @param string                   $facilityId
      *
      * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $facilityId)
     {
         $this->authorize('update', [Facility::class]);
 
@@ -199,7 +199,7 @@ class FacilityController extends Controller
             'phone' => ['nullable', new Tel, 'max:25'],
         ]);
 
-        $facility = Facility::findOrFail($id);
+        $facility = Facility::findOrFail($facilityId);
         $facility->name = $request->input('name', $facility->name);
         $facility->description = $request->description;
         $facility->address = $request->input('address', $facility->address);
@@ -216,18 +216,18 @@ class FacilityController extends Controller
     /**
      * Temporarily delete (ban) the specific facility.
      *
-     * @param string $id
+     * @param string $facilityId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Exception
      *
      * @return \Illuminate\Http\Response
      */
-    public function revoke($id)
+    public function revoke($facilityId)
     {
-        $this->authorize('soft-delete', [Facility::class]);
+        $this->authorize('softDelete', [Facility::class]);
 
-        $facility = Facility::findOrFail($id);
+        $facility = Facility::findOrFail($facilityId);
 
         $facility->delete();
 
@@ -239,17 +239,17 @@ class FacilityController extends Controller
     /**
      * Restore the specific banned facility.
      *
-     * @param string $id
+     * @param string $facilityId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function restore($id)
+    public function restore($facilityId)
     {
         $this->authorize('restore', [Facility::class]);
 
-        $facility = Facility::onlyTrashed()->findOrFail($id);
+        $facility = Facility::onlyTrashed()->findOrFail($facilityId);
 
         $facility->restore();
 
@@ -261,23 +261,23 @@ class FacilityController extends Controller
     /**
      * Permanently delete the specific facility.
      *
-     * @param string $id
+     * @param string $facilityId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($facilityId)
     {
-        $this->authorize('force-delete', [Facility::class]);
+        $this->authorize('forceDelete', [Facility::class]);
 
-        $facility = Facility::onlyTrashed()->findOrFail($id);
+        $facility = Facility::onlyTrashed()->findOrFail($facilityId);
 
         // ...
 
-        $users = User::withTrashed()->where('facility_id', $id)->count();
+        $users = User::withTrashed()->where('facility_id', $facilityId)->count();
 
-        $roles = Role::withTrashed()->where('facility_id', $id)->count();
+        $roles = Role::withTrashed()->where('facility_id', $facilityId)->count();
 
         $dependants = max($users, $roles);
 
@@ -293,21 +293,54 @@ class FacilityController extends Controller
     }
 
     /**
+     * Only modules granted to this facility.
+     *
+     * @param string $facilityId
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function modulesGranted($facilityId)
+    {
+        $this->authorize('assignModules', [Module::class]);
+
+        $facility = Facility::findOrFail($facilityId);
+
+        $modules = Module::query()
+            ->leftJoin('facility_module', function ($join) use ($facility) {
+                $join->on('facility_module.module_name', '=', 'modules.name');
+                $join->where('facility_module.facility_id', '=', $facility->id);
+            })
+            ->select('modules.name', 'facility_module.facility_id')
+            ->get();
+
+        $modules = $modules->map(function ($module) {
+            return [
+                'name' => $module->name,
+                'granted' => ! is_null($module->facility_id),
+            ];
+        });
+
+        return response(['modules' => $modules]);
+    }
+
+    /**
      * Update facility module access.
      *
      * @param \Illuminate\Http\Request $request
-     * @param string                   $id
+     * @param string                   $facilityId
      *
      * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function syncModules(Request $request, $id)
+    public function syncModules(Request $request, $facilityId)
     {
-        $this->authorize('assign-modules', [Module::class]);
+        $this->authorize('assignModules', [Module::class]);
 
-        $facility = Facility::findOrFail($id);
+        $facility = Facility::findOrFail($facilityId);
 
         $this->validate($request, [
             'modules' => 'required|array',
@@ -331,7 +364,7 @@ class FacilityController extends Controller
         $facility->modules()->sync($request->modules, true);
         $facility->save();
 
-        $facility = Facility::with('modules')->find($id);
+        $facility = Facility::with('modules')->find($facilityId);
 
         return response($facility);
     }

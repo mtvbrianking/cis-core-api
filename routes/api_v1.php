@@ -54,7 +54,9 @@ Route::group(['prefix' => 'facilities'], function () {
     Route::get('/{facility}', 'FacilityController@show');
     Route::put('/{facility}', 'FacilityController@update');
     Route::delete('/{facility}', 'FacilityController@destroy');
+    // Route::get('/{facility}/modules', 'FacilityController@modules');
     Route::put('/{facility}/modules', 'FacilityController@syncModules');
+    Route::get('/{facility}/modules/granted', 'FacilityController@modulesGranted');
     Route::put('/{facility}/restore', 'FacilityController@restore');
     Route::put('/{facility}/revoke', 'FacilityController@revoke');
     // Route::get('/{facility}/roles', 'FacilityController@roles');
@@ -70,7 +72,7 @@ Route::group(['prefix' => 'modules'], function () {
     Route::get('/{module}', 'ModuleController@show');
     Route::put('/{module}', 'ModuleController@update');
     Route::delete('/{module}', 'ModuleController@destroy');
-    // Route::get('/{module}/permissions', 'ModuleController@permissions');
+    // Route::get('/{module}/facilities', 'ModuleController@facilities');
     Route::put('/{module}/restore', 'ModuleController@restore');
     Route::put('/{module}/revoke', 'ModuleController@revoke');
 });

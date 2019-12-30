@@ -148,22 +148,22 @@ class UserController extends Controller
     /**
      * Get specific user.
      *
-     * @param string $id
+     * @param string $userId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($userId)
     {
-        $this->authorize('view', [User::class, $id]);
+        $this->authorize('view', [User::class, $userId]);
 
         $consumer = Auth::guard('api')->user();
 
         $user = User::with(['role', 'facility'])
             ->onlyRelated($consumer)
             ->withTrashed()
-            ->findOrFail($id);
+            ->findOrFail($userId);
 
         return response($user);
     }
@@ -218,25 +218,25 @@ class UserController extends Controller
      * Update specific user.
      *
      * @param \Illuminate\Http\Request $request
-     * @param string                   $id
+     * @param string                   $userId
      *
      * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $userId)
     {
-        $this->authorize('update', [User::class, $id]);
+        $this->authorize('update', [User::class, $userId]);
 
         $registrar = Auth::guard('api')->user();
 
-        $user = User::with(['role', 'facility'])->onlyRelated($registrar)->findOrFail($id);
+        $user = User::with(['role', 'facility'])->onlyRelated($registrar)->findOrFail($userId);
 
         $this->validate($request, [
             'name' => 'sometimes|max:25',
-            'alias' => "sometimes|unique:users,alias,{$id},id",
-            'email' => "sometimes|unique:users,email,{$id},id",
+            'alias' => "sometimes|unique:users,alias,{$userId},id",
+            'email' => "sometimes|unique:users,email,{$userId},id",
             'role_id' => 'nullable|uuid',
         ]);
 
@@ -270,19 +270,19 @@ class UserController extends Controller
     /**
      * Temporarily delete (ban) the specific user.
      *
-     * @param string $id
+     * @param string $userId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function revoke($id)
+    public function revoke($userId)
     {
-        $this->authorize('softDelete', [User::class, $id]);
+        $this->authorize('softDelete', [User::class, $userId]);
 
         $user = Auth::guard('api')->user();
 
-        $user = User::with(['role', 'facility'])->onlyRelated($user)->findOrFail($id);
+        $user = User::with(['role', 'facility'])->onlyRelated($user)->findOrFail($userId);
 
         $user->delete();
 
@@ -294,19 +294,19 @@ class UserController extends Controller
     /**
      * Restore the specific banned user.
      *
-     * @param string $id
+     * @param string $userId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function restore($id)
+    public function restore($userId)
     {
-        $this->authorize('restore', [User::class, $id]);
+        $this->authorize('restore', [User::class, $userId]);
 
         $user = Auth::guard('api')->user();
 
-        $user = User::with(['role', 'facility'])->onlyRelated($user)->onlyTrashed()->findOrFail($id);
+        $user = User::with(['role', 'facility'])->onlyRelated($user)->onlyTrashed()->findOrFail($userId);
 
         $user->restore();
 
@@ -318,19 +318,19 @@ class UserController extends Controller
     /**
      * Permanently delete the specific user.
      *
-     * @param string $id
+     * @param string $userId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($userId)
     {
-        $this->authorize('forceDelete', [User::class, $id]);
+        $this->authorize('forceDelete', [User::class, $userId]);
 
         $user = Auth::guard('api')->user();
 
-        $user = User::onlyRelated($user)->onlyTrashed()->findOrFail($id);
+        $user = User::onlyRelated($user)->onlyTrashed()->findOrFail($userId);
 
         $user->forceDelete();
 
@@ -572,7 +572,7 @@ class UserController extends Controller
      *
      * @return \App\Models\Client
      */
-    protected function getClient($request)
+    protected function getClient(Request $request)
     {
         $bearerToken = $request->bearerToken();
         $tokenId = (new \Lcobucci\JWT\Parser())->parse($bearerToken)->getHeader('jti');

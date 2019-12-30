@@ -438,17 +438,9 @@ class RoleControllerTest extends TestCase
 
         $response->assertStatus(403);
 
-        // Can access permissions granted to their role
-
-        $user = factory(User::class)->create();
-
-        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$user->role_id}/permissions/granted");
-
-        $response->assertStatus(200);
-
         // Can access permissions granted to any role if authorized
 
-        $user = $this->getAuthorizedUser('view-permissions', 'roles');
+        $user = $this->getAuthorizedUser('assign-permissions', 'permissions');
 
         $role = factory(Role::class)->create([
             'facility_id' => $user->facility_id,

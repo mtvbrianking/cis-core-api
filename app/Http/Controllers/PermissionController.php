@@ -165,17 +165,17 @@ class PermissionController extends Controller
     /**
      * Get specific permission.
      *
-     * @param string $id
+     * @param string $permissionId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($permissionId)
     {
         $this->authorize('view', [Permission::class]);
 
-        $permission = Permission::findOrFail($id);
+        $permission = Permission::findOrFail($permissionId);
 
         return response($permission);
     }
@@ -184,14 +184,14 @@ class PermissionController extends Controller
      * Update specific permission.
      *
      * @param \Illuminate\Http\Request $request
-     * @param string                   $id
+     * @param string                   $permissionId
      *
      * @throws ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $permissionId)
     {
         $this->authorize('update', [Permission::class]);
 
@@ -201,12 +201,12 @@ class PermissionController extends Controller
             'description'   => 'sometimes|max:25',
         ]);
 
-        $validator->after(function ($validator) use ($request, $id) {
+        $validator->after(function ($validator) use ($request, $permissionId) {
             $name = Str::slug($request->name);
 
             $permission = Permission::where('name', $name)
                 ->where('module_name', $request->module_name)
-                ->where('id', '<>', $id)
+                ->where('id', '<>', $permissionId)
                 ->first();
 
             if ($permission) {
@@ -218,7 +218,7 @@ class PermissionController extends Controller
             throw new ValidationException($validator);
         }
 
-        $permission = Permission::findOrFail($id);
+        $permission = Permission::findOrFail($permissionId);
 
         $permission->description = $request->description;
         $permission->name = $request->name;
@@ -232,18 +232,18 @@ class PermissionController extends Controller
     /**
      * Permanently delete the specific permission.
      *
-     * @param string $id
+     * @param string $permissionId
      *
      * @throws \Exception
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($permissionId)
     {
         $this->authorize('delete', [Permission::class]);
 
-        $permission = Permission::findOrFail($id);
+        $permission = Permission::findOrFail($permissionId);
 
         $permission->delete();
 

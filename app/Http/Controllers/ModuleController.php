@@ -164,17 +164,17 @@ class ModuleController extends Controller
     /**
      * Get specific module.
      *
-     * @param string $name
+     * @param string $moduleName
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function show($name)
+    public function show($moduleName)
     {
         $this->authorize('view', [Module::class]);
 
-        $module = Module::withTrashed()->findOrFail($name);
+        $module = Module::withTrashed()->findOrFail($moduleName);
 
         return response($module);
     }
@@ -183,18 +183,18 @@ class ModuleController extends Controller
      * Update specific module.
      *
      * @param \Illuminate\Http\Request $request
-     * @param string                   $name
+     * @param string                   $moduleName
      *
      * @throws ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $name)
+    public function update(Request $request, $moduleName)
     {
         $this->authorize('update', [Module::class]);
 
-        $module = Module::findOrFail($name);
+        $module = Module::findOrFail($moduleName);
 
         $this->validate($request, [
             'description' => 'nullable|max:25',
@@ -211,18 +211,18 @@ class ModuleController extends Controller
     /**
      * Temporarily delete (ban) the specific module.
      *
-     * @param string $name
+     * @param string $moduleName
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Exception
      *
      * @return \Illuminate\Http\Response
      */
-    public function revoke($name)
+    public function revoke($moduleName)
     {
         $this->authorize('soft-delete', [Module::class]);
 
-        $module = Module::findOrFail($name);
+        $module = Module::findOrFail($moduleName);
 
         $module->delete();
 
@@ -234,17 +234,17 @@ class ModuleController extends Controller
     /**
      * Restore the specific banned module.
      *
-     * @param string $name
+     * @param string $moduleName
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function restore($name)
+    public function restore($moduleName)
     {
         $this->authorize('restore', [Module::class]);
 
-        $module = Module::onlyTrashed()->findOrFail($name);
+        $module = Module::onlyTrashed()->findOrFail($moduleName);
 
         $module->restore();
 
@@ -256,21 +256,21 @@ class ModuleController extends Controller
     /**
      * Permanently delete the specific module.
      *
-     * @param string $name
+     * @param string $moduleName
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function destroy($name)
+    public function destroy($moduleName)
     {
         $this->authorize('force-delete', [Module::class]);
 
-        $module = Module::onlyTrashed()->findOrFail($name);
+        $module = Module::onlyTrashed()->findOrFail($moduleName);
 
         // ...
 
-        $dependants = Permission::where('module_name', $name)->count();
+        $dependants = Permission::where('module_name', $moduleName)->count();
 
         if ($dependants) {
             return response(['message' => "Can't delete non-orphaned module."], 400);
