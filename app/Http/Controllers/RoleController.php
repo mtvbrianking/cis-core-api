@@ -325,7 +325,7 @@ class RoleController extends Controller
 
         $role = Role::onlyRelated($user)->with('permissions')->findOrFail($roleId);
 
-        return response()->json($role);
+        return response($role);
     }
 
     /**
