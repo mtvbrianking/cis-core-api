@@ -307,22 +307,36 @@ class FacilityController extends Controller
 
         $facility = Facility::findOrFail($facilityId);
 
-        $modules = Module::query()
-            ->leftJoin('facility_module', function ($join) use ($facility) {
-                $join->on('facility_module.module_name', '=', 'modules.name');
-                $join->where('facility_module.facility_id', '=', $facility->id);
-            })
-            ->select('modules.name', 'facility_module.facility_id')
-            ->get();
+        // ...
+
+        $query = Module::query();
+
+        $query->leftJoin('facility_module', function ($join) use ($facilityId) {
+            $join->on('facility_module.module_name', '=', 'modules.name');
+            $join->where('facility_module.facility_id', '=', $facilityId);
+        });
+
+        $query->select([
+            'modules.name',
+            'modules.category',
+            'facility_module.facility_id',
+        ]);
+
+        $modules = $query->get();
+
+        // ...
 
         $modules = $modules->map(function ($module) {
             return [
                 'name' => $module->name,
+                'category' => $module->category,
                 'granted' => ! is_null($module->facility_id),
             ];
         });
 
-        return response(['modules' => $modules]);
+        $facility->modules = $modules;
+
+        return response($facility);
     }
 
     /**

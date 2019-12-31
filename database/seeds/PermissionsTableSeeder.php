@@ -41,6 +41,10 @@ class PermissionsTableSeeder extends Seeder
                 'module_name' => 'facilities',
                 'name' => 'force-delete', // delete
             ],
+            [
+                'module_name' => 'facilities',
+                'name' => 'view-permissions',
+            ],
         ]);
 
         Permission::insert([

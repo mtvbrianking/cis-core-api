@@ -323,9 +323,9 @@ class RoleController extends Controller
 
         $user = Auth::guard('api')->user();
 
-        $role = Role::onlyRelated($user)->findOrFail($roleId);
+        $role = Role::onlyRelated($user)->with('permissions')->findOrFail($roleId);
 
-        return response()->json(['permissions' => $role->permissions]);
+        return response()->json($role);
     }
 
     /**
@@ -345,29 +345,50 @@ class RoleController extends Controller
 
         $role = Role::onlyRelated($user)->findOrFail($roleId);
 
-        $permissions = Permission::query()
-            ->whereHas('module.facilities', function ($query) use ($user) {
-                $query->where('facility_id', $user->facility_id);
-            })
-            ->orWhereHas('roles', function ($query) use ($role) {
-                $query->where('role_id', $role->id);
-            })
-            ->with(['module', 'roles'])
-            ->get();
+        // ...
+
+        $query = Permission::query();
+
+        $query->join('modules', 'permissions.module_name', '=', 'modules.name');
+
+        $query->leftJoin('role_permission', function ($join) use ($roleId) {
+            $join->on('permissions.id', '=', 'role_permission.permission_id');
+            $join->where('role_permission.role_id', '=', $roleId);
+        });
+
+        $query->select([
+            'permissions.id',
+            'permissions.name',
+            'modules.category AS module_category',
+            'permissions.module_name',
+            'role_permission.role_id',
+        ]);
+
+        $query->whereIn('module_name', function ($query) use ($role) {
+            $query->from('facility_module')
+                ->select('module_name')
+                ->where('facility_id', $role->facility_id);
+        });
+
+        $permissions = $query->get();
+
+        // ...
 
         $permissions = $permissions->map(function ($permission) {
             return [
                 'id' => $permission->id,
                 'name' => $permission->name,
-                'granted' => (bool) count($permission->roles),
                 'module' => [
-                    'name' => $permission->module->name,
-                    'category' => $permission->module->category,
+                    'category' => $permission->module_category,
+                    'name' => $permission->module_name,
                 ],
+                'granted' => ! is_null($permission->role_id),
             ];
         });
 
-        return response(['permissions' => $permissions]);
+        $role->permissions = $permissions;
+
+        return response($role);
     }
 
     /**
