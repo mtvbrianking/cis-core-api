@@ -9,7 +9,7 @@
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
          processIsolation="false"
-         stopOnFailure="false">
+         stopOnFailure="true">
     <testsuites>
         <testsuite name="Unit">
             <directory suffix="Test.php">./tests/Unit</directory>
@@ -24,6 +24,9 @@
             <directory suffix=".php">./app</directory>
         </whitelist>
     </filter>
+    <listeners>
+        <listener class="NunoMaduro\Collision\Adapters\Phpunit\Listener" />
+    </listeners>
     <php>
         <server name="APP_ENV" value="testing"/>
         <server name="APP_KEY" value="base64:NJWzkcD0taLlJA1OZXKSXAml0MTQAPff9C2NL226X84=" />
