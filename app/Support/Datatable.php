@@ -9,7 +9,7 @@ class Datatable
     /**
      * Restructure jquery datatables' request query parameters for eloquent builder.
      *
-     * @param array  $params
+     * @param array $params
      *
      * @return array
      */

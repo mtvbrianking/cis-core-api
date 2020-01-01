@@ -352,7 +352,7 @@ class FacilityControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/facilities/{$user->facility_id}/modules");
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/facilities/{$user->facility_id}/modules/available");
 
         $response->assertStatus(403);
 
@@ -364,7 +364,7 @@ class FacilityControllerTest extends TestCase
 
         $module = factory(Module::class)->create();
 
-        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/facilities/{$facility->id}/modules", [
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/facilities/{$facility->id}/modules/available", [
             'modules' => [
                 $module->name,
             ],
@@ -384,10 +384,8 @@ class FacilityControllerTest extends TestCase
             'modules' => [
                 '*' => [
                     'name',
-                    'description',
-                    'created_at',
-                    'updated_at',
-                    'deleted_at',
+                    'category',
+                    'granted',
                 ],
             ],
         ]);
