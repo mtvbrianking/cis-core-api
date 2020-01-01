@@ -170,7 +170,10 @@ class RoleController extends Controller
 
         $user = Auth::guard('api')->user();
 
-        $role = Role::onlyRelated($user)->withTrashed()->findOrFail($roleId);
+        $role = Role::with('facility')
+            ->onlyRelated($user)
+            ->withTrashed()
+            ->findOrFail($roleId);
 
         return response($role);
     }
@@ -303,13 +306,13 @@ class RoleController extends Controller
 
         $user = Auth::guard('api')->user();
 
-        $role = Role::onlyRelated($user)->findOrFail($roleId);
+        $role = Role::onlyRelated($user)->with('users')->findOrFail($roleId);
 
-        return response(['users' => $role->users]);
+        return response($role);
     }
 
     /**
-     * All permissions available to this role.
+     * Permissions assigned to this role.
      *
      * @param string $roleId
      *
@@ -319,7 +322,7 @@ class RoleController extends Controller
      */
     public function permissions($roleId)
     {
-        $this->authorize('viewPermissions', [Role::class]);
+        $this->authorize('viewAny', [Permission::class]);
 
         $user = Auth::guard('api')->user();
 
@@ -329,7 +332,7 @@ class RoleController extends Controller
     }
 
     /**
-     * Only permissions granted to this role.
+     * Permissions available to this role.
      *
      * @param string $roleId
      *
@@ -337,7 +340,7 @@ class RoleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function permissionsGranted($roleId)
+    public function permissionsAvailable($roleId)
     {
         $this->authorize('assignPermissions', [Permission::class]);
 

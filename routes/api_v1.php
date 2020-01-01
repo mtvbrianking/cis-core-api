@@ -49,18 +49,18 @@ Route::pattern('facility', $uuid);
 
 Route::group(['prefix' => 'facilities'], function () {
     Route::get('/', 'FacilityController@index');
-    Route::get('/dt', 'FacilityController@indexDt');
     Route::post('/', 'FacilityController@store');
+    Route::get('/dt', 'FacilityController@indexDt');
     Route::get('/{facility}', 'FacilityController@show');
     Route::put('/{facility}', 'FacilityController@update');
     Route::delete('/{facility}', 'FacilityController@destroy');
-    // Route::get('/{facility}/modules', 'FacilityController@modules');
-    Route::put('/{facility}/modules', 'FacilityController@syncModules');
-    Route::get('/{facility}/modules/granted', 'FacilityController@modulesGranted');
+    Route::get('/{facility}/modules', 'FacilityController@modules');
+    Route::get('/{facility}/modules/available', 'FacilityController@modulesAvailable');
+    Route::put('/{facility}/modules/available', 'FacilityController@syncModulesAvailable');
     Route::put('/{facility}/restore', 'FacilityController@restore');
     Route::put('/{facility}/revoke', 'FacilityController@revoke');
-    // Route::get('/{facility}/roles', 'FacilityController@roles');
-    // Route::get('/{facility}/users', 'FacilityController@users');
+    Route::get('/{facility}/roles', 'FacilityController@roles');
+    Route::get('/{facility}/users', 'FacilityController@users');
 });
 
 Route::pattern('module', $slug);
@@ -72,7 +72,8 @@ Route::group(['prefix' => 'modules'], function () {
     Route::get('/{module}', 'ModuleController@show');
     Route::put('/{module}', 'ModuleController@update');
     Route::delete('/{module}', 'ModuleController@destroy');
-    // Route::get('/{module}/facilities', 'ModuleController@facilities');
+    Route::get('/{module}/facilities', 'ModuleController@facilities');
+    Route::get('/{module}/permissions', 'ModuleController@permissions');
     Route::put('/{module}/restore', 'ModuleController@restore');
     Route::put('/{module}/revoke', 'ModuleController@revoke');
 });
@@ -86,7 +87,6 @@ Route::group(['prefix' => 'permissions'], function () {
     Route::get('/{permission}', 'PermissionController@show');
     Route::put('/{permission}', 'PermissionController@update');
     Route::delete('/{permission}', 'PermissionController@destroy');
-    // Route::get('/{permission}/module', 'PermissionController@module');
 });
 
 Route::pattern('role', $uuid);
@@ -100,7 +100,7 @@ Route::group(['prefix' => 'roles'], function () {
     Route::delete('/{role}', 'RoleController@destroy');
     Route::get('/{role}/permissions', 'RoleController@permissions');
     Route::put('/{role}/permissions', 'RoleController@syncPermissions');
-    Route::get('/{role}/permissions/granted', 'RoleController@permissionsGranted');
+    Route::get('/{role}/permissions/available', 'RoleController@permissionsAvailable');
     Route::put('/{role}/restore', 'RoleController@restore');
     Route::put('/{role}/revoke', 'RoleController@revoke');
     Route::get('/{role}/users', 'RoleController@users');

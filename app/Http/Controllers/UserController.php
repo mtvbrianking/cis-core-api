@@ -116,8 +116,6 @@ class UserController extends Controller
 
         $constraints = Datatable::prepareQueryParameters($request->query());
 
-        // return response($constraints);
-
         // ...
 
         $schemaPath = resource_path('js/schemas/users.json');
@@ -160,8 +158,8 @@ class UserController extends Controller
 
         $consumer = Auth::guard('api')->user();
 
-        $user = User::with(['role', 'facility'])
-            ->onlyRelated($consumer)
+        $user = User::onlyRelated($consumer)
+            ->with(['role', 'facility'])
             ->withTrashed()
             ->findOrFail($userId);
 

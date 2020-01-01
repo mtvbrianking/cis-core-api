@@ -77,15 +77,49 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             type: object
             properties:
-              facilities:
+              current_page:
+                type: integer
+                example: 1
+              data:
                 type: array
+                description: Facilities
                 items:
                   $ref: '#/definitions/FacilityModel'
+              first_page_url:
+                type: string
+                example: http://localhost:8000/api/v1/facilities?page=1
+              from:
+                type: integer
+                example: 1
+              last_page:
+                type: integer
+                example: 1
+              last_page_url:
+                type: integer
+                example: http://localhost:8000/api/v1/facilities?page=1
+              next_page_url:
+                type: string
+                example: null
+              path:
+                type: string
+                example: http://localhost:8000/api/v1/facilities
+              per_page:
+                type: integer
+                example: 10
+              prev_page_url:
+                type: string
+                example: null
+              to:
+                type: integer
+                example: 1
+              total:
+                type: integer
+                example: 1
       x-code-samples:
         - lang: CURL
           source: |-
@@ -117,7 +151,6 @@ paths:
           type: string
         - name: email
           in: formData
-          description: 'See <a href=''#operation/validateEmail''>validate email</a>'
           required: true
           type: string
           format: email
@@ -134,7 +167,7 @@ paths:
       produces:
         - application/json
       responses:
-        '201':
+        201:
           description: Created
           schema:
             $ref: '#/definitions/FacilityModel'
@@ -153,7 +186,47 @@ paths:
                 "email":"cis@mulago.Hospital",
                 "phone":"+256392741586"
               }'
-  '/facilities/{facility}':
+  /facilities/datatables:
+    get:
+      tags:
+        - facility
+      summary: Get facilities (datatables).
+      description: |-
+        Requires `view-any` permission on `facilities` module.
+
+        Get facilities formatted for jQuery datatables.
+      operationId: getFacilitiesDatatables
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              draw:
+                type: integer
+                example: 1
+              recordsTotal:
+                type: integer
+                example: 1
+              recordsFiltered:
+                type: integer
+                example: 1
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/facilities/datatables \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+  /facilities/{facility}:
     get:
       tags:
         - facility
@@ -175,7 +248,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             $ref: '#/definitions/FacilityModel'
@@ -232,7 +305,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             $ref: '#/definitions/FacilityModel'
@@ -275,7 +348,7 @@ paths:
       produces:
         - application/json
       responses:
-        '204':
+        204:
           description: No Content
       x-code-samples:
         - lang: CURL
@@ -284,33 +357,27 @@ paths:
              'http://localhost:8000/api/v1/facilities/{facility}' \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
-  '/facilities/{facility}/modules':
-    put:
+  /facilities/{facility}/modules:
+    get:
       tags:
         - facility
-      summary: Reassign facility modules
+      summary: Get modules granted to a facility.
       description: |-
-        Requires `assign-modules` permission on `modules` module.
-      operationId: assignFacilityModules
+        Requires `view-any` permission on `modules` module.
+      operationId: getFacilityModules
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
         - name: facility
           in: path
-          description: '<a href=''#operation/getModules''>Module Name</a>'
+          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
           required: true
           type: string
-        - name: modules
-          in: formData
-          description: 'Facility modules.'
-          required: false
-          type: array
-          items:
-            type: string
+          format: uuid
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             allOf:
@@ -323,11 +390,118 @@ paths:
       x-code-samples:
         - lang: CURL
           source: |-
-            curl -X PUT \
+            curl -X GET \
              'http://localhost:8000/api/v1/facilities/{facility}/modules' \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
-  '/facilities/{facility}/restore':
+  /facilities/{facility}/modules/available:
+    get:
+      tags:
+        - facility
+      summary: Get modules available to a facility.
+      description: |-
+        Requires `assign-modules` permission on `permissions` module.
+
+        Gives all modules available to a facility indicating whether that module is granted to the facility or not.
+      operationId: getFacilityModulesAvailable
+      consumes:
+        - application/json
+      parameters:
+        - name: facility
+          in: path
+          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+          required: true
+          type: string
+          format: uuid
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/FacilityModel'
+              - properties:
+                  modules:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          example: users
+                        category:
+                          type: string
+                          example: uncategorized
+                        granted:
+                          type: boolean
+                          example: true
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             'http://localhost:8000/api/v1/facilities/{facility}/modules/available' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+    put:
+      tags:
+        - facility
+      summary: Reassign modules granted to a facility
+      description: |-
+        Requires `assign-modules` permission on `modules` module.
+      operationId: assignFacilityModules
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: facility
+          in: path
+          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+          required: true
+          type: string
+          format: uuid
+        - name: modules
+          in: formData
+          description: 'Facility modules.'
+          required: false
+          type: array
+          items:
+            type: string
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/FacilityModel'
+              - properties:
+                  modules:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          example: users
+                        category:
+                          type: string
+                          example: uncategorized
+                        granted:
+                          type: boolean
+                          example: true
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             'http://localhost:8000/api/v1/facilities/{facility}/modules/available' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}
+             -d '{
+                "modules": [
+                  "users"
+                ]
+              }
+  /facilities/{facility}/restore:
     put:
       tags:
         - facility
@@ -349,7 +523,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             $ref: '#/definitions/FacilityModel'
@@ -360,7 +534,7 @@ paths:
              'http://localhost:8000/api/v1/facilities/{facility}/restore' \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
-  '/facilities/{facility}/revoke':
+  /facilities/{facility}/revoke:
     put:
       tags:
         - facility
@@ -382,7 +556,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             allOf:
@@ -397,7 +571,80 @@ paths:
              'http://localhost:8000/api/v1/facilities/{facility}/revoke' \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
-
+  /facilities/{facility}/roles:
+    get:
+      tags:
+        - facility
+      summary: Get roles belonging to a facility.
+      description: |-
+        Requires `view-any` permission on `roles` module.
+      operationId: getFacilityRoles
+      consumes:
+        - application/json
+      parameters:
+        - name: facility
+          in: path
+          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+          required: true
+          type: string
+          format: uuid
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/FacilityModel'
+              - properties:
+                  roles:
+                    type: array
+                    items:
+                      $ref: '#/definitions/RoleModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             'http://localhost:8000/api/v1/facilities/{facility}/roles' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+  /facilities/{facility}/users:
+    get:
+      tags:
+        - facility
+      summary: Get users belonging to a facility.
+      description: |-
+        Requires `view-any` permission on `users` module.
+      operationId: getFacilityUsers
+      consumes:
+        - application/json
+      parameters:
+        - name: facility
+          in: path
+          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+          required: true
+          type: string
+          format: uuid
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/FacilityModel'
+              - properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/definitions/UserModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             'http://localhost:8000/api/v1/facilities/{facility}/users' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
   /modules:
     get:
       tags:
@@ -411,7 +658,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             type: object
@@ -450,7 +697,7 @@ paths:
       produces:
         - application/json
       responses:
-        '201':
+        201:
           description: Created
           schema:
             $ref: '#/definitions/ModuleModel'
@@ -482,7 +729,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             $ref: '#/definitions/ModuleModel'
@@ -517,7 +764,7 @@ paths:
           required: false
           type: string
       responses:
-        '200':
+        200:
           description: OK
           schema:
             $ref: '#/definitions/ModuleModel'
@@ -553,7 +800,7 @@ paths:
       produces:
         - application/json
       responses:
-        '204':
+        204:
           description: No Content
       x-code-samples:
         - lang: CURL
@@ -585,7 +832,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             $ref: '#/definitions/ModuleModel'
@@ -617,7 +864,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             allOf:
@@ -646,7 +893,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             type: object
@@ -688,7 +935,7 @@ paths:
       produces:
         - application/json
       responses:
-        '201':
+        201:
           description: Created
           schema:
             allOf:
@@ -728,7 +975,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             allOf:
@@ -773,7 +1020,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             allOf:
@@ -814,7 +1061,7 @@ paths:
       produces:
         - application/json
       responses:
-        '204':
+        204:
           description: No Content
       x-code-samples:
         - lang: CURL
@@ -837,7 +1084,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             type: object
@@ -874,7 +1121,7 @@ paths:
       produces:
         - application/json
       responses:
-        '201':
+        201:
           description: Created
           schema:
             allOf:
@@ -916,7 +1163,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             allOf:
@@ -957,7 +1204,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             allOf:
@@ -1000,7 +1247,7 @@ paths:
       produces:
         - application/json
       responses:
-        '204':
+        204:
           description: No Content
       x-code-samples:
         - lang: CURL
@@ -1031,7 +1278,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             type: object
@@ -1074,7 +1321,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             allOf:
@@ -1115,7 +1362,7 @@ paths:
           type: string
           format: uuid
       responses:
-        '200':
+        200:
           description: OK
           examples:
             application/json:
@@ -1161,7 +1408,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             allOf:
@@ -1202,7 +1449,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             allOf:
@@ -1239,7 +1486,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             type: object
@@ -1269,7 +1516,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             type: object
@@ -1322,7 +1569,7 @@ paths:
       produces:
         - application/json
       responses:
-        '201':
+        201:
           description: Created
           schema:
             allOf:
@@ -1372,7 +1619,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             allOf:
@@ -1414,7 +1661,7 @@ paths:
       produces:
         - application/json
       responses:
-        '204':
+        204:
           description: No Content
       x-code-samples:
         - lang: CURL
@@ -1447,7 +1694,7 @@ paths:
       produces:
         - application/json
       responses:
-        '204':
+        204:
           description: No Content
       x-code-samples:
         - lang: CURL
@@ -1480,7 +1727,7 @@ paths:
       produces:
         - application/json
       responses:
-        '204':
+        204:
           description: No Content
       x-code-samples:
         - lang: CURL
@@ -1510,7 +1757,7 @@ paths:
       produces:
         - application/json
       responses:
-        '204':
+        204:
           description: No Content
       x-code-samples:
         - lang: CURL
@@ -1561,7 +1808,7 @@ paths:
       produces:
         - application/json
       responses:
-        '204':
+        204:
           description: No Content
       x-code-samples:
         - lang: CURL
@@ -1629,7 +1876,7 @@ paths:
       produces:
         - application/json
       responses:
-        '204':
+        204:
           description: No Content
       x-code-samples:
         - lang: CURL
@@ -1665,7 +1912,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             allOf:
@@ -1728,7 +1975,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             allOf:
@@ -1775,7 +2022,7 @@ paths:
       produces:
         - application/json
       responses:
-        '204':
+        204:
           description: No Content
       x-code-samples:
         - lang: CURL
@@ -1806,7 +2053,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             allOf:
@@ -1849,7 +2096,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: OK
           schema:
             allOf:
@@ -1937,7 +2184,7 @@ paths:
       produces:
         - application/json
       responses:
-        '200':
+        200:
           description: Created
           schema:
             $ref: '#/definitions/TokenModel'

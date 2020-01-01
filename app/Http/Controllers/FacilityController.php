@@ -12,6 +12,7 @@ use App\Traits\JqueryDatatables;
 use App\Traits\JsonValidation;
 use App\Traits\QueryDecoration;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use JsonSchema\Validator as JsonValidator;
@@ -71,13 +72,13 @@ class FacilityController extends Controller
 
         // Pagination.
 
-        $limit = $request->input('limit', 15);
+        $limit = $request->input('limit', 10);
 
-        $facilities = $request->input('paginate', true)
-            ? $query->paginate($limit)
-            : $query->take($limit)->get();
+        if ($request->input('paginate', true)) {
+            return response($query->paginate($limit));
+        }
 
-        // $facilities->withPath(url()->full());
+        $facilities = $query->take($limit)->get();
 
         return response(['facilities' => $facilities]);
     }
@@ -102,8 +103,6 @@ class FacilityController extends Controller
         // ...
 
         $constraints = Datatable::prepareQueryParameters($request->query());
-
-        // return response($constraints);
 
         // ...
 
@@ -293,7 +292,7 @@ class FacilityController extends Controller
     }
 
     /**
-     * Only modules granted to this facility.
+     * Roles belonging to this facility.
      *
      * @param string $facilityId
      *
@@ -301,19 +300,67 @@ class FacilityController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function modulesGranted($facilityId)
+    public function roles($facilityId)
     {
-        $this->authorize('assignModules', [Module::class]);
+        $this->authorize('viewAny', [Role::class]);
 
-        $facility = Facility::findOrFail($facilityId);
+        $facility = Facility::with('roles')->findOrFail($facilityId);
 
-        // ...
+        return response($facility);
+    }
 
+    /**
+     * Users belonging to this facility.
+     *
+     * @param string $facilityId
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function users($facilityId)
+    {
+        $this->authorize('viewAny', [User::class]);
+
+        $facility = Facility::with('users')->findOrFail($facilityId);
+
+        return response($facility);
+    }
+
+    /**
+     * Modules granted to this facility.
+     *
+     * @param string $facilityId
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function modules($facilityId)
+    {
+        $this->authorize('viewAny', [Module::class]);
+
+        $facility = Facility::with('modules')->findOrFail($facilityId);
+
+        return response($facility);
+    }
+
+    /**
+     * Query modules available to a facility.
+     *
+     * Indicating whether or not a module is granted to that facility.
+     *
+     * @param \App\Models\Facility $facility
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    protected function queryModulesAvailable(Facility $facility): Collection
+    {
         $query = Module::query();
 
-        $query->leftJoin('facility_module', function ($join) use ($facilityId) {
+        $query->leftJoin('facility_module', function ($join) use ($facility) {
             $join->on('facility_module.module_name', '=', 'modules.name');
-            $join->where('facility_module.facility_id', '=', $facilityId);
+            $join->where('facility_module.facility_id', '=', $facility->id);
         });
 
         $query->select([
@@ -324,23 +371,37 @@ class FacilityController extends Controller
 
         $modules = $query->get();
 
-        // ...
-
-        $modules = $modules->map(function ($module) {
+        return $modules->map(function ($module) {
             return [
                 'name' => $module->name,
                 'category' => $module->category,
                 'granted' => ! is_null($module->facility_id),
             ];
         });
+    }
 
-        $facility->modules = $modules;
+    /**
+     * Only modules available to this facility.
+     *
+     * @param string $facilityId
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function modulesAvailable($facilityId)
+    {
+        $this->authorize('assignModules', [Module::class]);
+
+        $facility = Facility::findOrFail($facilityId);
+
+        $facility->modules = $this->queryModulesAvailable($facility);
 
         return response($facility);
     }
 
     /**
-     * Update facility module access.
+     * Reassign modules granted to a facility.
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $facilityId
@@ -350,7 +411,7 @@ class FacilityController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function syncModules(Request $request, $facilityId)
+    public function syncModulesAvailable(Request $request, $facilityId)
     {
         $this->authorize('assignModules', [Module::class]);
 
@@ -378,7 +439,7 @@ class FacilityController extends Controller
         $facility->modules()->sync($request->modules, true);
         $facility->save();
 
-        $facility = Facility::with('modules')->find($facilityId);
+        $facility->modules = $this->queryModulesAvailable($facility);
 
         return response($facility);
     }

@@ -165,7 +165,7 @@ class PermissionController extends Controller
     /**
      * Get specific permission.
      *
-     * @param string $permissionId
+     * @param int $permissionId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
@@ -175,7 +175,7 @@ class PermissionController extends Controller
     {
         $this->authorize('view', [Permission::class]);
 
-        $permission = Permission::findOrFail($permissionId);
+        $permission = Permission::with('module')->findOrFail($permissionId);
 
         return response($permission);
     }
@@ -184,7 +184,7 @@ class PermissionController extends Controller
      * Update specific permission.
      *
      * @param \Illuminate\Http\Request $request
-     * @param string                   $permissionId
+     * @param int                      $permissionId
      *
      * @throws ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
@@ -232,7 +232,7 @@ class PermissionController extends Controller
     /**
      * Permanently delete the specific permission.
      *
-     * @param string $permissionId
+     * @param int $permissionId
      *
      * @throws \Exception
      * @throws \Illuminate\Auth\Access\AuthorizationException

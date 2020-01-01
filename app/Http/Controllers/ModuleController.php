@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Facility;
 use App\Models\Module;
 use App\Models\Permission;
 use App\Support\Datatable;
@@ -175,6 +176,42 @@ class ModuleController extends Controller
         $this->authorize('view', [Module::class]);
 
         $module = Module::withTrashed()->findOrFail($moduleName);
+
+        return response($module);
+    }
+
+    /**
+     * Get facilities with this module.
+     *
+     * @param string $moduleName
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function facilities($moduleName)
+    {
+        $this->authorize('viewAny', [Facility::class]);
+
+        $module = Module::with('facilities')->findOrFail($moduleName);
+
+        return response($module);
+    }
+
+    /**
+     * Get permissions beloging to this module.
+     *
+     * @param string $moduleName
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function permissions($moduleName)
+    {
+        $this->authorize('viewAny', [Permission::class]);
+
+        $module = Module::with('permissions')->findOrFail($moduleName);
 
         return response($module);
     }

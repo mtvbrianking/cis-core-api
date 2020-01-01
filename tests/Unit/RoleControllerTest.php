@@ -405,7 +405,7 @@ class RoleControllerTest extends TestCase
 
         // ...
 
-        $user = $this->getAuthorizedUser('view-permissions', 'roles');
+        $user = $this->getAuthorizedUser('view-any', 'permissions');
 
         $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$user->role_id}/permissions");
 
@@ -434,7 +434,7 @@ class RoleControllerTest extends TestCase
             'facility_id' => $user->facility_id,
         ]);
 
-        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$role->id}/permissions/granted");
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$role->id}/permissions/available");
 
         $response->assertStatus(403);
 
@@ -446,7 +446,7 @@ class RoleControllerTest extends TestCase
             'facility_id' => $user->facility_id,
         ]);
 
-        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$role->id}/permissions/granted");
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$role->id}/permissions/available");
 
         $response->assertStatus(200);
 
