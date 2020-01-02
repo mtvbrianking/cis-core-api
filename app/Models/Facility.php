@@ -79,7 +79,7 @@ class Facility extends Model
      */
     public function users()
     {
-        return $this->hasMany(User::class, 'user_id', 'id');
+        return $this->hasMany(User::class, 'facility_id', 'id');
     }
 
     /**
@@ -89,7 +89,7 @@ class Facility extends Model
      */
     public function roles()
     {
-        return $this->hasMany(Role::class, 'role_id', 'id');
+        return $this->hasMany(Role::class, 'facility_id', 'id');
     }
 
     /**

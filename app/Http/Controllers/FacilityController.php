@@ -92,7 +92,7 @@ class FacilityController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function indexDt(Request $request)
+    public function datatables(Request $request)
     {
         $this->authorize('viewAny', [Facility::class]);
 

@@ -73,8 +73,7 @@
         ],
         "test": [
             "@php artisan config:clear",
-            "php-cs-fixer fix --dry-run",
-            "phpunit --configuration=phpunit.xml",
+            "phpunit --prepend build/xdebug-filter.php --coverage-html build/coverage",
             "@php artisan config:cache"
         ]
     }
