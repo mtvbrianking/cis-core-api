@@ -3,11 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Permission;
-
 use Bmatovu\QueryDecorator\Json\Schema;
 use Bmatovu\QueryDecorator\Query\Decorator;
 use Bmatovu\QueryDecorator\Support\Datatable;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;

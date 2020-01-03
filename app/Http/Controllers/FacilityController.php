@@ -7,11 +7,9 @@ use App\Models\Module;
 use App\Models\Role;
 use App\Models\User;
 use App\Rules\Tel;
-
 use Bmatovu\QueryDecorator\Json\Schema;
 use Bmatovu\QueryDecorator\Query\Decorator;
 use Bmatovu\QueryDecorator\Support\Datatable;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;

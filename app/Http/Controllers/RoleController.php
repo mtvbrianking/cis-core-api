@@ -5,11 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
-
 use Bmatovu\QueryDecorator\Json\Schema;
 use Bmatovu\QueryDecorator\Query\Decorator;
 use Bmatovu\QueryDecorator\Support\Datatable;
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -391,7 +389,7 @@ class RoleController extends Controller
                     'category' => $permission->module_category,
                     'name' => $permission->module_name,
                 ],
-                'granted' => !is_null($permission->role_id),
+                'granted' => ! is_null($permission->role_id),
             ];
         });
 
@@ -438,7 +436,7 @@ class RoleController extends Controller
 
         if ($unknown_perms) {
             $validator = Validator::make([], []);
-            $validator->errors()->add('permissions', 'Unknown permissions: ' . implode(', ', $unknown_perms));
+            $validator->errors()->add('permissions', 'Unknown permissions: '.implode(', ', $unknown_perms));
 
             throw new ValidationException($validator);
         }
