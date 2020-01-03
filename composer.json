@@ -10,6 +10,7 @@
     "require": {
         "php": "^7.2",
         "bmatovu/laravel-eloquent-uuid": "^0.0.1",
+        "bmatovu/laravel-query-decorator": "^0.0.1",
         "fideloper/proxy": "^4.0",
         "justinrainbow/json-schema": "5.2.9",
         "laracasts/flash": "^3.0",

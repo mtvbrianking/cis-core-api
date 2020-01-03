@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Role;
 use App\Models\User;
-use App\Support\Datatable;
-use App\Traits\JqueryDatatables;
-use App\Traits\JsonValidation;
-use App\Traits\QueryDecoration;
+
+use Bmatovu\QueryDecorator\Json\Schema;
+use Bmatovu\QueryDecorator\Query\Decorator;
+use Bmatovu\QueryDecorator\Support\Datatable;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +21,6 @@ use JsonSchema\Validator as JsonValidator;
 
 class UserController extends Controller
 {
-    use JsonValidation, JqueryDatatables, QueryDecoration;
 
     /**
      * Json schema validator.
@@ -52,7 +52,7 @@ class UserController extends Controller
      * @param \Illuminate\http\Request $request
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \App\Exceptions\InvalidJsonException
+     * @throws \Bmatovu\QueryDecorator\Exceptions\InvalidJsonException
      *
      * @return \Illuminate\Http\Response
      */
@@ -64,7 +64,7 @@ class UserController extends Controller
 
         $schemaPath = resource_path('js/schemas/users.json');
 
-        static::validateJson($this->jsonValidator, $schemaPath, $request->query());
+        Schema::validate($this->jsonValidator, $schemaPath, $request->query());
 
         // Query users.
 
@@ -76,7 +76,15 @@ class UserController extends Controller
 
         // Apply constraints to query.
 
-        $query = static::applyConstraintsToQuery($query, $request);
+        $tableModelMap = [
+            'users' => null,
+            'roles' => 'role',
+            'facilities' => 'facility',
+        ];
+
+        $constraints = (array) $request->query('filters');
+
+        $query = Decorator::decorate($query, $constraints, $tableModelMap, true);
 
         // Pagination.
 
@@ -114,25 +122,15 @@ class UserController extends Controller
 
         // ...
 
-        $constraints = Datatable::prepareQueryParameters($request->query());
+        $constraints = (array) $request->query('filters');
 
         // ...
 
         $schemaPath = resource_path('js/schemas/users.json');
 
-        static::validateJson($this->jsonValidator, $schemaPath, $constraints);
+        Schema::validate($this->jsonValidator, $schemaPath, $constraints);
 
         // ...
-
-        $tables = Datatable::extraTables($constraints['select']);
-
-        if (in_array('roles', $tables)) {
-            $query->leftJoin('roles', 'roles.id', '=', 'users.role_id');
-        }
-
-        if (in_array('facilities', $tables)) {
-            $query->leftJoin('facilities', 'facilities.id', '=', 'users.facility_id');
-        }
 
         $tableModelMap = [
             'users' => null,
@@ -140,7 +138,33 @@ class UserController extends Controller
             'facilities' => 'facility',
         ];
 
-        return static::queryForDatatables($query, $constraints, $tableModelMap);
+        $query = Decorator::decorate($query, $constraints, $tableModelMap, true);
+
+        if (isset($constraints['select'])) {
+            $tables = Decorator::getRelations($constraints['select']);
+
+            if (in_array('roles', $tables)) {
+                $query->leftJoin('roles', 'roles.id', '=', 'users.role_id');
+            }
+
+            if (in_array('facilities', $tables)) {
+                $query->leftJoin('facilities', 'facilities.id', '=', 'users.facility_id');
+            }
+        }
+
+        if (!$request->input('paginate', true)) {
+            $users = $query->get();
+
+            $users = Decorator::resultsByModel($users, $tableModelMap);
+
+            return response(['users' => $users]);
+        }
+
+        $users = $query->jsonPaginate()->toArray();
+
+        $users['data'] = Decorator::resultsByModel($users['data'], $tableModelMap);
+
+        return response(['users' => $users]);
     }
 
     /**
@@ -191,7 +215,7 @@ class UserController extends Controller
 
         $role = Role::onlyRelated($registrar)->find($request->role_id);
 
-        if (! $role) {
+        if (!$role) {
             $validator = Validator::make([], []);
             $validator->errors()->add('role_id', 'Unknown role.');
 
@@ -241,7 +265,7 @@ class UserController extends Controller
         if ($request->filled('role_id')) {
             $role = Role::onlyRelated($registrar)->find($request->role_id);
 
-            if (! $role) {
+            if (!$role) {
                 $validator = Validator::make([], []);
                 $validator->errors()->add('role_id', 'Unknown role.');
 
@@ -352,7 +376,7 @@ class UserController extends Controller
             'password' => 'required',
         ]);
 
-        if (! password_verify($request->password, $user->password)) {
+        if (!password_verify($request->password, $user->password)) {
             $validator = Validator::make([], []);
             $validator->errors()->add('password', 'Wrong password.');
 
@@ -380,7 +404,7 @@ class UserController extends Controller
             'new_password' => 'required|min:6|confirmed',
         ]);
 
-        if (! password_verify($request->password, $user->password)) {
+        if (!password_verify($request->password, $user->password)) {
             $validator = Validator::make([], []);
             $validator->errors()->add('password', 'Wrong password.');
 
@@ -428,7 +452,7 @@ class UserController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (! $user) {
+        if (!$user) {
             $validator = Validator::make([], []);
             $validator->errors()->add('email', 'Wrong email address.');
 
@@ -460,7 +484,7 @@ class UserController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (! $user) {
+        if (!$user) {
             $validator = Validator::make([], []);
             $validator->errors()->add('email', 'Wrong email address.');
 
@@ -492,7 +516,7 @@ class UserController extends Controller
 
         $user = User::with(['facility', 'role'])->where('email', $request->email)->first();
 
-        if (! $user || ! password_verify($request->password, $user->password)) {
+        if (!$user || !password_verify($request->password, $user->password)) {
             $validator = Validator::make([], []);
             $validator->errors()->add('email', 'Wrong email or password.');
 
@@ -509,7 +533,7 @@ class UserController extends Controller
 
         $client = $token->client;
 
-        if (! $client->password_client) {
+        if (!$client->password_client) {
             return response($user);
         }
 
