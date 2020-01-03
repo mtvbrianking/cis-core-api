@@ -29,7 +29,7 @@ return PhpCsFixer\Config::create()
 
             // Arrays
             'array_syntax' => [
-                'syntax' => 'short'
+                'syntax' => 'short',
             ],
             'trim_array_spaces' => true,
             'no_whitespace_before_comma_in_array' => true,
@@ -51,7 +51,7 @@ return PhpCsFixer\Config::create()
             'no_blank_lines_after_phpdoc' => true,
             'cast_spaces' => true,
             'concat_space' => [
-                'spacing' => 'none'
+                'spacing' => 'none',
             ],
             'blank_line_before_statement' => true,
             'method_chaining_indentation' => true,
@@ -62,6 +62,9 @@ return PhpCsFixer\Config::create()
                 'comment_types' => [
                     'hash',
                 ],
+            ],
+            'return_type_declaration' => [
+                'space_before' => 'none',
             ],
             // null coalesc requires php v7.X
             // 'ternary_to_null_coalescing' => true,

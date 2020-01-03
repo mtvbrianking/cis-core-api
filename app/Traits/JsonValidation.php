@@ -24,7 +24,7 @@ trait JsonValidation
      *
      * @return void
      */
-    public static function validateJson(Validator $validator, string $schemaPath, array $data):void
+    public static function validateJson(Validator $validator, string $schemaPath, array $data): void
     {
         $options = empty($data) ? JSON_FORCE_OBJECT : JSON_NUMERIC_CHECK;
 
