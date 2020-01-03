@@ -104,6 +104,12 @@ class PermissionController extends Controller
 
         $query = Permission::query();
 
+        Schema::validate($this->jsonValidator, $schemaPath, $constraints);
+
+        $query = Decorator::decorate($query, $constraints);
+
+        $query = Permission::query();
+
         $availableRecords = $query->count();
 
         $query = Decorator::decorate($query, $constraints);
