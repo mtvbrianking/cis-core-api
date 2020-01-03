@@ -65,9 +65,11 @@ class FacilityControllerTest extends TestCase
     {
         $user = $this->getAuthorizedUser('view-any', 'facilities');
 
-        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/facilities', [
+        $query = http_build_query([
             'paginate' => 0,
         ]);
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/facilities?{$query}");
 
         $response->assertStatus(200);
 
@@ -91,13 +93,11 @@ class FacilityControllerTest extends TestCase
 
     public function test_can_get_facilities_for_datatables()
     {
-        $this->withoutExceptionHandling();
+        $user = factory(User::class)->create();
 
-        // $user = factory(User::class)->create();
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/facilities/datatables');
 
-        // $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/facilities/datatables');
-
-        // $response->assertStatus(403);
+        $response->assertStatus(403);
 
         // ...
 

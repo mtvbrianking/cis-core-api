@@ -2,7 +2,9 @@
 
 namespace Tests\Unit;
 
+use App\Models\Facility;
 use App\Models\Module;
+use App\Models\Permission;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -27,7 +29,44 @@ class ModuleControllerTest extends TestCase
 
         $user = $this->getAuthorizedUser('view-any', 'modules');
 
-        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/modules?paginate=0');
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/modules');
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'current_page',
+            'data' => [
+                '*' => [
+                    'name',
+                    'category',
+                    'description',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                ],
+            ],
+            'first_page_url',
+            'from',
+            'last_page',
+            'last_page_url',
+            'next_page_url',
+            'path',
+            'per_page',
+            'prev_page_url',
+            'to',
+            'total',
+        ]);
+    }
+
+    public function test_can_get_non_paginated_modules()
+    {
+        $user = $this->getAuthorizedUser('view-any', 'modules');
+
+        $query = http_build_query([
+            'paginate' => 0,
+        ]);
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/modules?{$query}");
 
         $response->assertStatus(200);
 
@@ -35,9 +74,88 @@ class ModuleControllerTest extends TestCase
             'modules' => [
                 '*' => [
                     'name',
+                    'category',
                     'description',
                     'created_at',
                     'updated_at',
+                    'deleted_at',
+                ],
+            ],
+        ]);
+    }
+
+    public function test_can_get_facilities_for_datatables()
+    {
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/modules/datatables');
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view-any', 'modules');
+
+        $query = http_build_query([
+            'start' => 0,
+            'length' => 10,
+            'draw' => 1,
+            'columns' => [
+                [
+                    'data' => 'modules.name',
+                    'name' => 'modules.name',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+                [
+                    'data' => 'modules.category',
+                    'name' => 'modules.category',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+                [
+                    'data' => 'modules.deleted_at',
+                    'name' => 'modules.deleted_at',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+            ],
+            'order' => [
+                [
+                    'column' => '1',
+                    'dir' => 'asc',
+                ],
+            ],
+            'search' => [
+                'value' => null,
+                'regex' => 'false',
+            ],
+        ]);
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/modules/datatables?{$query}");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'draw',
+            'recordsTotal',
+            'recordsFiltered',
+            'data' => [
+                '*' => [
+                    'name',
+                    'category',
                     'deleted_at',
                 ],
             ],
@@ -50,7 +168,6 @@ class ModuleControllerTest extends TestCase
 
         factory(Module::class)->create([
             'name' => $name,
-            'description' => 'Users module',
         ]);
 
         $slug_plural_name = Str::slug(Str::plural($name));
@@ -73,6 +190,7 @@ class ModuleControllerTest extends TestCase
 
         $response->assertJsonStructure([
             'name',
+            'category',
             'description',
             'created_at',
             'updated_at',
@@ -81,7 +199,6 @@ class ModuleControllerTest extends TestCase
 
         $response->assertJson([
             'name' => $slug_plural_name,
-            'description' => 'Users module',
         ]);
     }
 
@@ -108,6 +225,7 @@ class ModuleControllerTest extends TestCase
 
         $response->assertJsonStructure([
             'name',
+            'category',
             'description',
             'created_at',
             'updated_at',
@@ -168,29 +286,29 @@ class ModuleControllerTest extends TestCase
 
     public function test_can_update_specified_module()
     {
+        $module = factory(Module::class)->create([
+            'description' => 'Org desc',
+        ]);
+
         $user = factory(User::class)->create();
 
-        $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/modules/users', []);
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/modules/{$module->name}", []);
 
         $response->assertStatus(403);
 
         // ...
 
-        factory(Module::class)->create([
-            'name' => 'users',
-            'description' => 'Users module',
-        ]);
-
         $user = $this->getAuthorizedUser('update', 'modules');
 
-        $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/modules/users', [
-            'description' => 'New users module desc',
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/modules/{$module->name}", [
+            'description' => 'New desc',
         ]);
 
         $response->assertStatus(200);
 
         $response->assertJsonStructure([
             'name',
+            'category',
             'description',
             'created_at',
             'updated_at',
@@ -198,22 +316,19 @@ class ModuleControllerTest extends TestCase
         ]);
 
         $response->assertJson([
-            'description' => 'New users module desc',
+            'description' => 'New desc',
         ]);
     }
 
     public function test_can_revoke_specified_module()
     {
-        factory(Module::class)->create([
-            'name' => 'users',
-            'description' => 'Users module',
-        ]);
+        $module = factory(Module::class)->create();
 
         // ...
 
         $user = factory(User::class)->create();
 
-        $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/modules/users/revoke');
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/modules/{$module->name}/revoke");
 
         $response->assertStatus(403);
 
@@ -221,12 +336,13 @@ class ModuleControllerTest extends TestCase
 
         $user = $this->getAuthorizedUser('soft-delete', 'modules');
 
-        $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/modules/users/revoke');
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/modules/{$module->name}/revoke");
 
         $response->assertStatus(200);
 
         $response->assertJsonStructure([
             'name',
+            'category',
             'description',
             'created_at',
             'updated_at',
@@ -234,22 +350,19 @@ class ModuleControllerTest extends TestCase
         ]);
 
         $this->assertSoftDeleted('modules', [
-            'name' => 'users',
+            'name' => $module->name,
         ]);
     }
 
     public function test_cant_restore_non_revoked_module()
     {
-        factory(Module::class)->create([
-            'name' => 'users',
-            'description' => 'Users module',
-        ]);
+        $module = factory(Module::class)->create();
 
         // ...
 
         $user = factory(User::class)->create();
 
-        $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/modules/users/restore');
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/modules/{$module->name}/restore");
 
         $response->assertStatus(403);
 
@@ -257,7 +370,7 @@ class ModuleControllerTest extends TestCase
 
         $user = $this->getAuthorizedUser('restore', 'modules');
 
-        $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/modules/users/restore');
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/modules/{$module->name}/restore");
 
         $response->assertStatus(404);
 
@@ -268,9 +381,7 @@ class ModuleControllerTest extends TestCase
 
     public function test_can_restore_revoked_module()
     {
-        factory(Module::class)->create([
-            'name' => 'users',
-            'description' => 'Users module',
+        $module = factory(Module::class)->create([
             'deleted_at' => date('Y-m-d H:i:s'),
         ]);
 
@@ -278,7 +389,7 @@ class ModuleControllerTest extends TestCase
 
         $user = factory(User::class)->create();
 
-        $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/modules/users/restore');
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/modules/{$module->name}/restore");
 
         $response->assertStatus(403);
 
@@ -286,12 +397,13 @@ class ModuleControllerTest extends TestCase
 
         $user = $this->getAuthorizedUser('restore', 'modules');
 
-        $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/modules/users/restore');
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/modules/{$module->name}/restore");
 
         $response->assertStatus(200);
 
         $response->assertJsonStructure([
             'name',
+            'category',
             'description',
             'created_at',
             'updated_at',
@@ -299,23 +411,20 @@ class ModuleControllerTest extends TestCase
         ]);
 
         $this->assertDatabaseHas('modules', [
-            'name' => 'users',
+            'name' => $module->name,
             'deleted_at' => null,
         ]);
     }
 
     public function test_cant_delete_non_revoked_module()
     {
-        factory(Module::class)->create([
-            'name' => 'users',
-            'description' => 'Users module',
-        ]);
+        $module = factory(Module::class)->create();
 
         // ...
 
         $user = factory(User::class)->create();
 
-        $response = $this->actingAs($user, 'api')->json('DELETE', 'api/v1/modules/users');
+        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/modules/{$module->name}");
 
         $response->assertStatus(403);
 
@@ -323,7 +432,7 @@ class ModuleControllerTest extends TestCase
 
         $user = $this->getAuthorizedUser('force-delete', 'modules');
 
-        $response = $this->actingAs($user, 'api')->json('DELETE', 'api/v1/modules/users');
+        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/modules/{$module->name}");
 
         $response->assertStatus(404);
 
@@ -334,9 +443,7 @@ class ModuleControllerTest extends TestCase
 
     public function test_can_delete_revoked_module()
     {
-        factory(Module::class)->create([
-            'name' => 'users',
-            'description' => 'Users module',
+        $module = factory(Module::class)->create([
             'deleted_at' => date('Y-m-d H:i:s'),
         ]);
 
@@ -344,7 +451,7 @@ class ModuleControllerTest extends TestCase
 
         $user = factory(User::class)->create();
 
-        $response = $this->actingAs($user, 'api')->json('DELETE', 'api/v1/modules/users');
+        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/modules/{$module->name}");
 
         $response->assertStatus(403);
 
@@ -352,14 +459,152 @@ class ModuleControllerTest extends TestCase
 
         $user = $this->getAuthorizedUser('force-delete', 'modules');
 
-        $response = $this->actingAs($user, 'api')->json('DELETE', 'api/v1/modules/users');
+        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/modules/{$module->name}");
 
         $response->assertStatus(204);
 
         $this->assertEquals('', $response->getContent());
 
         $this->assertDatabaseMissing('modules', [
-            'name' => 'users',
+            'name' => $module->name,
+        ]);
+    }
+
+    public function test_can_delete_non_orphaned_module()
+    {
+        $module = factory(Module::class)->create([
+            'deleted_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        // Dependant
+        factory(Permission::class)->create([
+            'module_name' => $module->name,
+        ]);
+
+        $user = $this->getAuthorizedUser('force-delete', 'modules');
+
+        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/modules/{$module->name}");
+
+        $response->assertStatus(400);
+
+        $response->assertJsonStructure([
+            'message',
+        ]);
+
+        $this->assertDatabaseHas('modules', [
+            'name' => $module->name,
+        ]);
+    }
+
+    public function test_can_get_module_permissions()
+    {
+        $module = factory(Module::class)->create();
+
+        $permission = factory(Permission::class)->create([
+            'module_name' => $module->name,
+        ]);
+
+        // ...
+
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/modules/{$module->name}/permissions");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view-any', 'permissions');
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/modules/{$module->name}/permissions");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'name',
+            'category',
+            'description',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+            'permissions' => [
+                '*' => [
+                    'id',
+                    'module_name',
+                    'name',
+                    'description',
+                    'created_at',
+                    'updated_at',
+                ],
+            ],
+        ]);
+
+        $response->assertJson([
+            'name' => $module->name,
+            'permissions' => [
+                [
+                    'name' => $permission->name,
+                ],
+            ],
+        ]);
+    }
+
+    public function test_can_get_module_facilities()
+    {
+        $module = factory(Module::class)->create();
+
+        $facility = factory(Facility::class)->create();
+
+        $facility->modules()->attach($module);
+
+        // ...
+
+        $user = factory(User::class)->create([
+            // 'facility_id' => $facility->id,
+        ]);
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/modules/{$module->name}/facilities");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view-any', 'facilities');
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/modules/{$module->name}/facilities");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'name',
+            'category',
+            'description',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+            'facilities' => [
+                '*' => [
+                    'id',
+                    'name',
+                    'description',
+                    'address',
+                    'email',
+                    'website',
+                    'phone',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                ],
+            ],
+        ]);
+
+        $response->assertJson([
+            'name' => $module->name,
+            'facilities' => [
+                [
+                    'id' => $facility->id,
+                ],
+            ],
         ]);
     }
 }

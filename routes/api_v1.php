@@ -67,7 +67,7 @@ Route::pattern('module', $slug);
 
 Route::group(['prefix' => 'modules'], function () {
     Route::get('/', 'ModuleController@index');
-    Route::get('/dt', 'ModuleController@indexDt');
+    Route::get('/datatables', 'ModuleController@datatables');
     Route::post('/', 'ModuleController@store');
     Route::get('/{module}', 'ModuleController@show');
     Route::put('/{module}', 'ModuleController@update');

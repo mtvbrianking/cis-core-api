@@ -70,13 +70,13 @@ class ModuleController extends Controller
 
         // Pagination.
 
-        $limit = $request->input('limit', 15);
+        $limit = $request->input('limit', 10);
 
-        $modules = $request->input('paginate', true)
-            ? $query->paginate($limit)
-            : $query->take($limit)->get();
+        if ($request->input('paginate', true)) {
+            return response($query->paginate($limit));
+        }
 
-        // $modules->withPath(url()->full());
+        $modules = $query->take($limit)->get();
 
         return response(['modules' => $modules]);
     }
@@ -90,7 +90,7 @@ class ModuleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function indexDt(Request $request)
+    public function datatables(Request $request)
     {
         $this->authorize('viewAny', [Module::class]);
 

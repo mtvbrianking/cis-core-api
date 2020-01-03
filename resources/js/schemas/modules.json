@@ -67,12 +67,12 @@
       "$id": "#/definitions/field",
       "type": "string",
       "enum": [
-        "name",
-        "description",
-        "category",
-        "created_at",
-        "updated_at",
-        "deleted_at"
+        "modules.name",
+        "modules.description",
+        "modules.category",
+        "modules.created_at",
+        "modules.updated_at",
+        "modules.deleted_at"
       ]
     },
     "operator": {
