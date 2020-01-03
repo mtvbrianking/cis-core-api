@@ -725,7 +725,7 @@ class RoleControllerTest extends TestCase
 
         $role = factory(Role::class)->create();
 
-        $randomPermissionId = rand(1, 9);
+        $randomPermissionId = time();
 
         $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$role->id}/permissions/available", [
             'permissions' => [
