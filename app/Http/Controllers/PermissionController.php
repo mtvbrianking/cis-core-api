@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Permission;
-use App\Support\Datatable;
-use App\Traits\JqueryDatatables;
-use App\Traits\JsonValidation;
-use App\Traits\QueryDecoration;
+
+use Bmatovu\QueryDecorator\Json\Schema;
+use Bmatovu\QueryDecorator\Query\Decorator;
+use Bmatovu\QueryDecorator\Support\Datatable;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -15,8 +16,6 @@ use JsonSchema\Validator as JsonValidator;
 
 class PermissionController extends Controller
 {
-    use JsonValidation, JqueryDatatables, QueryDecoration;
-
     /**
      * Json schema validator.
      *
@@ -42,7 +41,7 @@ class PermissionController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \App\Exceptions\InvalidJsonException
+     * @throws \Bmatovu\QueryDecorator\Exceptions\InvalidJsonException
      *
      * @return \Illuminate\Http\Response
      */
@@ -54,23 +53,22 @@ class PermissionController extends Controller
 
         $schemaPath = resource_path('js/schemas/permissions.json');
 
-        static::validateJson($this->jsonValidator, $schemaPath, $request->query());
+        Schema::validate($this->jsonValidator, $schemaPath, $request->query());
 
         // Query permissions.
 
         $query = Permission::query();
 
         // Apply constraints to query.
-
-        $query = static::applyConstraintsToQuery($query, $request);
+        $query = Decorator::decorate($query, (array) $request->query('filters'));
 
         // Pagination.
 
         $limit = $request->input('limit', 15);
 
         $permissions = $request->input('paginate', true)
-            ? $query->paginate($limit)
-            : $query->take($limit)->get();
+            ? $query->jsonPaginate()
+            : $query->limit($limit)->get();
 
         // $permissions->withPath(url()->full());
 
@@ -92,11 +90,11 @@ class PermissionController extends Controller
 
         // ...
 
-        $query = Permission::query();
+        $params = (array) $request->query();
 
         // ...
 
-        $constraints = Datatable::prepareQueryParameters($request->query());
+        $constraints = Datatable::buildConstraints($params, 'ilike');
 
         // return response($constraints);
 
@@ -104,15 +102,24 @@ class PermissionController extends Controller
 
         $schemaPath = resource_path('js/schemas/permissions.json');
 
-        static::validateJson($this->jsonValidator, $schemaPath, $constraints);
+        Schema::validate($this->jsonValidator, $schemaPath, $constraints);
 
         // ...
 
-        $tableModelMap = [
-            'permissions' => null,
-        ];
+        $query = Permission::query();
 
-        return static::queryForDatatables($query, $constraints, $tableModelMap);
+        $availableRecords = $query->count();
+
+        $query = Decorator::decorate($query, $constraints);
+
+        $matchedRecords = $query->get();
+
+        return response([
+            'draw' => (int) $constraints['draw'],
+            'recordsTotal' => $availableRecords,
+            'recordsFiltered' => isset($constraints['filter']) ? $matchedRecords->count() : $availableRecords,
+            'data' => $matchedRecords,
+        ]);
     }
 
     /**

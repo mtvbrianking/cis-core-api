@@ -84,7 +84,7 @@ class ModuleControllerTest extends TestCase
         ]);
     }
 
-    public function test_can_get_facilities_for_datatables()
+    public function test_can_get_modules_for_datatables()
     {
         $user = factory(User::class)->create();
 
@@ -102,8 +102,8 @@ class ModuleControllerTest extends TestCase
             'draw' => 1,
             'columns' => [
                 [
-                    'data' => 'modules.name',
-                    'name' => 'modules.name',
+                    'data' => 'name',
+                    'name' => 'name',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [
@@ -112,8 +112,8 @@ class ModuleControllerTest extends TestCase
                     ],
                 ],
                 [
-                    'data' => 'modules.category',
-                    'name' => 'modules.category',
+                    'data' => 'category',
+                    'name' => 'category',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [
@@ -122,8 +122,8 @@ class ModuleControllerTest extends TestCase
                     ],
                 ],
                 [
-                    'data' => 'modules.deleted_at',
-                    'name' => 'modules.deleted_at',
+                    'data' => 'deleted_at',
+                    'name' => 'deleted_at',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [
