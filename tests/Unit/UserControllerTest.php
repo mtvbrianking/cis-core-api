@@ -30,7 +30,48 @@ class UserControllerTest extends TestCase
 
         $consumer = $this->getAuthorizedUser('view-any', 'users');
 
-        $response = $this->actingAs($consumer, 'api')->json('GET', 'api/v1/users?paginate=0');
+        $response = $this->actingAs($consumer, 'api')->json('GET', 'api/v1/users');
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'current_page',
+            'data' => [
+                '*' => [
+                    'id',
+                    'facility_id',
+                    'role_id',
+                    'alias',
+                    'name',
+                    'email',
+                    'email_verified_at',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                ],
+            ],
+            'first_page_url',
+            'from',
+            'last_page',
+            'last_page_url',
+            'next_page_url',
+            'path',
+            'per_page',
+            'prev_page_url',
+            'to',
+            'total',
+        ]);
+    }
+
+    public function test_can_get_non_paginated_facilities()
+    {
+        $consumer = $this->getAuthorizedUser('view-any', 'users');
+
+        $query = http_build_query([
+            'paginate' => 0,
+        ]);
+
+        $response = $this->actingAs($consumer, 'api')->json('GET', "api/v1/users?{$query}");
 
         $response->assertStatus(200);
 
@@ -47,6 +88,132 @@ class UserControllerTest extends TestCase
                     'created_at',
                     'updated_at',
                     'deleted_at',
+                ],
+            ],
+        ]);
+    }
+
+    public function test_can_get_facilities_for_datatables()
+    {
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/users/datatables');
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view-any', 'users');
+
+        $query = http_build_query([
+            'start' => 0,
+            'length' => 10,
+            'draw' => 1,
+            'columns' => [
+                [
+                    'data' => 'users.id',
+                    'name' => 'users.id',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+                [
+                    'data' => 'users.alias',
+                    'name' => 'users.alias',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+                [
+                    'data' => 'users.name',
+                    'name' => 'users.name',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+                [
+                    'data' => 'users.email',
+                    'name' => 'users.email',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+                [
+                    'data' => 'users.deleted_at',
+                    'name' => 'users.deleted_at',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+                [
+                    'data' => 'roles.name',
+                    'name' => 'roles.name',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+                [
+                    'data' => 'facilities.name',
+                    'name' => 'facilities.name',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+            ],
+            'order' => [
+                [
+                    'column' => '1',
+                    'dir' => 'asc',
+                ],
+            ],
+            'search' => [
+                'value' => null,
+                'regex' => 'false',
+            ],
+        ]);
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/users/datatables?{$query}");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'draw',
+            'recordsTotal',
+            'recordsFiltered',
+            'data' => [
+                '*' => [
+                    'id',
+                    'name',
+                    'alias',
+                    'email',
+                    'deleted_at',
+                    'role' => [
+                        'name',
+                    ],
+                    'facility' => [
+                        'name',
+                    ],
                 ],
             ],
         ]);
@@ -169,7 +336,7 @@ class UserControllerTest extends TestCase
         $response->assertJson($attrs);
     }
 
-    public function test_can_create_a_user()
+    public function test_cant_create_a_user_with_unknown_role()
     {
         $consumer = factory(User::class)->create();
 
@@ -179,6 +346,31 @@ class UserControllerTest extends TestCase
 
         // ...
 
+        $consumer = $this->getAuthorizedUser('create', 'users');
+
+        $unrelatedRole = factory(Role::class)->create();
+
+        $attrs = [
+            'alias' => 'jdoe',
+            'name' => 'John Doe',
+            'email' => 'jdoe@example.com',
+            'role_id' => $unrelatedRole->id,
+        ];
+
+        $response = $this->actingAs($consumer, 'api')->json('POST', 'api/v1/users', $attrs);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'role_id',
+            ],
+        ]);
+    }
+
+    public function test_can_create_a_user()
+    {
         $consumer = $this->getAuthorizedUser('create', 'users');
 
         $role = factory(Role::class)->create([
@@ -237,15 +429,10 @@ class UserControllerTest extends TestCase
     {
         $consumer = factory(User::class)->create();
 
-        $role = factory(Role::class)->create([
-            'facility_id' => $consumer->facility_id,
-        ]);
-
         $attrs = [
             'alias' => 'jdoe',
             'name' => 'John Doe',
             'email' => 'jdoe@example.com',
-            'role_id' => $role->id,
         ];
 
         $response = $this->actingAs($consumer, 'api')->json('PUT', "api/v1/users/{$consumer->id}", $attrs);
@@ -268,18 +455,37 @@ class UserControllerTest extends TestCase
         $response->assertJson($attrs);
     }
 
+    public function test_cant_update_a_user_with_unknown_role()
+    {
+        $consumer = $this->getAuthorizedUser('update', 'users');
+
+        $user = factory(User::class)->create([
+            'facility_id' => $consumer->facility_id,
+        ]);
+
+        $unrelatedRole = factory(Role::class)->create();
+
+        $attrs = [
+            'alias' => 'jdoe',
+            'name' => 'John Doe',
+            'email' => 'jdoe@example.com',
+            'role_id' => $unrelatedRole->id,
+        ];
+
+        $response = $this->actingAs($consumer, 'api')->json('PUT', "api/v1/users/{$user->id}", $attrs);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'role_id',
+            ],
+        ]);
+    }
+
     public function test_can_update_any_user_details()
     {
-        $consumer = factory(User::class)->create();
-
-        $user = factory(User::class)->create();
-
-        $response = $this->actingAs($consumer, 'api')->json('PUT', "api/v1/users/{$user->id}");
-
-        $response->assertStatus(403);
-
-        // ...
-
         $consumer = $this->getAuthorizedUser('update', 'users');
 
         $user = factory(User::class)->create([

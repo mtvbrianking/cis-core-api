@@ -74,13 +74,13 @@ class RoleController extends Controller
 
         // Pagination.
 
-        $limit = $request->input('limit', 15);
+        $limit = $request->input('limit', 10);
 
-        $roles = $request->input('paginate', true)
-            ? $query->paginate($limit)
-            : $query->take($limit)->get();
+        if ($request->input('paginate', true)) {
+            return response($query->paginate($limit));
+        }
 
-        // $roles->withPath(url()->full());
+        $roles = $query->take($limit)->get();
 
         return response(['roles' => $roles]);
     }
@@ -94,27 +94,17 @@ class RoleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function indexDt(Request $request)
+    public function datatables(Request $request)
     {
         $this->authorize('viewAny', [Role::class]);
 
-        // ...
-
         $query = Role::query();
 
-        // ...
-
         $constraints = Datatable::prepareQueryParameters($request->query());
-
-        // return response($constraints);
-
-        // ...
 
         $schemaPath = resource_path('js/schemas/roles.json');
 
         static::validateJson($this->jsonValidator, $schemaPath, $constraints);
-
-        // ...
 
         $tableModelMap = [
             'roles' => null,
@@ -405,7 +395,7 @@ class RoleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function syncPermissions(Request $request, $roleId)
+    public function syncPermissionsAvailable(Request $request, $roleId)
     {
         $this->authorize('assignPermissions', [Permission::class]);
 

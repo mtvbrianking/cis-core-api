@@ -66,12 +66,12 @@
       "$id": "#/definitions/field",
       "type": "string",
       "enum": [
-        "id",
-        "module_name",
-        "name",
-        "description",
-        "created_at",
-        "updated_at"
+        "permissions.id",
+        "permissions.module_name",
+        "permissions.name",
+        "permissions.description",
+        "permissions.created_at",
+        "permissions.updated_at"
       ]
     },
     "operator": {

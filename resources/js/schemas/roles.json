@@ -75,13 +75,13 @@
       "$id": "#/definitions/field",
       "type": "string",
       "enum": [
-        "id",
-        "facility_id",
-        "name",
-        "description",
-        "created_at",
-        "updated_at",
-        "deleted_at"
+        "roles.id",
+        "roles.facility_id",
+        "roles.name",
+        "roles.description",
+        "roles.created_at",
+        "roles.updated_at",
+        "roles.deleted_at"
       ]
     },
     "operator": {

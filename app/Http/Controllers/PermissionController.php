@@ -66,13 +66,13 @@ class PermissionController extends Controller
 
         // Pagination.
 
-        $limit = $request->input('limit', 15);
+        $limit = $request->input('limit', 10);
 
-        $permissions = $request->input('paginate', true)
-            ? $query->paginate($limit)
-            : $query->take($limit)->get();
+        if ($request->input('paginate', true)) {
+            return response($query->paginate($limit));
+        }
 
-        // $permissions->withPath(url()->full());
+        $permissions = $query->take($limit)->get();
 
         return response(['permissions' => $permissions]);
     }
@@ -86,27 +86,17 @@ class PermissionController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function indexDt(Request $request)
+    public function datatables(Request $request)
     {
         $this->authorize('viewAny', [Permission::class]);
 
-        // ...
-
         $query = Permission::query();
 
-        // ...
-
         $constraints = Datatable::prepareQueryParameters($request->query());
-
-        // return response($constraints);
-
-        // ...
 
         $schemaPath = resource_path('js/schemas/permissions.json');
 
         static::validateJson($this->jsonValidator, $schemaPath, $constraints);
-
-        // ...
 
         $tableModelMap = [
             'permissions' => null,

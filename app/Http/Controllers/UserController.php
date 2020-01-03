@@ -80,13 +80,13 @@ class UserController extends Controller
 
         // Pagination.
 
-        $limit = $request->input('limit', 15);
+        $limit = $request->input('limit', 10);
 
-        $users = $request->input('paginate', true)
-            ? $query->paginate($limit)
-            : $query->take($limit)->get();
+        if ($request->input('paginate', true)) {
+            return response($query->paginate($limit));
+        }
 
-        // $users->withPath(url()->full());
+        $users = $query->take($limit)->get();
 
         return response(['users' => $users]);
     }
@@ -100,7 +100,7 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function indexDt(Request $request)
+    public function datatables(Request $request)
     {
         $this->authorize('viewAny', [User::class]);
 
@@ -193,7 +193,7 @@ class UserController extends Controller
 
         if (! $role) {
             $validator = Validator::make([], []);
-            $validator->errors()->add('role', 'Unknown role.');
+            $validator->errors()->add('role_id', 'Unknown role.');
 
             throw new ValidationException($validator);
         }
@@ -243,7 +243,7 @@ class UserController extends Controller
 
             if (! $role) {
                 $validator = Validator::make([], []);
-                $validator->errors()->add('role', 'Unknown role.');
+                $validator->errors()->add('role_id', 'Unknown role.');
 
                 throw new ValidationException($validator);
             }

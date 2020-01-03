@@ -28,7 +28,44 @@ class PermissionControllerTest extends TestCase
 
         $user = $this->getAuthorizedUser('view-any', 'permissions');
 
-        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/permissions?paginate=0');
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/permissions');
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'current_page',
+            'data' => [
+                '*' => [
+                    'id',
+                    'module_name',
+                    'name',
+                    'description',
+                    'created_at',
+                    'updated_at',
+                ],
+            ],
+            'first_page_url',
+            'from',
+            'last_page',
+            'last_page_url',
+            'next_page_url',
+            'path',
+            'per_page',
+            'prev_page_url',
+            'to',
+            'total',
+        ]);
+    }
+
+    public function test_can_get_non_paginated_permissions()
+    {
+        $user = $this->getAuthorizedUser('view-any', 'permissions');
+
+        $query = http_build_query([
+            'paginate' => 0,
+        ]);
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/permissions?{$query}");
 
         $response->assertStatus(200);
 
@@ -41,6 +78,84 @@ class PermissionControllerTest extends TestCase
                     'description',
                     'created_at',
                     'updated_at',
+                ],
+            ],
+        ]);
+    }
+
+    public function test_can_get_permissions_for_datatables()
+    {
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/permissions/datatables');
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view-any', 'permissions');
+
+        $query = http_build_query([
+            'start' => 0,
+            'length' => 10,
+            'draw' => 1,
+            'columns' => [
+                [
+                    'data' => 'permissions.id',
+                    'name' => 'permissions.id',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+                [
+                    'data' => 'permissions.name',
+                    'name' => 'permissions.name',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+                [
+                    'data' => 'permissions.module_name',
+                    'name' => 'permissions.module_name',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+            ],
+            'order' => [
+                [
+                    'column' => '1',
+                    'dir' => 'asc',
+                ],
+            ],
+            'search' => [
+                'value' => null,
+                'regex' => 'false',
+            ],
+        ]);
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/permissions/datatables?{$query}");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'draw',
+            'recordsTotal',
+            'recordsFiltered',
+            'data' => [
+                '*' => [
+                    'id',
+                    'name',
+                    'module_name',
                 ],
             ],
         ]);
@@ -223,6 +338,50 @@ class PermissionControllerTest extends TestCase
 
         $response->assertJson([
             'description' => 'New users permission desc',
+        ]);
+    }
+
+    public function test_update_validates_unique_module_permission()
+    {
+        $module = factory(Module::class)->create([
+            'name' => 'users',
+        ]);
+
+        $viewAnyPerm = factory(Permission::class)->create([
+            'name' => 'view-any',
+            'module_name' => $module->name,
+        ]);
+
+        $viewPerm = factory(Permission::class)->create([
+            'name' => 'view',
+            'module_name' => $module->name,
+        ]);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('update', 'permissions');
+
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/permissions/{$viewPerm->id}", [
+            'name' => $viewAnyPerm->name,
+            'module_name' => $module->name,
+        ]);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'name',
+            ],
+        ]);
+
+        $response->assertJson([
+            'message' => 'The given data was invalid.',
+            'errors' => [
+                'name' => [
+                    'The name has already been taken.',
+                ],
+            ],
         ]);
     }
 

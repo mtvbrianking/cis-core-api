@@ -82,7 +82,7 @@ Route::pattern('permission', $int);
 
 Route::group(['prefix' => 'permissions'], function () {
     Route::get('/', 'PermissionController@index');
-    Route::get('/dt', 'PermissionController@indexDt');
+    Route::get('/datatables', 'PermissionController@datatables');
     Route::post('/', 'PermissionController@store');
     Route::get('/{permission}', 'PermissionController@show');
     Route::put('/{permission}', 'PermissionController@update');
@@ -93,14 +93,14 @@ Route::pattern('role', $uuid);
 
 Route::group(['prefix' => 'roles'], function () {
     Route::get('/', 'RoleController@index');
-    Route::get('/dt', 'RoleController@indexDt');
+    Route::get('/datatables', 'RoleController@datatables');
     Route::post('/', 'RoleController@store');
     Route::get('/{role}', 'RoleController@show');
     Route::put('/{role}', 'RoleController@update');
     Route::delete('/{role}', 'RoleController@destroy');
     Route::get('/{role}/permissions', 'RoleController@permissions');
-    Route::put('/{role}/permissions', 'RoleController@syncPermissions');
     Route::get('/{role}/permissions/available', 'RoleController@permissionsAvailable');
+    Route::put('/{role}/permissions/available', 'RoleController@syncPermissionsAvailable');
     Route::put('/{role}/restore', 'RoleController@restore');
     Route::put('/{role}/revoke', 'RoleController@revoke');
     Route::get('/{role}/users', 'RoleController@users');
@@ -110,7 +110,7 @@ Route::pattern('user', $uuid);
 
 Route::group(['prefix' => 'users'], function () {
     Route::get('/', 'UserController@index');
-    Route::get('/dt', 'UserController@indexDt');
+    Route::get('/datatables', 'UserController@datatables');
     Route::post('/', 'UserController@store');
     Route::post('/auth', 'UserController@authenticate')->middleware('client:authenticate-user');
     Route::post('/deauth', 'UserController@deauthenticate');
