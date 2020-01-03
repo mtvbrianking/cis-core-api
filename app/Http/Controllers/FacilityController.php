@@ -384,7 +384,7 @@ class FacilityController extends Controller
             return [
                 'name' => $module->name,
                 'category' => $module->category,
-                'granted' => !is_null($module->facility_id),
+                'granted' => ! is_null($module->facility_id),
             ];
         });
     }
@@ -439,7 +439,7 @@ class FacilityController extends Controller
 
         if ($unknown_mods) {
             $validator = Validator::make([], []);
-            $validator->errors()->add('modules', 'Unknown modules: ' . implode(', ', $unknown_mods));
+            $validator->errors()->add('modules', 'Unknown modules: '.implode(', ', $unknown_mods));
 
             throw new ValidationException($validator);
         }
