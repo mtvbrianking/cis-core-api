@@ -6,6 +6,7 @@ use App\Models\Role;
 use App\Models\User;
 use Bmatovu\QueryDecorator\Json\Schema;
 use Bmatovu\QueryDecorator\Query\Decorator;
+use Bmatovu\QueryDecorator\Support\Datatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -110,6 +111,8 @@ class UserController extends Controller
 
         // ...
 
+        $params = (array) $request->query();
+
         $query = User::query();
 
         $consumer = Auth::guard('api')->user();
@@ -118,7 +121,7 @@ class UserController extends Controller
 
         // ...
 
-        $constraints = (array) $request->query('filters');
+        $constraints = Datatable::buildConstraints($params, 'ilike');
 
         // ...
 
@@ -128,39 +131,44 @@ class UserController extends Controller
 
         // ...
 
+
+
+        $relations = Decorator::getRelations($constraints['select']);
+
+        $isRelated = (bool) count($relations);
+
+        if (in_array('role', $relations)) {
+            $query->leftJoin('roles', 'roles.id', '=', 'users.role_id');
+        }
+
+        if (in_array('facility', $relations)) {
+            $query->leftJoin('facilities', 'facilities.id', '=', 'users.facility_id');
+        }
+
+
+        $availableRecords = $query->count();
+
+        // ...
+
+
         $tableModelMap = [
             'users' => null,
             'roles' => 'role',
             'facilities' => 'facility',
         ];
 
-        $query = Decorator::decorate($query, $constraints, $tableModelMap, true);
+        $query = Decorator::decorate($query, $constraints, $tableModelMap, $isRelated);
 
-        if (isset($constraints['select'])) {
-            $tables = Decorator::getRelations($constraints['select']);
+        $matchedRecords = $query->get();
 
-            if (in_array('roles', $tables)) {
-                $query->leftJoin('roles', 'roles.id', '=', 'users.role_id');
-            }
+        $data = Decorator::resultsByModel($matchedRecords, $tableModelMap);
 
-            if (in_array('facilities', $tables)) {
-                $query->leftJoin('facilities', 'facilities.id', '=', 'users.facility_id');
-            }
-        }
-
-        if (! $request->input('paginate', true)) {
-            $users = $query->get();
-
-            $users = Decorator::resultsByModel($users, $tableModelMap);
-
-            return response(['users' => $users]);
-        }
-
-        $users = $query->jsonPaginate()->toArray();
-
-        $users['data'] = Decorator::resultsByModel($users['data'], $tableModelMap);
-
-        return response(['users' => $users]);
+        return response([
+            'draw' => (int) $constraints['draw'],
+            'recordsTotal' => $availableRecords,
+            'recordsFiltered' => isset($constraints['filter']) ? $matchedRecords->count() : $availableRecords,
+            'data' => $data,
+        ]);
     }
 
     /**
@@ -211,7 +219,7 @@ class UserController extends Controller
 
         $role = Role::onlyRelated($registrar)->find($request->role_id);
 
-        if (! $role) {
+        if (!$role) {
             $validator = Validator::make([], []);
             $validator->errors()->add('role_id', 'Unknown role.');
 
@@ -261,7 +269,7 @@ class UserController extends Controller
         if ($request->filled('role_id')) {
             $role = Role::onlyRelated($registrar)->find($request->role_id);
 
-            if (! $role) {
+            if (!$role) {
                 $validator = Validator::make([], []);
                 $validator->errors()->add('role_id', 'Unknown role.');
 
@@ -372,7 +380,7 @@ class UserController extends Controller
             'password' => 'required',
         ]);
 
-        if (! password_verify($request->password, $user->password)) {
+        if (!password_verify($request->password, $user->password)) {
             $validator = Validator::make([], []);
             $validator->errors()->add('password', 'Wrong password.');
 
@@ -400,7 +408,7 @@ class UserController extends Controller
             'new_password' => 'required|min:6|confirmed',
         ]);
 
-        if (! password_verify($request->password, $user->password)) {
+        if (!password_verify($request->password, $user->password)) {
             $validator = Validator::make([], []);
             $validator->errors()->add('password', 'Wrong password.');
 
@@ -448,7 +456,7 @@ class UserController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (! $user) {
+        if (!$user) {
             $validator = Validator::make([], []);
             $validator->errors()->add('email', 'Wrong email address.');
 
@@ -480,7 +488,7 @@ class UserController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (! $user) {
+        if (!$user) {
             $validator = Validator::make([], []);
             $validator->errors()->add('email', 'Wrong email address.');
 
@@ -512,7 +520,7 @@ class UserController extends Controller
 
         $user = User::with(['facility', 'role'])->where('email', $request->email)->first();
 
-        if (! $user || ! password_verify($request->password, $user->password)) {
+        if (!$user || !password_verify($request->password, $user->password)) {
             $validator = Validator::make([], []);
             $validator->errors()->add('email', 'Wrong email or password.');
 
@@ -529,7 +537,7 @@ class UserController extends Controller
 
         $client = $token->client;
 
-        if (! $client->password_client) {
+        if (!$client->password_client) {
             return response($user);
         }
 

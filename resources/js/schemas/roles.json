@@ -90,6 +90,7 @@
                 "created_at",
                 "updated_at",
                 "deleted_at",
+                
                 "facility.id",
                 "facility.name",
                 "facility.description",

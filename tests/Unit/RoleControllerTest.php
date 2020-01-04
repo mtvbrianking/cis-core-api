@@ -87,7 +87,7 @@ class RoleControllerTest extends TestCase
         ]);
     }
 
-    public function test_can_get_facilities_for_datatables()
+    public function test_can_get_roles_for_datatables()
     {
         $user = factory(User::class)->create();
 
@@ -105,8 +105,8 @@ class RoleControllerTest extends TestCase
             'draw' => 1,
             'columns' => [
                 [
-                    'data' => 'roles.id',
-                    'name' => 'roles.id',
+                    'data' => 'id',
+                    'name' => 'id',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [
@@ -115,8 +115,8 @@ class RoleControllerTest extends TestCase
                     ],
                 ],
                 [
-                    'data' => 'roles.name',
-                    'name' => 'roles.name',
+                    'data' => 'name',
+                    'name' => 'name',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [
@@ -125,8 +125,8 @@ class RoleControllerTest extends TestCase
                     ],
                 ],
                 [
-                    'data' => 'roles.description',
-                    'name' => 'roles.description',
+                    'data' => 'description',
+                    'name' => 'description',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [
@@ -135,8 +135,8 @@ class RoleControllerTest extends TestCase
                     ],
                 ],
                 [
-                    'data' => 'roles.deleted_at',
-                    'name' => 'roles.deleted_at',
+                    'data' => 'deleted_at',
+                    'name' => 'deleted_at',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [

@@ -101,8 +101,8 @@ class PermissionControllerTest extends TestCase
             'draw' => 1,
             'columns' => [
                 [
-                    'data' => 'permissions.id',
-                    'name' => 'permissions.id',
+                    'data' => 'id',
+                    'name' => 'id',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [
@@ -111,8 +111,8 @@ class PermissionControllerTest extends TestCase
                     ],
                 ],
                 [
-                    'data' => 'permissions.name',
-                    'name' => 'permissions.name',
+                    'data' => 'name',
+                    'name' => 'name',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [
@@ -121,8 +121,8 @@ class PermissionControllerTest extends TestCase
                     ],
                 ],
                 [
-                    'data' => 'permissions.module_name',
-                    'name' => 'permissions.module_name',
+                    'data' => 'module_name',
+                    'name' => 'module_name',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [
