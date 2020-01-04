@@ -131,8 +131,6 @@ class UserController extends Controller
 
         // ...
 
-
-
         $relations = Decorator::getRelations($constraints['select']);
 
         $isRelated = (bool) count($relations);
@@ -145,11 +143,9 @@ class UserController extends Controller
             $query->leftJoin('facilities', 'facilities.id', '=', 'users.facility_id');
         }
 
-
         $availableRecords = $query->count();
 
         // ...
-
 
         $tableModelMap = [
             'users' => null,
@@ -219,7 +215,7 @@ class UserController extends Controller
 
         $role = Role::onlyRelated($registrar)->find($request->role_id);
 
-        if (!$role) {
+        if (! $role) {
             $validator = Validator::make([], []);
             $validator->errors()->add('role_id', 'Unknown role.');
 
@@ -269,7 +265,7 @@ class UserController extends Controller
         if ($request->filled('role_id')) {
             $role = Role::onlyRelated($registrar)->find($request->role_id);
 
-            if (!$role) {
+            if (! $role) {
                 $validator = Validator::make([], []);
                 $validator->errors()->add('role_id', 'Unknown role.');
 
@@ -380,7 +376,7 @@ class UserController extends Controller
             'password' => 'required',
         ]);
 
-        if (!password_verify($request->password, $user->password)) {
+        if (! password_verify($request->password, $user->password)) {
             $validator = Validator::make([], []);
             $validator->errors()->add('password', 'Wrong password.');
 
@@ -408,7 +404,7 @@ class UserController extends Controller
             'new_password' => 'required|min:6|confirmed',
         ]);
 
-        if (!password_verify($request->password, $user->password)) {
+        if (! password_verify($request->password, $user->password)) {
             $validator = Validator::make([], []);
             $validator->errors()->add('password', 'Wrong password.');
 
@@ -456,7 +452,7 @@ class UserController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
+        if (! $user) {
             $validator = Validator::make([], []);
             $validator->errors()->add('email', 'Wrong email address.');
 
@@ -488,7 +484,7 @@ class UserController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user) {
+        if (! $user) {
             $validator = Validator::make([], []);
             $validator->errors()->add('email', 'Wrong email address.');
 
@@ -520,7 +516,7 @@ class UserController extends Controller
 
         $user = User::with(['facility', 'role'])->where('email', $request->email)->first();
 
-        if (!$user || !password_verify($request->password, $user->password)) {
+        if (! $user || ! password_verify($request->password, $user->password)) {
             $validator = Validator::make([], []);
             $validator->errors()->add('email', 'Wrong email or password.');
 
@@ -537,7 +533,7 @@ class UserController extends Controller
 
         $client = $token->client;
 
-        if (!$client->password_client) {
+        if (! $client->password_client) {
             return response($user);
         }
 
