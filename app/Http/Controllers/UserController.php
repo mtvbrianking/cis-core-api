@@ -4,10 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Role;
 use App\Models\User;
-use App\Support\Datatable;
-use App\Traits\JqueryDatatables;
-use App\Traits\JsonValidation;
-use App\Traits\QueryDecoration;
+use Bmatovu\QueryDecorator\Json\Schema;
+use Bmatovu\QueryDecorator\Query\Decorator;
+use Bmatovu\QueryDecorator\Support\Datatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -20,8 +19,6 @@ use JsonSchema\Validator as JsonValidator;
 
 class UserController extends Controller
 {
-    use JsonValidation, JqueryDatatables, QueryDecoration;
-
     /**
      * Json schema validator.
      *
@@ -52,7 +49,7 @@ class UserController extends Controller
      * @param \Illuminate\http\Request $request
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \App\Exceptions\InvalidJsonException
+     * @throws \Bmatovu\QueryDecorator\Exceptions\InvalidJsonException
      *
      * @return \Illuminate\Http\Response
      */
@@ -64,7 +61,7 @@ class UserController extends Controller
 
         $schemaPath = resource_path('js/schemas/users.json');
 
-        static::validateJson($this->jsonValidator, $schemaPath, $request->query());
+        Schema::validate($this->jsonValidator, $schemaPath, $request->query());
 
         // Query users.
 
@@ -76,7 +73,15 @@ class UserController extends Controller
 
         // Apply constraints to query.
 
-        $query = static::applyConstraintsToQuery($query, $request);
+        $tableModelMap = [
+            'users' => null,
+            'roles' => 'role',
+            'facilities' => 'facility',
+        ];
+
+        $constraints = (array) $request->query('filters');
+
+        $query = Decorator::decorate($query, $constraints, $tableModelMap, true);
 
         // Pagination.
 
@@ -106,6 +111,8 @@ class UserController extends Controller
 
         // ...
 
+        $params = (array) $request->query();
+
         $query = User::query();
 
         $consumer = Auth::guard('api')->user();
@@ -114,25 +121,31 @@ class UserController extends Controller
 
         // ...
 
-        $constraints = Datatable::prepareQueryParameters($request->query());
+        $constraints = Datatable::buildConstraints($params, 'ilike');
 
         // ...
 
         $schemaPath = resource_path('js/schemas/users.json');
 
-        static::validateJson($this->jsonValidator, $schemaPath, $constraints);
+        Schema::validate($this->jsonValidator, $schemaPath, $constraints);
 
         // ...
 
-        $tables = Datatable::extraTables($constraints['select']);
+        $relations = Decorator::getRelations($constraints['select']);
 
-        if (in_array('roles', $tables)) {
+        $isRelated = (bool) count($relations);
+
+        if (in_array('role', $relations)) {
             $query->leftJoin('roles', 'roles.id', '=', 'users.role_id');
         }
 
-        if (in_array('facilities', $tables)) {
+        if (in_array('facility', $relations)) {
             $query->leftJoin('facilities', 'facilities.id', '=', 'users.facility_id');
         }
+
+        $availableRecords = $query->count();
+
+        // ...
 
         $tableModelMap = [
             'users' => null,
@@ -140,7 +153,18 @@ class UserController extends Controller
             'facilities' => 'facility',
         ];
 
-        return static::queryForDatatables($query, $constraints, $tableModelMap);
+        $query = Decorator::decorate($query, $constraints, $tableModelMap, $isRelated);
+
+        $matchedRecords = $query->get();
+
+        $data = Decorator::resultsByModel($matchedRecords, $tableModelMap);
+
+        return response([
+            'draw' => (int) $constraints['draw'],
+            'recordsTotal' => $availableRecords,
+            'recordsFiltered' => isset($constraints['filter']) ? $matchedRecords->count() : $availableRecords,
+            'data' => $data,
+        ]);
     }
 
     /**

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7f674bcd19351a1fbe0d6550f605201e",
+    "content-hash": "fb17cf49b0449323e193a4e061f9e134",
     "packages": [
         {
             "name": "bmatovu/laravel-eloquent-uuid",
@@ -68,6 +68,82 @@
                 "uuid"
             ],
             "time": "2019-12-29T07:21:47+00:00"
+        },
+        {
+            "name": "bmatovu/laravel-query-decorator",
+            "version": "v0.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mtvbrianking/laravel-query-decorator.git",
+                "reference": "4dfbc54a0551bb2d8f8b9cf1e28ef22a089f1d7a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mtvbrianking/laravel-query-decorator/zipball/4dfbc54a0551bb2d8f8b9cf1e28ef22a089f1d7a",
+                "reference": "4dfbc54a0551bb2d8f8b9cf1e28ef22a089f1d7a",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/database": "^6.0",
+                "illuminate/http": "^6.0",
+                "illuminate/pagination": "^6.0",
+                "illuminate/support": "^6.0",
+                "justinrainbow/json-schema": "5.2.9",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^4.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Bmatovu\\QueryDecorator\\Providers\\QueryDecoratorServiceProvider",
+                        "Bmatovu\\QueryDecorator\\Providers\\JsonApiPaginateServiceProvider"
+                    ],
+                    "aliases": {
+                        "QueryDecorator": "Bmatovu\\QueryDecorator\\QueryDecoratorFacade"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Bmatovu\\QueryDecorator\\": "src/"
+                },
+                "files": [
+                    "src/Support/helpers.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Brian Matovu",
+                    "email": "mtvbrianking@gmail.com",
+                    "homepage": "http://bmatovu.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Raymond Nambaale",
+                    "email": "nambaaler@gmail.com",
+                    "homepage": "https://github.com/rnambaale",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Laravel query decorator.",
+            "homepage": "https://github.com/mtvbrianking/query-decorator",
+            "keywords": [
+                "decorator",
+                "eloquent",
+                "filter",
+                "laravel",
+                "lumen",
+                "package",
+                "query"
+            ],
+            "time": "2020-01-03T13:54:10+00:00"
         },
         {
             "name": "defuse/php-encryption",
@@ -1464,15 +1540,15 @@
             "authors": [
                 {
                     "name": "Alex Bilbie",
-                    "role": "Developer",
                     "email": "hello@alexbilbie.com",
-                    "homepage": "http://www.alexbilbie.com"
+                    "homepage": "http://www.alexbilbie.com",
+                    "role": "Developer"
                 },
                 {
                     "name": "Andy Millington",
-                    "role": "Developer",
                     "email": "andrew@noexceptions.io",
-                    "homepage": "https://www.noexceptions.io"
+                    "homepage": "https://www.noexceptions.io",
+                    "role": "Developer"
                 }
             ],
             "description": "A lightweight and powerful OAuth 2.0 authorization and resource server library with support for all the core specification grants. This library will allow you to secure your API with OAuth and allow your applications users to approve apps that want to access their data from your API.",

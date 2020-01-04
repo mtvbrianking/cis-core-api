@@ -93,7 +93,7 @@ class UserControllerTest extends TestCase
         ]);
     }
 
-    public function test_can_get_facilities_for_datatables()
+    public function test_can_get_users_for_datatables()
     {
         $user = factory(User::class)->create();
 
@@ -111,8 +111,8 @@ class UserControllerTest extends TestCase
             'draw' => 1,
             'columns' => [
                 [
-                    'data' => 'users.id',
-                    'name' => 'users.id',
+                    'data' => 'id',
+                    'name' => 'id',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [
@@ -121,8 +121,8 @@ class UserControllerTest extends TestCase
                     ],
                 ],
                 [
-                    'data' => 'users.alias',
-                    'name' => 'users.alias',
+                    'data' => 'alias',
+                    'name' => 'alias',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [
@@ -131,8 +131,8 @@ class UserControllerTest extends TestCase
                     ],
                 ],
                 [
-                    'data' => 'users.name',
-                    'name' => 'users.name',
+                    'data' => 'name',
+                    'name' => 'name',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [
@@ -141,8 +141,8 @@ class UserControllerTest extends TestCase
                     ],
                 ],
                 [
-                    'data' => 'users.email',
-                    'name' => 'users.email',
+                    'data' => 'email',
+                    'name' => 'email',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [
@@ -151,8 +151,8 @@ class UserControllerTest extends TestCase
                     ],
                 ],
                 [
-                    'data' => 'users.deleted_at',
-                    'name' => 'users.deleted_at',
+                    'data' => 'deleted_at',
+                    'name' => 'deleted_at',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [
@@ -161,8 +161,8 @@ class UserControllerTest extends TestCase
                     ],
                 ],
                 [
-                    'data' => 'roles.name',
-                    'name' => 'roles.name',
+                    'data' => 'role.name',
+                    'name' => 'role.name',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [
@@ -171,8 +171,8 @@ class UserControllerTest extends TestCase
                     ],
                 ],
                 [
-                    'data' => 'facilities.name',
-                    'name' => 'facilities.name',
+                    'data' => 'facility.name',
+                    'name' => 'facility.name',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [

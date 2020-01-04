@@ -109,8 +109,8 @@ class FacilityControllerTest extends TestCase
             'draw' => 1,
             'columns' => [
                 [
-                    'data' => 'facilities.id',
-                    'name' => 'facilities.id',
+                    'data' => 'id',
+                    'name' => 'id',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [
@@ -119,8 +119,8 @@ class FacilityControllerTest extends TestCase
                     ],
                 ],
                 [
-                    'data' => 'facilities.name',
-                    'name' => 'facilities.name',
+                    'data' => 'name',
+                    'name' => 'name',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [
@@ -129,8 +129,8 @@ class FacilityControllerTest extends TestCase
                     ],
                 ],
                 [
-                    'data' => 'facilities.email',
-                    'name' => 'facilities.email',
+                    'data' => 'email',
+                    'name' => 'email',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [
@@ -139,8 +139,8 @@ class FacilityControllerTest extends TestCase
                     ],
                 ],
                 [
-                    'data' => 'facilities.website',
-                    'name' => 'facilities.website',
+                    'data' => 'website',
+                    'name' => 'website',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [
@@ -149,8 +149,8 @@ class FacilityControllerTest extends TestCase
                     ],
                 ],
                 [
-                    'data' => 'facilities.deleted_at',
-                    'name' => 'facilities.deleted_at',
+                    'data' => 'deleted_at',
+                    'name' => 'deleted_at',
                     'searchable' => 'true',
                     'orderable' => 'true',
                     'search' => [
