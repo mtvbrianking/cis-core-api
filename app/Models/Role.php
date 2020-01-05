@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use Bmatovu\Uuid\Traits\HasUuidKey;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 /**
- * Roles model.
+ * @property-read \App\Models\Facility $facility
+ * @property-read \App\Models\Permission $permissions
+ * @property-read \App\Models\User $users
  */
 class Role extends Model
 {
@@ -132,7 +135,7 @@ class Role extends Model
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeOnlyRelated($query, $user)
+    public function scopeOnlyRelated(Builder $query, User $user)
     {
         return $query->where('roles.facility_id', $user->facility_id);
     }

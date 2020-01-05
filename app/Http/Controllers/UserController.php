@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -102,6 +101,7 @@ class UserController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Bmatovu\QueryDecorator\Exceptions\InvalidJsonException
      *
      * @return \Illuminate\Http\Response
      */
@@ -499,7 +499,7 @@ class UserController extends Controller
     }
 
     /**
-     * Reset a user's forgotten password.
+     * Authenticate user.
      *
      * @param \Illuminate\Http\Request $request
      *
@@ -560,13 +560,9 @@ class UserController extends Controller
     /**
      * Invalidate user tokens.
      *
-     * @param \Illuminate\Http\Request $request
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     *
      * @return \Illuminate\Http\Response
      */
-    public function deauthenticate(Request $request)
+    public function deauthenticate()
     {
         $user = Auth::guard('api')->user();
 
@@ -585,24 +581,6 @@ class UserController extends Controller
     }
 
     /**
-     * Get authenticated client application.
-     *
-     * @link https://github.com/laravel/passport/issues/124#issuecomment-252434309
-     * @link https://github.com/laravel/passport/issues/143#issuecomment-290443170
-     *
-     * @param \Illuminate\Http\Request $request
-     *
-     * @return \App\Models\Client
-     */
-    protected function getClient(Request $request)
-    {
-        $bearerToken = $request->bearerToken();
-        $tokenId = (new \Lcobucci\JWT\Parser())->parse($bearerToken)->getHeader('jti');
-
-        return \Laravel\Passport\Token::find($tokenId)->client;
-    }
-
-    /**
      * Request for token.
      *
      * @param string $method
@@ -610,7 +588,7 @@ class UserController extends Controller
      * @param array  $parameters
      * @param array  $headers
      *
-     * @return null|array token
+     * @return array token
      */
     protected function getToken($method, $uri, $parameters = [], $headers = [])
     {
@@ -618,17 +596,8 @@ class UserController extends Controller
         $request = Request::create($uri, $method, $parameters);
         $request->headers->add($headers);
 
-        try {
-            $response = app()->handle($request);
+        $response = app()->handle($request);
 
-            return json_decode((string) $response->getContent(), true);
-        } catch (\Exception $e) {
-            Log::error(json_encode([
-                'code' => $e->getCode(),
-                'message' => $e->getMessage(),
-            ]));
-
-            return null;
-        }
+        return json_decode((string) $response->getContent(), true);
     }
 }

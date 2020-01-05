@@ -79,6 +79,7 @@ class PermissionController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Bmatovu\QueryDecorator\Exceptions\InvalidJsonException
      *
      * @return \Illuminate\Http\Response
      */
@@ -102,11 +103,7 @@ class PermissionController extends Controller
 
         $query = Permission::query();
 
-        Schema::validate($this->jsonValidator, $schemaPath, $constraints);
-
         $query = Decorator::decorate($query, $constraints);
-
-        $query = Permission::query();
 
         $availableRecords = $query->count();
 

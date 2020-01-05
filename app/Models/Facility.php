@@ -6,6 +6,11 @@ use Bmatovu\Uuid\Traits\HasUuidKey;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property-read \App\Models\Module $modules
+ * @property-read \App\Models\User $users
+ * @property-read \App\Models\Role $roles
+ */
 class Facility extends Model
 {
     use HasUuidKey, SoftDeletes;

@@ -11,6 +11,10 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Passport\HasApiTokens;
 
+/**
+ * @property-read \App\Models\Facility $facility
+ * @property-read \App\Models\Role $role
+ */
 class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasRolePermissions, HasUuidKey, Notifiable, SoftDeletes;

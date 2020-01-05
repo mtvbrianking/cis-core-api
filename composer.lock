@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fb17cf49b0449323e193a4e061f9e134",
+    "content-hash": "a1e1d03ddd03b0d947accdc3347ce268",
     "packages": [
         {
             "name": "bmatovu/laravel-eloquent-uuid",
@@ -71,16 +71,16 @@
         },
         {
             "name": "bmatovu/laravel-query-decorator",
-            "version": "v0.0.1",
+            "version": "v0.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mtvbrianking/laravel-query-decorator.git",
-                "reference": "4dfbc54a0551bb2d8f8b9cf1e28ef22a089f1d7a"
+                "reference": "8b89e46ac29b27d98ae94ff510a7c4b711e4817b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mtvbrianking/laravel-query-decorator/zipball/4dfbc54a0551bb2d8f8b9cf1e28ef22a089f1d7a",
-                "reference": "4dfbc54a0551bb2d8f8b9cf1e28ef22a089f1d7a",
+                "url": "https://api.github.com/repos/mtvbrianking/laravel-query-decorator/zipball/8b89e46ac29b27d98ae94ff510a7c4b711e4817b",
+                "reference": "8b89e46ac29b27d98ae94ff510a7c4b711e4817b",
                 "shasum": ""
             },
             "require": {
@@ -133,7 +133,7 @@
                 }
             ],
             "description": "Laravel query decorator.",
-            "homepage": "https://github.com/mtvbrianking/query-decorator",
+            "homepage": "https://github.com/mtvbrianking/laravel-query-decorator",
             "keywords": [
                 "decorator",
                 "eloquent",
@@ -143,7 +143,7 @@
                 "package",
                 "query"
             ],
-            "time": "2020-01-03T13:54:10+00:00"
+            "time": "2020-01-05T10:22:38+00:00"
         },
         {
             "name": "defuse/php-encryption",
@@ -1411,16 +1411,16 @@
         },
         {
             "name": "league/flysystem",
-            "version": "1.0.62",
+            "version": "1.0.63",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "14dd5d7dff5fbc29ca9a2a53ff109760e40d91a0"
+                "reference": "8132daec326565036bc8e8d1876f77ec183a7bd6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/14dd5d7dff5fbc29ca9a2a53ff109760e40d91a0",
-                "reference": "14dd5d7dff5fbc29ca9a2a53ff109760e40d91a0",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/8132daec326565036bc8e8d1876f77ec183a7bd6",
+                "reference": "8132daec326565036bc8e8d1876f77ec183a7bd6",
                 "shasum": ""
             },
             "require": {
@@ -1491,7 +1491,7 @@
                 "sftp",
                 "storage"
             ],
-            "time": "2019-12-29T14:46:55+00:00"
+            "time": "2020-01-04T16:30:31+00:00"
         },
         {
             "name": "league/oauth2-server",
@@ -1540,15 +1540,15 @@
             "authors": [
                 {
                     "name": "Alex Bilbie",
+                    "role": "Developer",
                     "email": "hello@alexbilbie.com",
-                    "homepage": "http://www.alexbilbie.com",
-                    "role": "Developer"
+                    "homepage": "http://www.alexbilbie.com"
                 },
                 {
                     "name": "Andy Millington",
+                    "role": "Developer",
                     "email": "andrew@noexceptions.io",
-                    "homepage": "https://www.noexceptions.io",
-                    "role": "Developer"
+                    "homepage": "https://www.noexceptions.io"
                 }
             ],
             "description": "A lightweight and powerful OAuth 2.0 authorization and resource server library with support for all the core specification grants. This library will allow you to secure your API with OAuth and allow your applications users to approve apps that want to access their data from your API.",
@@ -4650,16 +4650,16 @@
         },
         {
             "name": "doctrine/dbal",
-            "version": "v2.10.0",
+            "version": "v2.10.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/dbal.git",
-                "reference": "0c9a646775ef549eb0a213a4f9bd4381d9b4d934"
+                "reference": "c2b8e6e82732a64ecde1cddf9e1e06cb8556e3d8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/0c9a646775ef549eb0a213a4f9bd4381d9b4d934",
-                "reference": "0c9a646775ef549eb0a213a4f9bd4381d9b4d934",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/c2b8e6e82732a64ecde1cddf9e1e06cb8556e3d8",
+                "reference": "c2b8e6e82732a64ecde1cddf9e1e06cb8556e3d8",
                 "shasum": ""
             },
             "require": {
@@ -4738,7 +4738,7 @@
                 "sqlserver",
                 "sqlsrv"
             ],
-            "time": "2019-11-03T16:50:43+00:00"
+            "time": "2020-01-04T12:56:21+00:00"
         },
         {
             "name": "doctrine/event-manager",

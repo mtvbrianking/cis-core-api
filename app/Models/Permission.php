@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
 /**
- * Permissions model.
+ * @property-read \App\Models\Module $module
+ * @property-read \App\Models\Role $roles
  */
 class Permission extends Model
 {

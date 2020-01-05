@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 /**
- * Modules model.
+ * @property-read \App\Models\Facility $facilities
+ * @property-read \App\Models\Permission $permissions
  */
 class Module extends Model
 {
