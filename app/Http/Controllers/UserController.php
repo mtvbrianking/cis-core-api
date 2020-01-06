@@ -547,10 +547,12 @@ class UserController extends Controller
             'client_secret' => $client->secret,
             'username' => $request->email,
             'password' => $request->password,
-            'scope' => $request->input('scopes', $token->scopes),
+            'scope' => implode(' ', $request->input('scopes', $token->scopes)),
         ];
 
         $user->token = $this->getToken('POST', 'oauth/token', $parameters, $headers);
+
+        // $user->token = $this->getToken('POST', 'api/v1/oauth/token', $parameters, $headers);
 
         return response($user);
     }
@@ -581,6 +583,8 @@ class UserController extends Controller
     /**
      * Request for token.
      *
+     * @see \Symfony\Component\HttpFoundation\Request
+     *
      * @param string $method
      * @param string $uri
      * @param array  $parameters
@@ -590,28 +594,12 @@ class UserController extends Controller
      */
     protected function getToken($method, $uri, $parameters = [], $headers = [])
     {
-        // Symfony\Component\HttpFoundation\Request@create
         $request = Request::create($uri, $method, $parameters);
 
         $request->headers->add($headers);
 
-        try {
-            $response = app()->handle($request);
+        $response = app()->handle($request);
 
-            return json_decode((string) $response->getContent(), true);
-        } catch (\Exception $e) {
-            dd([
-                'request' => [
-                    'method' => $method,
-                    'uri' => $uri,
-                    '$parameters' => $parameters,
-                    'headers' => $headers,
-                ],
-                'exception' =>[
-                    'code' => $e->getCode(),
-                    'message' => $e->getMessage(),
-                ],
-            ]);
-        }
+        return json_decode((string) $response->getContent(), true);
     }
 }

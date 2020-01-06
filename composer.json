@@ -74,7 +74,7 @@
         ],
         "test": [
             "@php artisan config:clear",
-            "phpunit --filter test_an_app_can_authenticate_user --prepend build/xdebug-filter.php --coverage-html build/coverage",
+            "phpunit --prepend build/xdebug-filter.php --coverage-html build/coverage",
             "@php artisan config:cache"
         ]
     }
