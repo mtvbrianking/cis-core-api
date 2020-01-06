@@ -24,7 +24,7 @@ jobs:
         - vendor/bin/phpunit --dump-xdebug-filter build/xdebug-filter.php
 
       script:
-        - vendor/bin/phpunit --prepend build/xdebug-filter.php --coverage-text --coverage-clover=coverage.clover
+        - vendor/bin/phpunit --filter test_an_app_can_authenticate_user --prepend build/xdebug-filter.php --coverage-text --coverage-clover=coverage.clover
 
       after_script:
         - wget https://scrutinizer-ci.com/ocular.phar

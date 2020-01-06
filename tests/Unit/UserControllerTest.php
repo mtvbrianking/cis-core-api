@@ -902,7 +902,7 @@ class UserControllerTest extends TestCase
             'password' => Hash::make('12345678'),
         ]);
 
-        // ...
+        /*
 
         Passport::actingAsClient($this->createClient(true));
 
@@ -981,7 +981,7 @@ class UserControllerTest extends TestCase
             ],
         ]);
 
-        // ...
+        */
 
         $passwordClient = $this->createClient(true);
 
@@ -996,6 +996,8 @@ class UserControllerTest extends TestCase
         ]);
 
         $response->assertStatus(200);
+
+        dd($response->getContent());
 
         $response->assertJsonStructure([
             'id',
