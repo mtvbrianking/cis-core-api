@@ -73,7 +73,12 @@ paths:
       # - password_grant:
       #   - "view-any:facilities"
       consumes:
-        - application/json
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: paginate
+          in: formData
+          type: boolean
+          default: true
       produces:
         - application/json
       responses:
@@ -654,7 +659,12 @@ paths:
         Requires `view-any` permission on `modules` module.
       operationId: getModules
       consumes:
-        - application/json
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: paginate
+          in: formData
+          type: boolean
+          default: true
       produces:
         - application/json
       responses:
@@ -663,10 +673,44 @@ paths:
           schema:
             type: object
             properties:
-              modules:
+              current_page:
+                type: integer
+                example: 1
+              data:
                 type: array
+                description: Modules
                 items:
                   $ref: '#/definitions/ModuleModel'
+              first_page_url:
+                type: string
+                example: http://localhost:8000/api/v1/modules?page=1
+              from:
+                type: integer
+                example: 1
+              last_page:
+                type: integer
+                example: 1
+              last_page_url:
+                type: integer
+                example: http://localhost:8000/api/v1/modules?page=1
+              next_page_url:
+                type: string
+                example: null
+              path:
+                type: string
+                example: http://localhost:8000/api/v1/modules
+              per_page:
+                type: integer
+                example: 10
+              prev_page_url:
+                type: string
+                example: null
+              to:
+                type: integer
+                example: 1
+              total:
+                type: integer
+                example: 1
       x-code-samples:
         - lang: CURL
           source: |-
@@ -686,13 +730,15 @@ paths:
       parameters:
         - name: name
           in: formData
-          description: 'Module name.'
           required: true
           type: string
+        - name: category
+          in: formData
+          type: string
+          enum:
+          - uncategorized
         - name: description
           in: formData
-          description: 'Module description.'
-          required: false
           type: string
       produces:
         - application/json
@@ -709,7 +755,47 @@ paths:
               -H 'Accept: application/json' \
               -H 'Authorization: Bearer {access-token}' \
               -H 'Content-Type: application/json' \
-              -d '{"name":"Users module","description":"Users module"}'
+              -d '{"name":"users","description":"Users module"}'
+  /modules/datatables:
+    get:
+      tags:
+        - module
+      summary: Get modules (datatables).
+      description: |-
+        Requires `view-any` permission on `modules` module.
+
+        Get modules formatted for jQuery datatables.
+      operationId: getModulesDatatables
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              draw:
+                type: integer
+                example: 1
+              recordsTotal:
+                type: integer
+                example: 1
+              recordsFiltered:
+                type: integer
+                example: 1
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/ModuleModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/modules/datatables \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
   '/modules/{module}':
     get:
       tags:
@@ -758,10 +844,14 @@ paths:
           description: '<a href=''#operation/getModules''>Module name</a>'
           required: true
           type: string
+        - name: category
+          in: formData
+          type: string
+          enum:
+          - uncategorized
         - name: description
           in: formData
           description: 'Module description'
-          required: false
           type: string
       responses:
         200:
@@ -807,6 +897,78 @@ paths:
           source: |-
             curl -X DELETE \
              'http://localhost:8000/api/v1/modules/{module}' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+  '/modules/{module}/facilities':
+    get:
+      tags:
+        - module
+      summary: Get facilities granted to a module.
+      description: |-
+        Requires `view-any` permission on `facilities` module.
+      operationId: getModuleFacilities
+      consumes:
+        - application/json
+      parameters:
+        - name: module
+          in: path
+          description: '<a href=''#operation/getModules''>Module Name</a>'
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/ModuleModel'
+              - properties:
+                  facilities:
+                    type: array
+                    items:
+                      $ref: '#/definitions/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             'http://localhost:8000/api/v1/modules/{module}/facilities' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+  '/modules/{module}/permissions':
+    get:
+      tags:
+        - module
+      summary: Get permissions belonging to a module.
+      description: |-
+        Requires `view-any` permission on `permissions` module.
+      operationId: getModulePermissions
+      consumes:
+        - application/json
+      parameters:
+        - name: module
+          in: path
+          description: '<a href=''#operation/getModules''>Module Name</a>'
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/ModuleModel'
+              - properties:
+                  permissions:
+                    type: array
+                    items:
+                      $ref: '#/definitions/PermissionModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             'http://localhost:8000/api/v1/modules/{module}/permissions' \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
   '/modules/{module}/restore':
@@ -2380,7 +2542,6 @@ definitions:
         type: string
         enum:
           - uncategorized
-        default: uncategorized
       created_at:
         type: string
         format: date-time

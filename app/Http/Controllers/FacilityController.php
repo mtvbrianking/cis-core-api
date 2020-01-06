@@ -67,7 +67,7 @@ class FacilityController extends Controller
 
         $query = Decorator::decorate($query, (array) $request->query('filters'));
 
-        // // Pagination.
+        // Pagination.
 
         $limit = $request->input('limit', 10);
 

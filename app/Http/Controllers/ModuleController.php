@@ -127,7 +127,7 @@ class ModuleController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
-     * @throws ValidationException
+     * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
@@ -138,7 +138,8 @@ class ModuleController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:20',
-            'description' => 'sometimes|max:25',
+            'category' => 'sometimes|in:uncategorized',
+            'description' => 'sometimes|max:50',
         ]);
 
         $validator->after(function ($validator) use ($request) {
@@ -157,6 +158,7 @@ class ModuleController extends Controller
 
         $module = new Module();
         $module->name = $request->name;
+        $module->category = $request->input('category', 'uncategorized');
         $module->description = $request->description;
         $module->save();
 
@@ -225,7 +227,7 @@ class ModuleController extends Controller
      * @param \Illuminate\Http\Request $request
      * @param string                   $moduleName
      *
-     * @throws ValidationException
+     * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
@@ -237,9 +239,11 @@ class ModuleController extends Controller
         $module = Module::findOrFail($moduleName);
 
         $this->validate($request, [
-            'description' => 'nullable|max:25',
+            'category' => 'sometimes|in:uncategorized',
+            'description' => 'nullable|max:50',
         ]);
 
+        $module->category = $request->input('category', 'uncategorized');
         $module->description = $request->description;
         $module->save();
 

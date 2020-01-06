@@ -133,7 +133,7 @@ class RoleController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
-     * @throws ValidationException
+     * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
@@ -189,7 +189,7 @@ class RoleController extends Controller
      * @param \Illuminate\Http\Request $request
      * @param string                   $roleId
      *
-     * @throws ValidationException
+     * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
@@ -405,7 +405,7 @@ class RoleController extends Controller
      * @param \Illuminate\Http\Request $request
      * @param string                   $roleId
      *
-     * @throws ValidationException
+     * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
