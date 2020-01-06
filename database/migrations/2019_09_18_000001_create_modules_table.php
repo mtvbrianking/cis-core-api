@@ -18,7 +18,7 @@ class CreateModulesTable extends Migration
             $table->enum('category', [
                 'uncategorized',
             ])->default('uncategorized');
-            $table->string('description', 50)->nullable();
+            $table->string('description', 100)->nullable();
             $table->timestamps();
             $table->softDeletes();
 

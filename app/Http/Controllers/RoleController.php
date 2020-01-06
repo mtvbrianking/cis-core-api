@@ -100,11 +100,7 @@ class RoleController extends Controller
 
         $params = (array) $request->query();
 
-        // ...
-
         $constraints = Datatable::buildConstraints($params, 'ilike');
-
-        // ...
 
         $schemaPath = resource_path('js/schemas/roles.json');
 
@@ -143,8 +139,9 @@ class RoleController extends Controller
         $this->authorize('create', [Role::class]);
 
         $this->validate($request, [
-            'name' => 'required|max:25',
-            'description' => 'sometimes|max:50',
+            'name' => 'required|max:50',
+            // 'facility_id' => 'sometimes|exists:facilities,id',
+            'description' => 'sometimes|max:100',
         ]);
 
         $user = Auth::guard('api')->user();
@@ -152,10 +149,11 @@ class RoleController extends Controller
         $role = new Role();
         $role->name = $request->name;
         $role->description = $request->description;
+        // $role->facility_id = $request->input('facility_id', $user->facility_id);
         $role->facility()->associate($user->facility);
         $role->save();
 
-        $role->refresh();
+        $role = Role::with('facility')->find($role->id);
 
         return response($role, 201);
     }
@@ -203,15 +201,15 @@ class RoleController extends Controller
         $role = Role::onlyRelated($user)->findOrFail($roleId);
 
         $this->validate($request, [
-            'name' => 'required|max:25',
-            'description' => 'sometimes|max:50',
+            'name' => 'required|max:50',
+            'description' => 'sometimes|max:100',
         ]);
 
         $role->name = $request->name;
         $role->description = $request->description;
         $role->save();
 
-        $role->refresh();
+        $role = Role::with('facility')->find($roleId);
 
         return response($role);
     }
@@ -235,7 +233,7 @@ class RoleController extends Controller
 
         $role->delete();
 
-        $role->refresh();
+        $role = Role::with('facility')->withTrashed()->find($roleId);
 
         return response($role);
     }
@@ -259,7 +257,7 @@ class RoleController extends Controller
 
         $role->restore();
 
-        $role->refresh();
+        $role = Role::with('facility')->find($roleId);
 
         return response($role);
     }
@@ -281,15 +279,11 @@ class RoleController extends Controller
 
         $role = Role::onlyRelated($user)->onlyTrashed()->findOrFail($roleId);
 
-        // ...
-
         $dependants = User::withTrashed()->where('role_id', $roleId)->count();
 
         if ($dependants) {
             return response(['message' => "Can't delete non-orphaned role."], 400);
         }
-
-        // ...
 
         $role->forceDelete();
 

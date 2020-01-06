@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Permission;
+use App\Models\Role;
 use Bmatovu\QueryDecorator\Json\Schema;
 use Bmatovu\QueryDecorator\Query\Decorator;
 use Bmatovu\QueryDecorator\Support\Datatable;
@@ -134,15 +135,15 @@ class PermissionController extends Controller
         $this->authorize('create', [Permission::class]);
 
         $validator = Validator::make($request->all(), [
-            'name'          => 'required',
-            'description'   => 'sometimes|max:25',
+            'name'          => 'required|max:25',
+            'description'   => 'sometimes|max:100',
             'module_name'   => 'required|exists:modules,name',
         ]);
 
         $validator->after(function ($validator) use ($request) {
             $name = Str::slug($request->name);
 
-            $permission = Permission::where('name', $name)->where('module_name', $request->module_name)->first();
+            $permission = Permission::where('module_name', $request->module_name)->where('name', $name)->first();
 
             if ($permission) {
                 $validator->errors()->add('name', 'The name has already been taken.');
@@ -154,14 +155,12 @@ class PermissionController extends Controller
         }
 
         $permission = new Permission();
-
-        $permission->module_name = $request['module_name'];
-        $permission->name = $request['name'];
-        $permission->description = $request['description'];
-
+        $permission->module_name = $request->module_name;
+        $permission->name = $request->name;
+        $permission->description = $request->description;
         $permission->save();
 
-        $permission->refresh();
+        $permission = Permission::with('module')->find($permission->id);
 
         return response($permission, 201);
     }
@@ -200,9 +199,9 @@ class PermissionController extends Controller
         $this->authorize('update', [Permission::class]);
 
         $validator = Validator::make($request->all(), [
-            'name'          => 'required',
+            'name'          => 'required|max:25',
             'module_name'   => 'required|exists:modules,name',
-            'description'   => 'sometimes|max:25',
+            'description'   => 'sometimes|max:100',
         ]);
 
         $validator->after(function ($validator) use ($request, $permissionId) {
@@ -228,7 +227,7 @@ class PermissionController extends Controller
         $permission->name = $request->name;
         $permission->save();
 
-        $permission->refresh();
+        $permission = Permission::with('module')->find($permissionId);
 
         return response($permission);
     }
@@ -252,5 +251,23 @@ class PermissionController extends Controller
         $permission->delete();
 
         return response(null, 204);
+    }
+
+    /**
+     * Get roles granted this permission.
+     *
+     * @param string $permissionId
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function roles($permissionId)
+    {
+        $this->authorize('viewAny', [Role::class]);
+
+        $permission = Permission::with('roles')->findOrFail($permissionId);
+
+        return response($permission);
     }
 }

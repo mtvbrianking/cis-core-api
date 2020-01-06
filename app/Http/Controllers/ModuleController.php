@@ -137,9 +137,9 @@ class ModuleController extends Controller
         $this->authorize('create', [Module::class]);
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|max:20',
+            'name' => 'required|max:25',
             'category' => 'sometimes|in:uncategorized',
-            'description' => 'sometimes|max:50',
+            'description' => 'sometimes|max:100',
         ]);
 
         $validator->after(function ($validator) use ($request) {
@@ -240,7 +240,7 @@ class ModuleController extends Controller
 
         $this->validate($request, [
             'category' => 'sometimes|in:uncategorized',
-            'description' => 'nullable|max:50',
+            'description' => 'nullable|max:100',
         ]);
 
         $module->category = $request->input('category', 'uncategorized');

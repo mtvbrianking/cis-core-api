@@ -193,6 +193,14 @@ class PermissionControllerTest extends TestCase
             'description',
             'created_at',
             'updated_at',
+            'module' => [
+                'name',
+                'category',
+                'description',
+                'created_at',
+                'updated_at',
+                'deleted_at',
+            ],
         ]);
 
         $response->assertJson([
@@ -234,6 +242,14 @@ class PermissionControllerTest extends TestCase
             'description',
             'created_at',
             'updated_at',
+            'module' => [
+                'name',
+                'category',
+                'description',
+                'created_at',
+                'updated_at',
+                'deleted_at',
+            ],
         ]);
 
         $response->assertJson([
@@ -334,6 +350,14 @@ class PermissionControllerTest extends TestCase
             'description',
             'created_at',
             'updated_at',
+            'module' => [
+                'name',
+                'category',
+                'description',
+                'created_at',
+                'updated_at',
+                'deleted_at',
+            ],
         ]);
 
         $response->assertJson([
@@ -413,6 +437,60 @@ class PermissionControllerTest extends TestCase
         $this->assertDatabaseMissing('permissions', [
             'name' => 'users permission',
             'description' => 'The Users permission',
+        ]);
+    }
+
+    public function test_can_get_permission_roles()
+    {
+        $permission = factory(Permission::class)->create();
+
+        $user = factory(User::class)->create([
+            // 'role_id' => $role->id,
+        ]);
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/permissions/{$permission->id}/roles");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view-any', 'roles');
+
+        // $user->role->permissions()->attach($permission);
+
+        $permission->roles()->attach($user->role_id);
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/permissions/{$permission->id}/roles");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'id',
+            'module_name',
+            'name',
+            'description',
+            'created_at',
+            'updated_at',
+            'roles' => [
+                '*' => [
+                    'id',
+                    'facility_id',
+                    'name',
+                    'description',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                ],
+            ],
+        ]);
+
+        $response->assertJson([
+            'id' => $permission->id,
+            'roles' => [
+                [
+                    'id' => $user->role_id,
+                ],
+            ],
         ]);
     }
 }

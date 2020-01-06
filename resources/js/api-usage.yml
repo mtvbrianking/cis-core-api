@@ -146,29 +146,36 @@ paths:
           in: formData
           required: true
           type: string
+          maxLength: 100
         - name: description
           in: formData
           required: false
           type: string
+          maxLength: 100
         - name: address
           in: formData
           required: true
           type: string
+          maxLength: 100
         - name: email
           in: formData
           required: true
           type: string
+          maxLength: 50
           format: email
         - name: website
           in: formData
           required: false
           type: string
+          maxLength: 50
           format: url
         - name: phone
           in: formData
           required: false
           type: string
-          format: phone
+          maxLength: 25
+          format: tel
+          pattern: '^\+(?:[0-9] ?){9,16}[0-9]$'
       produces:
         - application/json
       responses:
@@ -195,7 +202,7 @@ paths:
     get:
       tags:
         - facility
-      summary: Get facilities (datatables).
+      summary: Get facilities (datatables)
       description: |-
         Requires `view-any` permission on `facilities` module.
 
@@ -284,29 +291,36 @@ paths:
           in: formData
           required: false
           type: string
+          maxLength: 100
         - name: description
           in: formData
           required: false
           type: string
+          maxLength: 100
         - name: address
           in: formData
           required: false
           type: string
+          maxLength: 100
         - name: email
           in: formData
           required: false
           type: string
+          maxLength: 50
           format: email
         - name: website
           in: formData
           required: false
           type: string
+          maxLength: 50
           format: url
         - name: phone
           in: formData
           required: false
           type: string
-          format: phone
+          maxLength: 25
+          format: tel
+          pattern: '^\+(?:[0-9] ?){9,16}[0-9]$'
       produces:
         - application/json
       responses:
@@ -466,7 +480,7 @@ paths:
           format: uuid
         - name: modules
           in: formData
-          description: 'Facility modules.'
+          description: '<a href=''#operation/getModules''>Module name</a>'
           required: false
           type: array
           items:
@@ -732,6 +746,7 @@ paths:
           in: formData
           required: true
           type: string
+          maxLength: 25
         - name: category
           in: formData
           type: string
@@ -740,6 +755,7 @@ paths:
         - name: description
           in: formData
           type: string
+          maxLength: 100
       produces:
         - application/json
       responses:
@@ -760,7 +776,7 @@ paths:
     get:
       tags:
         - module
-      summary: Get modules (datatables).
+      summary: Get modules (datatables)
       description: |-
         Requires `view-any` permission on `modules` module.
 
@@ -853,6 +869,7 @@ paths:
           in: formData
           description: 'Module description'
           type: string
+          maxLength: 100
       responses:
         200:
           description: OK
@@ -912,7 +929,7 @@ paths:
       parameters:
         - name: module
           in: path
-          description: '<a href=''#operation/getModules''>Module Name</a>'
+          description: '<a href=''#operation/getModules''>Module name</a>'
           required: true
           type: string
       produces:
@@ -948,7 +965,7 @@ paths:
       parameters:
         - name: module
           in: path
-          description: '<a href=''#operation/getModules''>Module Name</a>'
+          description: '<a href=''#operation/getModules''>Module name</a>'
           required: true
           type: string
       produces:
@@ -1051,7 +1068,12 @@ paths:
         Requires `view-any` permission on `permissions` module.
       operationId: getPermissions
       consumes:
-        - application/json
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: paginate
+          in: formData
+          type: boolean
+          default: true
       produces:
         - application/json
       responses:
@@ -1060,10 +1082,44 @@ paths:
           schema:
             type: object
             properties:
-              permissions:
+              current_page:
+                type: integer
+                example: 1
+              data:
                 type: array
+                description: Permissions
                 items:
                   $ref: '#/definitions/PermissionModel'
+              first_page_url:
+                type: string
+                example: http://localhost:8000/api/v1/permissions?page=1
+              from:
+                type: integer
+                example: 1
+              last_page:
+                type: integer
+                example: 1
+              last_page_url:
+                type: integer
+                example: http://localhost:8000/api/v1/permissions?page=1
+              next_page_url:
+                type: string
+                example: null
+              path:
+                type: string
+                example: http://localhost:8000/api/v1/permissions
+              per_page:
+                type: integer
+                example: 10
+              prev_page_url:
+                type: string
+                example: null
+              to:
+                type: integer
+                example: 1
+              total:
+                type: integer
+                example: 1
       x-code-samples:
         - lang: CURL
           source: |-
@@ -1082,7 +1138,7 @@ paths:
         - application/x-www-form-urlencoded
       parameters:
         - name: module_name
-          description: '<a href=''#operation/getModules''>Module</a>'
+          description: '<a href=''#operation/getModules''>Module name</a>'
           in: formData
           required: true
           type: string
@@ -1090,10 +1146,12 @@ paths:
           in: formData
           required: true
           type: string
+          maxLength: 25
         - name: description
           in: formData
           required: false
           type: string
+          maxLength: 100
       produces:
         - application/json
       responses:
@@ -1116,8 +1174,48 @@ paths:
               -d '{
                 "module_name":"users",
                 "name":"view-any",
-                "description":"View any permission."
+                "description":"View any users."
               }'
+  /permissions/datatables:
+    get:
+      tags:
+        - permission
+      summary: Get permissions (datatables)
+      description: |-
+        Requires `view-any` permission on `permissions` module.
+
+        Get permissions formatted for jQuery datatables.
+      operationId: getPermissionsDatatables
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              draw:
+                type: integer
+                example: 1
+              recordsTotal:
+                type: integer
+                example: 1
+              recordsFiltered:
+                type: integer
+                example: 1
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/PermissionModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/permissions/datatables \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
   '/permissions/{permission}':
     get:
       tags:
@@ -1131,7 +1229,7 @@ paths:
       parameters:
         - name: permission
           in: path
-          description: '<a href=''#operation/getPermissions''>Permission</a>'
+          description: '<a href=''#operation/getPermissions''>Permission ID</a>'
           required: true
           type: integer
       produces:
@@ -1164,21 +1262,24 @@ paths:
       parameters:
         - name: permission
           in: path
-          description: '<a href=''#operation/getPermissions''>Permission</a>'
+          description: '<a href=''#operation/getPermissions''>Permission ID</a>'
           required: true
           type: integer
         - name: module_name
           in: formData
+          description: '<a href=''#operation/getModules''>Module name</a>'
           required: true
           type: string
         - name: name
           in: formData
           required: true
           type: string
+          maxLength: 25
         - name: description
           in: formData
           required: false
           type: string
+          maxLength: 100
       produces:
         - application/json
       responses:
@@ -1217,7 +1318,7 @@ paths:
       parameters:
         - name: permission
           in: path
-          description: '<a href=''#operation/getPermissions''>Permission</a>'
+          description: '<a href=''#operation/getPermissions''>Permission ID</a>'
           required: true
           type: integer
       produces:
@@ -1232,6 +1333,42 @@ paths:
              'http://localhost:8000/api/v1/permissions/{permission}' \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
+  '/permissions/{permission}/roles':
+    get:
+      tags:
+        - permission
+      summary: Get roles granted this permission.
+      description: |-
+        Requires `view-any` permission on `roles` permission.
+      operationId: getPermissionRoles
+      consumes:
+        - application/json
+      parameters:
+        - name: permission
+          in: path
+          description: '<a href=''#operation/getPermissions''>Permission ID</a>'
+          required: true
+          type: integer
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/PermissionModel'
+              - properties:
+                  roles:
+                    type: array
+                    items:
+                      $ref: '#/definitions/RoleModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             'http://localhost:8000/api/v1/permissions/{permission}/roles' \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
 
   /roles:
     get:
@@ -1242,7 +1379,12 @@ paths:
         Requires `view-any` permission on `roles` module.
       operationId: getRoles
       consumes:
-        - application/json
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: paginate
+          in: formData
+          type: boolean
+          default: true
       produces:
         - application/json
       responses:
@@ -1251,10 +1393,44 @@ paths:
           schema:
             type: object
             properties:
-              roles:
+              current_page:
+                type: integer
+                example: 1
+              data:
                 type: array
+                description: Roles
                 items:
                   $ref: '#/definitions/RoleModel'
+              first_page_url:
+                type: string
+                example: http://localhost:8000/api/v1/roles?page=1
+              from:
+                type: integer
+                example: 1
+              last_page:
+                type: integer
+                example: 1
+              last_page_url:
+                type: integer
+                example: http://localhost:8000/api/v1/roles?page=1
+              next_page_url:
+                type: string
+                example: null
+              path:
+                type: string
+                example: http://localhost:8000/api/v1/roles
+              per_page:
+                type: integer
+                example: 10
+              prev_page_url:
+                type: string
+                example: null
+              to:
+                type: integer
+                example: 1
+              total:
+                type: integer
+                example: 1
       x-code-samples:
         - lang: CURL
           source: |-
@@ -1276,10 +1452,12 @@ paths:
           in: formData
           required: true
           type: string
+          maxLength: 50
         - name: description
           in: formData
           required: false
           type: string
+          maxLength: 100
       produces:
         - application/json
       responses:
@@ -1303,6 +1481,46 @@ paths:
                 "name":"Sys Admin",
                 "description":"System Administrator"
               }'
+  /roles/datatables:
+    get:
+      tags:
+        - role
+      summary: Get roles (datatables)
+      description: |-
+        Requires `view-any` permission on `roles` module.
+
+        Get roles formatted for jQuery datatables.
+      operationId: getRolesDatatables
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              draw:
+                type: integer
+                example: 1
+              recordsTotal:
+                type: integer
+                example: 1
+              recordsFiltered:
+                type: integer
+                example: 1
+              data:
+                type: array
+                items:
+                  $ref: '#/definitions/RoleModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+             http://localhost:8000/api/v1/roles/datatables \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
   '/roles/{role}':
     get:
       tags:
@@ -1318,7 +1536,7 @@ paths:
       parameters:
         - name: role
           in: path
-          description: '<a href=''#operation/getRoles''>Role</a>'
+          description: '<a href=''#operation/getRoles''>Role ID</a>'
           required: true
           type: string
           format: uuid
@@ -1352,17 +1570,19 @@ paths:
       parameters:
         - name: role
           in: path
-          description: '<a href=''#operation/getRoles''>Role</a>'
+          description: '<a href=''#operation/getRoles''>Role ID</a>'
           required: true
           type: string
         - name: name
           in: formData
-          required: false
+          required: true
           type: string
+          maxLength: 50
         - name: description
           in: formData
           required: false
           type: string
+          maxLength: 100
       produces:
         - application/json
       responses:
@@ -1402,7 +1622,7 @@ paths:
       parameters:
         - name: role
           in: path
-          description: '<a href=''#operation/getRoles''>Role</a>'
+          description: '<a href=''#operation/getRoles''>Role ID</a>'
           required: true
           type: string
           format: uuid
@@ -1422,64 +1642,21 @@ paths:
     get:
       tags:
         - role
-      summary: Get role permissions
+      summary: Get granted permissions
       description: |-
-        All permissions available to this role.
+        Get only permissions granted to this role.
 
-        Requires `view-permissions` permission on `roles` module.
+        Requires `view-any` permission on `permissions` module.
       operationId: getRolePermissions
       consumes:
         - application/json
       parameters:
         - name: role
           in: path
-          description: '<a href=''#operation/getRoles''>Role</a>'
+          description: '<a href=''#operation/getRoles''>Role ID</a>'
           required: true
           type: string
           format: uuid
-      produces:
-        - application/json
-      responses:
-        200:
-          description: OK
-          schema:
-            type: object
-            properties:
-              permissions:
-                type: array
-                items:
-                  $ref: '#/definitions/PermissionModel'
-      x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X GET \
-             http://localhost:8000/api/v1/roles/{role}/permissions \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
-    put:
-      tags:
-        - role
-      summary: Synchronize role permissions
-      description: |-
-        Dettach, re-attach permissions to a role.
-
-        Requires `assign-permissions` permission on `permissions` module.
-      operationId: syncRolePermissions
-      consumes:
-        - application/x-www-form-urlencoded
-      parameters:
-        - name: role
-          in: path
-          description: '<a href=''#operation/getRoles''>Role</a>'
-          required: true
-          type: string
-          format: uuid
-        - name: permissions
-          in: formData
-          required: false
-          type: array
-          items:
-            type: integer
       produces:
         - application/json
       responses:
@@ -1496,22 +1673,22 @@ paths:
       x-code-samples:
         - lang: CURL
           source: |-
-            curl -X PUT \
+            curl -X GET \
              http://localhost:8000/api/v1/roles/{role}/permissions \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
-  '/roles/{role}/permissions/granted':
+  '/roles/{role}/permissions/available':
     get:
       tags:
         - role
-      summary: Role permissions - granted
+      summary: Get available permissions
       description: |-
-        Get all permissions available to this role, indicating weather granted or not.
+        Get all permissions available to this role; granted or not.
 
-        Requires `view-permissions` permission on `roles` module.
+        Requires `assign-permissions` permission on `roles` module.
 
         A user can still access permissions granted to their role regardless.
-      operationId: getRolePermissionsGranted
+      operationId: getRolePermissionsAvailable
       consumes:
         - application/json
       produces:
@@ -1519,33 +1696,109 @@ paths:
       parameters:
         - name: role
           in: path
-          description: '<a href=''#operation/getRoles''>Role</a>'
+          description: '<a href=''#operation/getRoles''>Role ID</a>'
           required: true
           type: string
           format: uuid
       responses:
         200:
           description: OK
-          examples:
-            application/json:
-              permissions:
-                - id: 1
-                  name: view-any
-                  granted: true
-                  module:
-                    name: users
-                    category: uncategorized
-                - id: 2
-                  name: create
-                  granted: false
-                  module:
-                    name: users
-                    category: uncategorized
+          schema:
+            allOf:
+              - $ref: '#/definitions/RoleModel'
+              - properties:
+                  permissions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        name:
+                          type: string
+                          example: view-any
+                        granted:
+                          type: boolean
+                          example: true
+                        module:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                              example: users
+                            category:
+                              type: string
+                              example: uncategorized
       x-code-samples:
         - lang: CURL
           source: |-
             curl -X GET \
-             http://localhost:8000/api/v1/roles/{role}/permissions/granted \
+             http://localhost:8000/api/v1/roles/{role}/permissions/available \
+             -H 'Accept: application/json' \
+             -H 'Authorization: Bearer {access-token}'
+    put:
+      tags:
+        - role
+      summary: Sync available permissions
+      description: |-
+        Dettach, re-attach permissions to a role.
+
+        Requires `assign-permissions` permission on `permissions` module.
+      operationId: syncRolePermissionsAvailable
+      consumes:
+        - application/x-www-form-urlencoded
+      parameters:
+        - name: role
+          in: path
+          description: '<a href=''#operation/getRoles''>Role ID</a>'
+          required: true
+          type: string
+          format: uuid
+        - name: permissions
+          in: formData
+          description: '<a href=''#operation/getPermissions''>Permission ID</a>'
+          required: true
+          type: array
+          items:
+            type: integer
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            allOf:
+              - $ref: '#/definitions/RoleModel'
+              - properties:
+                  permissions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1
+                        name:
+                          type: string
+                          example: view-any
+                        granted:
+                          type: boolean
+                          example: true
+                        module:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                              example: users
+                            category:
+                              type: string
+                              example: uncategorized
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+             http://localhost:8000/api/v1/roles/{role}/permissions/available \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
   '/roles/{role}/revoke':
@@ -1563,7 +1816,7 @@ paths:
       parameters:
         - name: role
           in: path
-          description: '<a href=''#operation/getRoles''>Role</a>'
+          description: '<a href=''#operation/getRoles''>Role ID</a>'
           required: true
           type: string
           format: uuid
@@ -1604,7 +1857,7 @@ paths:
       parameters:
         - name: role
           in: path
-          description: '<a href=''#operation/getRoles''>Role</a>'
+          description: '<a href=''#operation/getRoles''>Role ID</a>'
           required: true
           type: string
           format: uuid
@@ -1641,7 +1894,7 @@ paths:
       parameters:
         - name: role
           in: path
-          description: '<a href=''#operation/getRoles''>Role</a>'
+          description: '<a href=''#operation/getRoles''>Role ID</a>'
           required: true
           type: string
           format: uuid
@@ -1651,12 +1904,13 @@ paths:
         200:
           description: OK
           schema:
-            type: object
-            properties:
-              users:
-                type: array
-                items:
-                  $ref: '#/definitions/UserModel'
+            allOf:
+              - $ref: '#/definitions/RoleModel'
+              - properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/definitions/UserModel'
       x-code-samples:
         - lang: CURL
           source: |-
@@ -1724,7 +1978,7 @@ paths:
           format: email
         - name: role_id
           in: formData
-          description: '<a href=''#operation/getRoles''>Role</a>'
+          description: '<a href=''#operation/getRoles''>Role ID</a>'
           required: true
           type: string
           format: uuid
@@ -2130,7 +2384,7 @@ paths:
           format: email
         - name: role_id
           in: formData
-          description: '<a href=''#operation/getRoles''>Role</a>'
+          description: '<a href=''#operation/getRoles''>Role ID</a>'
           required: false
           type: string
           format: uuid
@@ -2389,12 +2643,12 @@ definitions:
         format: uuid
         example: 0ac99f1b-482c-4af1-be28-ddace07eff20
       facility_id:
-        description: '<a href=''#operation/getFacilities''>Facility</a>'
+        description: '<a href=''#operation/getFacilities''>Facility ID</a>'
         type: string
         format: uuid
         example: 90cae4ff-6f86-4ba3-8651-134b48fd7a2a
       role_id:
-        description: '<a href=''#operation/getRoles''>Role</a>'
+        description: '<a href=''#operation/getRoles''>Role ID</a>'
         type: string
         format: uuid
         example: f0f95c23-6ba1-4348-b1d9-bfb5e4bb1e3f
@@ -2442,17 +2696,15 @@ definitions:
         format: uuid
         example: f0f95c23-6ba1-4348-b1d9-bfb5e4bb1e3f
       facility_id:
-        description: '<a href=''#operation/getFacilities''>Facility</a>'
+        description: '<a href=''#operation/getFacilities''>Facility ID</a>'
         type: string
         format: uuid
         example: 0ac99f1b-482c-4af1-be28-ddace07eff20
       name:
-        description: User role name
         type: string
         maxLength: 50
         example: Sys Admin
       description:
-        description: User role description
         type: string
         maxLength: 100
         example: System Administrator
@@ -2509,6 +2761,7 @@ definitions:
         format: tel
         maxLength: 25
         example: '+256392741586'
+        pattern: '^\+(?:[0-9] ?){9,16}[0-9]$'
         x-nullable: true
       created_at:
         type: string
