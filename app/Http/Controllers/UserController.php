@@ -550,9 +550,7 @@ class UserController extends Controller
             'scope' => $request->input('scopes', $token->scopes),
         ];
 
-        $user = $user->toArray();
-
-        $user['token'] = $this->getToken('POST', 'oauth/token', $parameters, $headers);
+        $user->token = $this->getToken('POST', 'oauth/token', $parameters, $headers);
 
         return response($user);
     }
@@ -594,10 +592,26 @@ class UserController extends Controller
     {
         // Symfony\Component\HttpFoundation\Request@create
         $request = Request::create($uri, $method, $parameters);
+
         $request->headers->add($headers);
 
-        $response = app()->handle($request);
+        try {
+            $response = app()->handle($request);
 
-        return json_decode((string) $response->getContent(), true);
+            return json_decode((string) $response->getContent(), true);
+        } catch (\Exception $e) {
+            dd([
+                'request' => [
+                    'method' => $method,
+                    'uri' => $uri,
+                    '$parameters' => $parameters,
+                    'headers' => $headers,
+                ],
+                'exception' =>[
+                    'code' => $e->getCode(),
+                    'message' => $e->getMessage(),
+                ],
+            ]);
+        }
     }
 }

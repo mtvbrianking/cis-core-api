@@ -987,6 +987,8 @@ class UserControllerTest extends TestCase
 
         $token = $this->getClientToken($passwordClient, ['authenticate-user']);
 
+        // dd($token);
+
         $response = $this->withHeaders([
             'Accept' => 'application/json',
             'Authorization' => "Bearer {$token->access_token}",
