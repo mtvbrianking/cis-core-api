@@ -20,7 +20,7 @@ jobs:
       before_script:
         # - psql -c 'create database travis_ci_test;' -U postgres
         - travis_retry composer self-update
-        - travis_retry composer update --prefer-lowest --no-ansi --no-interaction --no-progress --no-scripts
+        - travis_retry composer update --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
         - vendor/bin/phpunit --dump-xdebug-filter build/xdebug-filter.php
 
       script:
