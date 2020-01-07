@@ -73,10 +73,10 @@ paths:
       # - password_grant:
       #   - "view-any:facilities"
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: paginate
-          in: formData
+        - in: query
+          name: paginate
           type: boolean
           default: true
       produces:
@@ -140,42 +140,45 @@ paths:
         Requires `create` permission on `facilities` module.
       operationId: createFacility
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: name
-          in: formData
-          required: true
-          type: string
-          maxLength: 100
-        - name: description
-          in: formData
-          required: false
-          type: string
-          maxLength: 100
-        - name: address
-          in: formData
-          required: true
-          type: string
-          maxLength: 100
-        - name: email
-          in: formData
-          required: true
-          type: string
-          maxLength: 50
-          format: email
-        - name: website
-          in: formData
-          required: false
-          type: string
-          maxLength: 50
-          format: url
-        - name: phone
-          in: formData
-          required: false
-          type: string
-          maxLength: 25
-          format: tel
-          pattern: '^\+(?:[0-9] ?){9,16}[0-9]$'
+        - in: body
+          name: payload
+          schema:
+            type: object
+            required:
+              - name
+              - address
+              - email
+            properties:
+              name:
+                type: string
+                maxLength: 100
+                example: Mulago Hospital
+              description:
+                type: string
+                maxLength: 100
+                example: National Referral Hospital
+              address:
+                type: string
+                maxLength: 100
+                example: Mulago Hill, Kampala
+              email:
+                type: string
+                format: email
+                maxLength: 50
+                example: cis@mulago.Hospital
+              website:
+                type: string
+                format: url
+                maxLength: 50
+                example: https://mulago.Hospital
+              phone:
+                type: string
+                format: tel
+                maxLength: 25
+                pattern: '^\+(?:[0-9] ?){9,16}[0-9]$'
+                example: '+256392741586'
       produces:
         - application/json
       responses:
@@ -192,11 +195,12 @@ paths:
               -H 'Authorization: Bearer {access-token}' \
               -H 'Content-Type: application/json' \
               -d '{
-                "name":"Mulago Hospital",
-                "description":"Mulago Hospital",
-                "address":"Mulago Hill",
-                "email":"cis@mulago.Hospital",
-                "phone":"+256392741586"
+                "name": "Mulago Hospital",
+                "description": "National Referral Hospital",
+                "address": "Mulago Hill, Kampala",
+                "email": "cis@mulago.Hospital",
+                "website": "https://mulago.Hospital",
+                "phone": "+256392741586"
               }'
   /facilities/datatables:
     get:
@@ -208,8 +212,6 @@ paths:
 
         Get facilities formatted for jQuery datatables.
       operationId: getFacilitiesDatatables
-      consumes:
-        - application/json
       produces:
         - application/json
       responses:
@@ -251,9 +253,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: facility
-          in: path
-          description: '<a href=''#operation/getFacilties''>Facility ID</a>'
+        - in: path
+          name: facility
+          description: '<a href="#operation/getFacilties">Facility ID</a>'
           required: true
           type: string
           format: uuid
@@ -279,48 +281,51 @@ paths:
         Requires `update` permission on `facilities` module.
       operationId: updateFacility
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: facility
-          in: path
-          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+        - in: path
+          name: facility
+          description: '<a href="#operation/getFacilties">Facility ID</a>'
           required: true
           type: string
           format: uuid
-        - name: name
-          in: formData
-          required: false
-          type: string
-          maxLength: 100
-        - name: description
-          in: formData
-          required: false
-          type: string
-          maxLength: 100
-        - name: address
-          in: formData
-          required: false
-          type: string
-          maxLength: 100
-        - name: email
-          in: formData
-          required: false
-          type: string
-          maxLength: 50
-          format: email
-        - name: website
-          in: formData
-          required: false
-          type: string
-          maxLength: 50
-          format: url
-        - name: phone
-          in: formData
-          required: false
-          type: string
-          maxLength: 25
-          format: tel
-          pattern: '^\+(?:[0-9] ?){9,16}[0-9]$'
+        - in: body
+          name: payload
+          schema:
+            type: object
+            required:
+              - name
+              - address
+              - email
+            properties:
+              name:
+                type: string
+                maxLength: 100
+                example: Mulago Hospital
+              description:
+                type: string
+                maxLength: 100
+                example: National Referral Hospital
+              address:
+                type: string
+                maxLength: 100
+                example: Mulago Hill, Kampala
+              email:
+                type: string
+                format: email
+                maxLength: 50
+                example: cis@mulago.Hospital
+              website:
+                type: string
+                format: url
+                maxLength: 50
+                example: https://mulago.Hospital
+              phone:
+                type: string
+                format: tel
+                maxLength: 25
+                pattern: '^\+(?:[0-9] ?){9,16}[0-9]$'
+                example: '+256392741586'
       produces:
         - application/json
       responses:
@@ -337,12 +342,12 @@ paths:
              -H 'Authorization: Bearer {access-token}' \
              -H 'Content-Type: application/json' \
              -d '{
-                "name":"Mulago Hospital",
-                "description":"Mulago Hospital",
-                "address":"Mulago Hill",
-                "email":"cis@mulago.Hospital",
-                "website":"https://mulago.Hospital",
-                "phone":"+256392741586"
+                "name": "Mulago Hospital",
+                "description": "National Referral Hospital",
+                "address": "Mulago Hill, Kampala",
+                "email": "cis@mulago.Hospital",
+                "website": "https://mulago.Hospital",
+                "phone": "+256392741586"
               }'
     delete:
       tags:
@@ -358,9 +363,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: facility
-          in: path
-          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+        - in: path
+          name: facility
+          description: '<a href="#operation/getFacilities">Facility ID</a>'
           required: true
           type: string
           format: uuid
@@ -387,9 +392,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: facility
-          in: path
-          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+        - in: path
+          name: facility
+          description: '<a href="#operation/getFacilities">Facility ID</a>'
           required: true
           type: string
           format: uuid
@@ -426,9 +431,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: facility
-          in: path
-          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+        - in: path
+          name: facility
+          description: '<a href="#operation/getFacilities">Facility ID</a>'
           required: true
           type: string
           format: uuid
@@ -470,21 +475,27 @@ paths:
         Requires `assign-modules` permission on `modules` module.
       operationId: assignFacilityModules
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: facility
-          in: path
-          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+        - in: path
+          name: facility
+          description: '<a href="#operation/getFacilities">Facility ID</a>'
           required: true
           type: string
           format: uuid
-        - name: modules
-          in: formData
-          description: '<a href=''#operation/getModules''>Module name</a>'
-          required: false
-          type: array
-          items:
-            type: string
+        - in: body
+          name: payload
+          schema:
+            type: object
+            required:
+              - modules
+            properties:
+              modules:
+                type: array
+                description: '<a href="#operation/getModules">Module name</a>'
+                items:
+                  type: string
+                  example: users
       produces:
         - application/json
       responses:
@@ -533,9 +544,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: facility
-          in: path
-          description: '<a href=''#operation/getFacilties''>Facility ID</a>'
+        - in: path
+          name: facility
+          description: '<a href="#operation/getFacilties">Facility ID</a>'
           required: true
           type: string
           format: uuid
@@ -566,9 +577,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: facility
-          in: path
-          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+        - in: path
+          name: facility
+          description: '<a href="#operation/getFacilities">Facility ID</a>'
           required: true
           type: string
           format: uuid
@@ -601,9 +612,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: facility
-          in: path
-          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+        - in: path
+          name: facility
+          description: '<a href="#operation/getFacilities">Facility ID</a>'
           required: true
           type: string
           format: uuid
@@ -638,9 +649,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: facility
-          in: path
-          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+        - in: path
+          name: facility
+          description: '<a href="#operation/getFacilities">Facility ID</a>'
           required: true
           type: string
           format: uuid
@@ -664,6 +675,7 @@ paths:
              'http://localhost:8000/api/v1/facilities/{facility}/users' \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
+
   /modules:
     get:
       tags:
@@ -673,10 +685,10 @@ paths:
         Requires `view-any` permission on `modules` module.
       operationId: getModules
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: paginate
-          in: formData
+        - in: query
+          name: paginate
           type: boolean
           default: true
       produces:
@@ -740,22 +752,27 @@ paths:
         Requires `create` permission on `modules` module.
       operationId: createModule
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: name
-          in: formData
-          required: true
-          type: string
-          maxLength: 25
-        - name: category
-          in: formData
-          type: string
-          enum:
-          - uncategorized
-        - name: description
-          in: formData
-          type: string
-          maxLength: 100
+        - in: body
+          name: payload
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+                maxLength: 25
+                example: users
+              category:
+                type: string
+                enum:
+                  - uncategorized
+              description:
+                type: string
+                maxLength: 100
+                example: Users module
       produces:
         - application/json
       responses:
@@ -771,7 +788,10 @@ paths:
               -H 'Accept: application/json' \
               -H 'Authorization: Bearer {access-token}' \
               -H 'Content-Type: application/json' \
-              -d '{"name":"users","description":"Users module"}'
+              -d '{
+                "name":"users",
+                "description":"Users module"
+              }'
   /modules/datatables:
     get:
       tags:
@@ -782,8 +802,6 @@ paths:
 
         Get modules formatted for jQuery datatables.
       operationId: getModulesDatatables
-      consumes:
-        - application/json
       produces:
         - application/json
       responses:
@@ -812,7 +830,7 @@ paths:
              http://localhost:8000/api/v1/modules/datatables \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
-  '/modules/{module}':
+  /modules/{module}:
     get:
       tags:
         - module
@@ -823,9 +841,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: module
-          in: path
-          description: '<a href=''#operation/getModules''>Module name</a>'
+        - in: path
+          name: module
+          description: '<a href="#operation/getModules">Module name</a>'
           required: true
           type: string
       produces:
@@ -851,30 +869,41 @@ paths:
         Requires `update` permission on `modules` module.
       operationId: updateModule
       consumes:
-        - application/x-www-form-urlencoded
-      produces:
         - application/json
       parameters:
-        - name: module
-          in: path
-          description: '<a href=''#operation/getModules''>Module name</a>'
+        - in: path
+          name: module
+          description: '<a href="#operation/getModules">Module name</a>'
           required: true
           type: string
-        - name: category
-          in: formData
-          type: string
-          enum:
-          - uncategorized
-        - name: description
-          in: formData
-          description: 'Module description'
-          type: string
-          maxLength: 100
+        - in: body
+          name: payload
+          schema:
+            type: object
+            properties:
+              category:
+                type: string
+                enum:
+                  - uncategorized
+                  - administration
+                example: administration
+              description:
+                type: string
+                maxLength: 100
+                example: User accounts' management module
+      produces:
+        - application/json
       responses:
         200:
           description: OK
           schema:
-            $ref: '#/definitions/ModuleModel'
+            allOf:
+              - $ref: '#/definitions/ModuleModel'
+              - properties:
+                  category:
+                    example: administration
+                  description:
+                    example: User accounts' management module
       x-code-samples:
         - lang: CURL
           source: |-
@@ -883,7 +912,10 @@ paths:
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}' \
              -H 'Content-Type: application/json' \
-             -d '{"description":"Users module"}'
+             -d '{
+               "category": "administration",
+               "description":"User accounts' management module"
+             }'
 
     delete:
       tags:
@@ -899,9 +931,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: module
-          in: path
-          description: '<a href=''#operation/getModules''>Module name</a>'
+        - in: path
+          name: module
+          description: '<a href="#operation/getModules">Module name</a>'
           required: true
           type: string
       produces:
@@ -916,7 +948,7 @@ paths:
              'http://localhost:8000/api/v1/modules/{module}' \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
-  '/modules/{module}/facilities':
+  /modules/{module}/facilities:
     get:
       tags:
         - module
@@ -927,9 +959,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: module
-          in: path
-          description: '<a href=''#operation/getModules''>Module name</a>'
+        - in: path
+          name: module
+          description: '<a href="#operation/getModules">Module name</a>'
           required: true
           type: string
       produces:
@@ -952,7 +984,7 @@ paths:
              'http://localhost:8000/api/v1/modules/{module}/facilities' \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
-  '/modules/{module}/permissions':
+  /modules/{module}/permissions:
     get:
       tags:
         - module
@@ -963,9 +995,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: module
-          in: path
-          description: '<a href=''#operation/getModules''>Module name</a>'
+        - in: path
+          name: module
+          description: '<a href="#operation/getModules">Module name</a>'
           required: true
           type: string
       produces:
@@ -988,7 +1020,7 @@ paths:
              'http://localhost:8000/api/v1/modules/{module}/permissions' \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
-  '/modules/{module}/restore':
+  /modules/{module}/restore:
     put:
       tags:
         - module
@@ -1003,9 +1035,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: module
-          in: path
-          description: '<a href=''#operation/getModules''>Module name</a>'
+        - in: path
+          name: module
+          description: '<a href="#operation/getModules">Module name</a>'
           required: true
           type: string
       produces:
@@ -1022,7 +1054,7 @@ paths:
              'http://localhost:8000/api/v1/modules/{module}/restore' \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
-  '/modules/{module}/revoke':
+  /modules/{module}/revoke:
     put:
       tags:
         - module
@@ -1035,9 +1067,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: module
-          in: path
-          description: '<a href=''#operation/getModules''>Module name</a>'
+        - in: path
+          name: module
+          description: '<a href="#operation/getModules">Module name</a>'
           required: true
           type: string
       produces:
@@ -1068,10 +1100,10 @@ paths:
         Requires `view-any` permission on `permissions` module.
       operationId: getPermissions
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: paginate
-          in: formData
+        - in: query
+          name: paginate
           type: boolean
           default: true
       produces:
@@ -1135,23 +1167,28 @@ paths:
         Requires `create` permission on `permissions` module.
       operationId: registerPermission
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: module_name
-          description: '<a href=''#operation/getModules''>Module name</a>'
-          in: formData
-          required: true
-          type: string
-        - name: name
-          in: formData
-          required: true
-          type: string
-          maxLength: 25
-        - name: description
-          in: formData
-          required: false
-          type: string
-          maxLength: 100
+        - in: body
+          name: payload
+          schema:
+            type: object
+            required:
+              - module_name
+              - name
+            properties:
+              module_name:
+                type: string
+                description: '<a href="#operation/getModules">Module name</a>'
+                example: users
+              name:
+                type: string
+                maxLength: 25
+                example: view-any
+              description:
+                type: string
+                maxLength: 100
+                example: View any user
       produces:
         - application/json
       responses:
@@ -1186,8 +1223,6 @@ paths:
 
         Get permissions formatted for jQuery datatables.
       operationId: getPermissionsDatatables
-      consumes:
-        - application/json
       produces:
         - application/json
       responses:
@@ -1216,7 +1251,7 @@ paths:
              http://localhost:8000/api/v1/permissions/datatables \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
-  '/permissions/{permission}':
+  /permissions/{permission}:
     get:
       tags:
         - permission
@@ -1227,9 +1262,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: permission
-          in: path
-          description: '<a href=''#operation/getPermissions''>Permission ID</a>'
+        - in: path
+          name: permission
+          description: '<a href="#operation/getPermissions">Permission ID</a>'
           required: true
           type: integer
       produces:
@@ -1258,28 +1293,30 @@ paths:
         Requires `update` permission on `permissions` module.
       operationId: updatePermission
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: permission
-          in: path
-          description: '<a href=''#operation/getPermissions''>Permission ID</a>'
+        - in: path
+          name: permission
+          description: '<a href="#operation/getPermissions">Permission ID</a>'
           required: true
           type: integer
-        - name: module_name
-          in: formData
-          description: '<a href=''#operation/getModules''>Module name</a>'
-          required: true
-          type: string
-        - name: name
-          in: formData
-          required: true
-          type: string
-          maxLength: 25
-        - name: description
-          in: formData
-          required: false
-          type: string
-          maxLength: 100
+        - in: body
+          name: payload
+          schema:
+            type: object
+            properties:
+              module_name:
+                type: string
+                description: '<a href="#operation/getModules">Module name</a>'
+                example: users
+              name:
+                type: string
+                maxLength: 25
+                example: view-any
+              description:
+                type: string
+                maxLength: 100
+                example: View any user
       produces:
         - application/json
       responses:
@@ -1316,9 +1353,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: permission
-          in: path
-          description: '<a href=''#operation/getPermissions''>Permission ID</a>'
+        - in: path
+          name: permission
+          description: '<a href="#operation/getPermissions">Permission ID</a>'
           required: true
           type: integer
       produces:
@@ -1333,7 +1370,7 @@ paths:
              'http://localhost:8000/api/v1/permissions/{permission}' \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
-  '/permissions/{permission}/roles':
+  /permissions/{permission}/roles:
     get:
       tags:
         - permission
@@ -1344,9 +1381,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: permission
-          in: path
-          description: '<a href=''#operation/getPermissions''>Permission ID</a>'
+        - in: path
+          name: permission
+          description: '<a href="#operation/getPermissions">Permission ID</a>'
           required: true
           type: integer
       produces:
@@ -1379,10 +1416,10 @@ paths:
         Requires `view-any` permission on `roles` module.
       operationId: getRoles
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: paginate
-          in: formData
+        - in: query
+          name: paginate
           type: boolean
           default: true
       produces:
@@ -1446,18 +1483,23 @@ paths:
         Requires `create` permission on `roles` module.
       operationId: registerRole
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: name
-          in: formData
-          required: true
-          type: string
-          maxLength: 50
-        - name: description
-          in: formData
-          required: false
-          type: string
-          maxLength: 100
+        - in: body
+          name: payload
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+                maxLength: 50
+                example: Sys Admin
+              description:
+                type: string
+                maxLength: 100
+                example: System Administrator
       produces:
         - application/json
       responses:
@@ -1491,8 +1533,6 @@ paths:
 
         Get roles formatted for jQuery datatables.
       operationId: getRolesDatatables
-      consumes:
-        - application/json
       produces:
         - application/json
       responses:
@@ -1521,7 +1561,7 @@ paths:
              http://localhost:8000/api/v1/roles/datatables \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
-  '/roles/{role}':
+  /roles/{role}:
     get:
       tags:
         - role
@@ -1534,9 +1574,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: role
-          in: path
-          description: '<a href=''#operation/getRoles''>Role ID</a>'
+        - in: path
+          name: role
+          description: '<a href="#operation/getRoles">Role ID</a>'
           required: true
           type: string
           format: uuid
@@ -1566,23 +1606,28 @@ paths:
         Requires `update` permission on `roles` module.
       operationId: updateRole
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: role
-          in: path
-          description: '<a href=''#operation/getRoles''>Role ID</a>'
+        - in: path
+          name: role
+          description: '<a href="#operation/getRoles">Role ID</a>'
           required: true
           type: string
-        - name: name
-          in: formData
-          required: true
-          type: string
-          maxLength: 50
-        - name: description
-          in: formData
-          required: false
-          type: string
-          maxLength: 100
+        - in: body
+          name: payload
+          schema:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+                maxLength: 50
+                example: Sys Admin
+              description:
+                type: string
+                maxLength: 100
+                example: System Administrator
       produces:
         - application/json
       responses:
@@ -1620,9 +1665,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: role
-          in: path
-          description: '<a href=''#operation/getRoles''>Role ID</a>'
+        - in: path
+          name: role
+          description: '<a href="#operation/getRoles">Role ID</a>'
           required: true
           type: string
           format: uuid
@@ -1638,7 +1683,7 @@ paths:
              'http://localhost:8000/api/v1/roles/{role}' \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
-  '/roles/{role}/permissions':
+  /roles/{role}/permissions:
     get:
       tags:
         - role
@@ -1651,9 +1696,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: role
-          in: path
-          description: '<a href=''#operation/getRoles''>Role ID</a>'
+        - in: path
+          name: role
+          description: '<a href="#operation/getRoles">Role ID</a>'
           required: true
           type: string
           format: uuid
@@ -1677,7 +1722,7 @@ paths:
              http://localhost:8000/api/v1/roles/{role}/permissions \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
-  '/roles/{role}/permissions/available':
+  /roles/{role}/permissions/available:
     get:
       tags:
         - role
@@ -1691,15 +1736,15 @@ paths:
       operationId: getRolePermissionsAvailable
       consumes:
         - application/json
-      produces:
-        - application/json
       parameters:
-        - name: role
-          in: path
-          description: '<a href=''#operation/getRoles''>Role ID</a>'
+        - in: path
+          name: role
+          description: '<a href="#operation/getRoles">Role ID</a>'
           required: true
           type: string
           format: uuid
+      produces:
+        - application/json
       responses:
         200:
           description: OK
@@ -1747,21 +1792,26 @@ paths:
         Requires `assign-permissions` permission on `permissions` module.
       operationId: syncRolePermissionsAvailable
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: role
-          in: path
-          description: '<a href=''#operation/getRoles''>Role ID</a>'
+        - in: path
+          name: role
+          description: '<a href="#operation/getRoles">Role ID</a>'
           required: true
           type: string
           format: uuid
-        - name: permissions
-          in: formData
-          description: '<a href=''#operation/getPermissions''>Permission ID</a>'
-          required: true
-          type: array
-          items:
-            type: integer
+        - in: body
+          name: payload
+          schema:
+            type: object
+            required:
+              - permissions
+            properties:
+              permissions:
+                type: array
+                description: '<a href="#operation/getPermissions">Permission ID</a>'
+                items:
+                  type: integer
       produces:
         - application/json
       responses:
@@ -1800,8 +1850,13 @@ paths:
             curl -X PUT \
              http://localhost:8000/api/v1/roles/{role}/permissions/available \
              -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
-  '/roles/{role}/revoke':
+             -H 'Authorization: Bearer {access-token}' \
+             -d '{
+                "permissions": [
+                  1
+                ]
+              }'
+  /roles/{role}/revoke:
     put:
       tags:
         - role
@@ -1814,9 +1869,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: role
-          in: path
-          description: '<a href=''#operation/getRoles''>Role ID</a>'
+        - in: path
+          name: role
+          description: '<a href="#operation/getRoles">Role ID</a>'
           required: true
           type: string
           format: uuid
@@ -1840,7 +1895,7 @@ paths:
              'http://localhost:8000/api/v1/roles/{role}/revoke' \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
-  '/roles/{role}/restore':
+  /roles/{role}/restore:
     put:
       tags:
         - role
@@ -1855,9 +1910,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: role
-          in: path
-          description: '<a href=''#operation/getRoles''>Role ID</a>'
+        - in: path
+          name: role
+          description: '<a href="#operation/getRoles">Role ID</a>'
           required: true
           type: string
           format: uuid
@@ -1879,7 +1934,7 @@ paths:
              'http://localhost:8000/api/v1/roles/{role}/restore' \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
-  '/roles/{role}/users':
+  /roles/{role}/users:
     get:
       tags:
         - role
@@ -1892,9 +1947,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: role
-          in: path
-          description: '<a href=''#operation/getRoles''>Role ID</a>'
+        - in: path
+          name: role
+          description: '<a href="#operation/getRoles">Role ID</a>'
           required: true
           type: string
           format: uuid
@@ -1927,8 +1982,6 @@ paths:
       description: |-
         Requires `view-any` permission on `users` module.
       operationId: getUsers
-      consumes:
-        - application/json
       produces:
         - application/json
       responses:
@@ -1958,30 +2011,39 @@ paths:
         Sets a random default password; see <a href='#operation/resetPassword'>reset password</a>.
       operationId: registerUser
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: name
-          in: formData
-          description: Full name.
-          required: true
-          type: string
-        - name: alias
-          in: formData
-          description: Preferred display name.
-          required: true
-          type: string
-        - name: email
-          in: formData
-          description: 'Email address. Must be unique. See <a href=''#operation/validateEmail''>validate email.</a>'
-          required: true
-          type: string
-          format: email
-        - name: role_id
-          in: formData
-          description: '<a href=''#operation/getRoles''>Role ID</a>'
-          required: true
-          type: string
-          format: uuid
+        - in: body
+          name: payload
+          schema:
+            type: object
+            required:
+              - name
+              - alias
+              - email
+              - role_id
+            properties:
+              name:
+                description: Full name
+                type: string
+                maxLength: 50
+                example: John Doe
+              alias:
+                description: Preferred display name
+                type: string
+                maxLength: 50
+                example: jdoe
+              email:
+                description: 'Email address. Must be unique. See <a href=''#operation/validateEmail">validate email.</a>'
+                type: string
+                format: email
+                maxLength: 100
+                example: jdoe@example.com
+              role_id:
+                description: '<a href="#operation/getRoles">Role ID</a>'
+                type: string
+                format: uuid
+                example: '1bc27b9c-a963-4fda-b79b-91b125ba0ed1'
       produces:
         - application/json
       responses:
@@ -2021,17 +2083,23 @@ paths:
         - password_grant:
           - "authenticate-user"
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: email
-          in: formData
-          required: true
-          type: string
-          format: email
-        - name: password
-          in: formData
-          required: true
-          type: string
+        - in: body
+          name: payload
+          schema:
+            type: object
+            required:
+              - email
+              - password
+            properties:
+              email:
+                type: string
+                format: email
+                example: jdoe@example.com
+              password:
+                type: string
+                example: 'Gm%Pm5^('
       produces:
         - application/json
       responses:
@@ -2072,8 +2140,6 @@ paths:
       security:
         - password_grant:
           - "authenticate-user"
-      consumes:
-        - application/x-www-form-urlencoded
       produces:
         - application/json
       responses:
@@ -2102,11 +2168,17 @@ paths:
       consumes:
         - application/json
       parameters:
-        - in: "body"
-          name: "body"
-          required: true
+        - in: body
+          name: payload
           schema:
-            $ref: "#/definitions/UserValidateEmailRequest"
+            type: object
+            required:
+              - email
+            properties:
+              email:
+                type: string
+                format: email
+                example: jdoe@example.com
       produces:
         - application/json
       responses:
@@ -2133,13 +2205,20 @@ paths:
         Requires `confirm-email` scope.
       operationId: confirmEmailVerification
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: email
-          in: formData
-          description: Verified email address.
-          required: true
-          type: string
+        - in: body
+          name: payload
+          schema:
+            type: object
+            required:
+              - email
+            properties:
+              email:
+                description: Verified email address.
+                type: string
+                format: email
+                example: jdoe@example.com
       produces:
         - application/json
       responses:
@@ -2163,13 +2242,19 @@ paths:
       description: Confirm your <strong>own</strong> password.
       operationId: confirmPassword
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: password
-          in: formData
-          description: Your user account password.
-          required: true
-          type: string
+        - in: body
+          name: payload
+          schema:
+            type: object
+            required:
+              - password
+            properties:
+              password:
+                description: User account password.
+                type: string
+                example: 'N%x/6j^H'
       produces:
         - application/json
       responses:
@@ -2197,30 +2282,36 @@ paths:
         See <a href='#operation/resetPassword'>reset password</a>.
       operationId: updatePassword
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: password
-          in: formData
-          description: Existing user account password.
-          required: true
-          type: string
-        - name: new_password
-          in: formData
-          description: |-
-            New user account password. Having at least;
-            + 8 characters,
-            + an upper case letter,
-            + a lower case letter,
-            + a number and,
-            + a symbol.
-          required: true
-          type: string
-          pattern: '(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$'
-        - name: new_password_confirmation
-          in: formData
-          description: New password confirmation.
-          required: true
-          type: string
+        - in: body
+          name: payload
+          schema:
+            type: object
+            required:
+              - password
+              - new_password
+              - new_password_confirmation
+            properties:
+              password:
+                description: Existing user account password.
+                type: string
+                example: 'N%x/6j^H'
+              new_password:
+                description: |-
+                  New user account password. Having at least;
+                  + 8 characters,
+                  + an upper case letter,
+                  + a lower case letter,
+                  + a number and,
+                  + a symbol.
+                type: string
+                pattern: '(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$'
+                example: 'Gm=Pm5^('
+              new_password_confirmation:
+                description: New password confirmation.
+                type: string
+                example: 'Gm=Pm5^('
       produces:
         - application/json
       responses:
@@ -2235,7 +2326,7 @@ paths:
              -H 'Authorization: Bearer {access-token}' \
              -d '{
                 "password":"N:x/6j^H",
-                "new_password":"Gm":"Pm5^(",
+                "new_password":"Gm=Pm5^(",
                 "new_password_confirmation":"Gm=Pm5^(",
               }'
   /users/password/reset:
@@ -2256,39 +2347,45 @@ paths:
         - password_grant:
           - "reset-password"
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: email
-          in: formData
-          description: Email for account to reset passport.
-          required: true
-          type: string
-        - name: email_verified_at
-          in: formData
-          description: |-
-            When a user verified their email.
+        - in: body
+          name: payload
+          schema:
+            type: object
+            required:
+              - email
+              - password
+              - password_confirmation
+            properties:
+              email:
+                  description: Email for account to reset passport.
+                  type: string
+                  format: email
+                  example: jdoe@example.com
+              email_verified_at:
+                description: |-
+                  When a user verified their email.
 
-            Normally, if password reset was via email, the email is verified implicitly.
-          type: string
-          format: date-time
-          required: false
-        - name: password
-          in: formData
-          description: |-
-            New user account password. Having at least;
-            + 8 characters,
-            + an upper case letter,
-            + a lower case letter,
-            + a number and,
-            + a symbol.
-          required: true
-          type: string
-          pattern: '(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$'
-        - name: password_confirmation
-          in: formData
-          description: New password confirmation.
-          required: true
-          type: string
+                  Normally, if password reset was via email, the email is verified implicitly.
+                type: string
+                format: date-time
+                example: '2019-12-20 14:05:23'
+              password:
+                description: |-
+                  New user account password. Having at least;
+                  + 8 characters,
+                  + an upper case letter,
+                  + a lower case letter,
+                  + a number and,
+                  + a symbol.
+                type: string
+                pattern: '(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$'
+                example: 'Gm=Pm5^('
+              password_confirmation:
+                description: Password confirmation.
+                type: string
+                example: 'Gm=Pm5^('
       produces:
         - application/json
       responses:
@@ -2306,7 +2403,7 @@ paths:
                 "password":"Gm%Pm5^(",
                 "password_confirmation":"Gm%Pm5^("
               }'
-  '/users/{user}':
+  /users/{user}:
     get:
       tags:
         - user
@@ -2319,9 +2416,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: user
-          in: path
-          description: '<a href=''#operation/getUsers''>User</a>'
+        - in: path
+          name: user
+          description: '<a href="#operation/getUsers">User</a>'
           required: true
           type: string
           format: uuid
@@ -2355,39 +2452,43 @@ paths:
         Can't update a user's password. See <a href='#operation/updatePassword'>update user password</a>
       operationId: updateUser
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: user
-          in: path
-          description: '<a href=''#operation/getUsers''>User</a>'
+        - in: path
+          name: user
+          description: '<a href="#operation/getUsers">User</a>'
           required: true
           type: string
           format: uuid
-        - name: name
-          in: formData
-          description: Full name
-          required: false
-          type: string
-        - name: alias
-          in: formData
-          description: Preferred display name.
-          required: false
-          type: string
-        - name: email
-          in: formData
-          description: |-
-            Email address.\
-            If changed, user must verify new email address.
-            See <a href='#operation/confirmEmailVerification'>confirm email verification.</a>
-          required: false
-          type: string
-          format: email
-        - name: role_id
-          in: formData
-          description: '<a href=''#operation/getRoles''>Role ID</a>'
-          required: false
-          type: string
-          format: uuid
+        - in: body
+          name: payload
+          schema:
+            type: object
+            properties:
+              name:
+                description: Full name
+                type: string
+                maxLength: 50
+                example: John Doe
+              alias:
+                description: Preferred display name
+                type: string
+                maxLength: 50
+                example: jdoe
+              email:
+                description: |-
+                  Email address.\
+                  If changed, user must verify new email address.
+                  See <a href='#operation/confirmEmailVerification'>confirm email verification.</a>
+                type: string
+                format: email
+                maxLength: 100
+                example: jdoe@example.com
+              role_id:
+                description: '<a href="#operation/getRoles">Role ID</a>'
+                type: string
+                format: uuid
+                example: '1bc27b9c-a963-4fda-b79b-91b125ba0ed1'
       produces:
         - application/json
       responses:
@@ -2429,9 +2530,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: user
-          in: path
-          description: '<a href=''#operation/getUsers''>User</a>'
+        - in: path
+          name: user
+          description: '<a href="#operation/getUsers">User</a>'
           required: true
           type: string
           format: uuid
@@ -2447,7 +2548,7 @@ paths:
              'http://localhost:8000/api/v1/users/{user}' \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
-  '/users/{user}/revoke':
+  /users/{user}/revoke:
     put:
       tags:
         - user
@@ -2460,9 +2561,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: user
-          in: path
-          description: '<a href=''#operation/getUsers''>User</a>'
+        - in: path
+          name: user
+          description: '<a href="#operation/getUsers">User</a>'
           required: true
           type: string
           format: uuid
@@ -2488,7 +2589,7 @@ paths:
              'http://localhost:8000/api/v1/users/{user}/revoke' \
              -H 'Accept: application/json' \
              -H 'Authorization: Bearer {access-token}'
-  '/users/{user}/restore':
+  /users/{user}/restore:
     put:
       tags:
         - user
@@ -2503,9 +2604,9 @@ paths:
       consumes:
         - application/json
       parameters:
-        - name: user
-          in: path
-          description: '<a href=''#operation/getUsers''>User</a>'
+        - in: path
+          name: user
+          description: '<a href="#operation/getUsers">User</a>'
           required: true
           type: string
           format: uuid
@@ -2537,66 +2638,57 @@ paths:
       summary: Request oauth token
       operationId: requestToken
       consumes:
-        - application/x-www-form-urlencoded
+        - application/json
       parameters:
-        - name: client_id
-          in: formData
-          required: true
-          type: string
-          format: UUID
-        - name: client_secret
-          in: formData
-          required: true
-          type: string
-        - name: grant_type
-          type: string
-          enum:
-            - authorization_code
-            - client_credentials
-            - password
-            - refresh_token
-          in: formData
-          required: true
-        - name: code
-          in: formData
-          description: |-
-            Authorization code.
+        - in: body
+          name: payload
+          schema:
+            type: object
+            required:
+              - client_id
+              - client_secret
+              - grant_type
+            properties:
+              client_id:
+                type: string
+                format: UUID
+              client_secret:
+                type: string
+              grant_type:
+                type: string
+                enum:
+                  - authorization_code
+                  - client_credentials
+                  - password
+                  - refresh_token
+              code:
+                description: |-
+                  Authorization code.
 
-            <strong>Required if</strong> grant_type is `authorization_code`.
-          required: false
-          type: string
-        - name: redirect_uri
-          in: formData
-          description: |-
-            <strong>Required if</strong> grant_type is `authorization_code`.
-          required: false
-          type: string
-          format: URI
-        - name: refresh_token
-          in: formData
-          description: |-
-            Refresh access-token.
+                  <strong>Required if</strong> grant_type is `authorization_code`.
+                type: string
+              redirect_uri:
+                description: |-
+                  <strong>Required if</strong> grant_type is `authorization_code`.
+                type: string
+                format: URI
+              refresh_token:
+                description: |-
+                  Refresh access-token.
 
-            <strong>Required if</strong> grant_type is `refresh_token`.
-          required: false
-          type: string
-        - name: username
-          in: formData
-          description: <strong>Required if</strong> grant_type is `password`.
-          required: false
-          type: string
-        - name: password
-          in: formData
-          description: <strong>Required if</strong> grant_type is `password`.
-          required: false
-          type: string
-          format: password
-        - name: scopes
-          in: formData
-          required: false
-          type: array
-          items:
-            type: string
+                  <strong>Required if</strong> grant_type is `refresh_token`.
+                type: string
+              username:
+                description: <strong>Required if</strong> grant_type is `password`.
+                type: string
+              password:
+                description: <strong>Required if</strong> grant_type is `password`.
+                type: string
+                format: password
+              scopes:
+                type: array
+                items:
+                  type: string
       produces:
         - application/json
       responses:
@@ -2643,12 +2735,12 @@ definitions:
         format: uuid
         example: 0ac99f1b-482c-4af1-be28-ddace07eff20
       facility_id:
-        description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+        description: '<a href="#operation/getFacilities">Facility ID</a>'
         type: string
         format: uuid
         example: 90cae4ff-6f86-4ba3-8651-134b48fd7a2a
       role_id:
-        description: '<a href=''#operation/getRoles''>Role ID</a>'
+        description: '<a href="#operation/getRoles">Role ID</a>'
         type: string
         format: uuid
         example: f0f95c23-6ba1-4348-b1d9-bfb5e4bb1e3f
@@ -2696,10 +2788,10 @@ definitions:
         format: uuid
         example: f0f95c23-6ba1-4348-b1d9-bfb5e4bb1e3f
       facility_id:
-        description: '<a href=''#operation/getFacilities''>Facility ID</a>'
+        description: '<a href="#operation/getFacilities">Facility ID</a>'
         type: string
         format: uuid
-        example: 0ac99f1b-482c-4af1-be28-ddace07eff20
+        example: '0ac99f1b-482c-4af1-be28-ddace07eff20'
       name:
         type: string
         maxLength: 50
@@ -2731,7 +2823,7 @@ definitions:
       id:
         type: string
         format: uuid
-        example: 90cae4ff-6f86-4ba3-8651-134b48fd7a2a
+        example: '90cae4ff-6f86-4ba3-8651-134b48fd7a2a'
       name:
         type: string
         maxLength: 100
@@ -2739,12 +2831,12 @@ definitions:
       description:
         type: string
         maxLength: 100
-        example: Mulago Hospital
+        example: National Referral Hospital
         x-nullable: true
       address:
         type: string
         maxLength: 100
-        example: Mulago Hill
+        example: Mulago Hill, Kampala
       email:
         type: string
         format: email
@@ -2786,15 +2878,15 @@ definitions:
         type: string
         maxLength: 100
         example: users
+      category:
+        type: string
+        enum:
+          - uncategorized
       description:
         type: string
         maxLength: 50
         example: Users module
         x-nullable: true
-      category:
-        type: string
-        enum:
-          - uncategorized
       created_at:
         type: string
         format: date-time
