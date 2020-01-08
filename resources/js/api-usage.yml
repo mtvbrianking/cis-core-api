@@ -531,10 +531,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  FacilityModel:
-                    $ref: '#/components/schemas/FacilityModel'
+                allOf:
+                  - $ref: '#/components/schemas/FacilityModel'
+                  - properties:
+                      modules:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ModuleModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -566,10 +569,23 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  FacilityModel:
-                    $ref: '#/components/schemas/FacilityModel'
+                allOf:
+                  - $ref: '#/components/schemas/FacilityModel'
+                  - properties:
+                      modules:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                              example: users
+                            category:
+                              type: string
+                              example: uncategorized
+                            granted:
+                              type: boolean
+                              example: true
       x-code-samples:
       - lang: CURL
         source: |-
@@ -595,17 +611,23 @@ paths:
         content:
           application/json:
             schema:
-              required:
-              - modules
-              type: object
-              properties:
-                modules:
-                  type: array
-                  description: <a href="#operation/getModules">Module name</a>
-                  items:
-                    type: string
-                    example: users
-        required: false
+              allOf:
+                - $ref: '#/components/schemas/FacilityModel'
+                - properties:
+                    modules:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                            example: users
+                          category:
+                            type: string
+                            example: uncategorized
+                          granted:
+                            type: boolean
+                            example: true
       responses:
         200:
           description: OK
@@ -684,10 +706,11 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  FacilityModel:
-                    $ref: '#/components/schemas/FacilityModel'
+                allOf:
+                  - $ref: '#/components/schemas/FacilityModel'
+                  - properties:
+                      deleted_at:
+                        example: '2018-10-05 22:48:06'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -699,7 +722,7 @@ paths:
     get:
       tags:
       - facility
-      summary: Get roles belonging to a facility.
+      summary: Get roles belonging to a facility
       description: Requires `view-any` permission on `roles` module.
       operationId: getFacilityRoles
       parameters:
@@ -716,10 +739,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  FacilityModel:
-                    $ref: '#/components/schemas/FacilityModel'
+                allOf:
+                  - $ref: '#/components/schemas/FacilityModel'
+                  - properties:
+                      roles:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/RoleModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -748,10 +774,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  FacilityModel:
-                    $ref: '#/components/schemas/FacilityModel'
+                allOf:
+                  - $ref: '#/components/schemas/FacilityModel'
+                  - properties:
+                      users:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/UserModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -973,10 +1002,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  ModuleModel:
-                    $ref: '#/components/schemas/ModuleModel'
+                allOf:
+                  - $ref: '#/components/schemas/ModuleModel'
+                  - properties:
+                      category:
+                        example: administration
+                      description:
+                        example: User accounts' management module
       x-code-samples:
       - lang: CURL
         source: |-
@@ -1038,10 +1070,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  ModuleModel:
-                    $ref: '#/components/schemas/ModuleModel'
+                allOf:
+                  - $ref: '#/components/schemas/ModuleModel'
+                  - properties:
+                      facilities:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -1069,10 +1104,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  ModuleModel:
-                    $ref: '#/components/schemas/ModuleModel'
+                allOf:
+                  - $ref: '#/components/schemas/ModuleModel'
+                  - properties:
+                      permissions:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PermissionModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -1136,10 +1174,11 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  ModuleModel:
-                    $ref: '#/components/schemas/ModuleModel'
+                allOf:
+                  - $ref: '#/components/schemas/ModuleModel'
+                  - properties:
+                      deleted_at:
+                        example: '2018-10-05 22:48:06'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -1247,10 +1286,11 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  PermissionModel:
-                    $ref: '#/components/schemas/PermissionModel'
+                allOf:
+                  - $ref: '#/components/schemas/PermissionModel'
+                  - properties:
+                      module:
+                        $ref: '#/components/schemas/ModuleModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -1322,10 +1362,11 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  PermissionModel:
-                    $ref: '#/components/schemas/PermissionModel'
+                allOf:
+                  - $ref: '#/components/schemas/PermissionModel'
+                  - properties:
+                      module:
+                        $ref: '#/components/schemas/ModuleModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -1371,10 +1412,11 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  PermissionModel:
-                    $ref: '#/components/schemas/PermissionModel'
+                allOf:
+                  - $ref: '#/components/schemas/PermissionModel'
+                  - properties:
+                      module:
+                        $ref: '#/components/schemas/ModuleModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -1435,10 +1477,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  PermissionModel:
-                    $ref: '#/components/schemas/PermissionModel'
+                allOf:
+                  - $ref: '#/components/schemas/PermissionModel'
+                  - properties:
+                      roles:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/RoleModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -1541,10 +1586,11 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  RoleModel:
-                    $ref: '#/components/schemas/RoleModel'
+                allOf:
+                  - $ref: '#/components/schemas/RoleModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -1619,10 +1665,11 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  RoleModel:
-                    $ref: '#/components/schemas/RoleModel'
+                allOf:
+                  - $ref: '#/components/schemas/RoleModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -1666,10 +1713,11 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  RoleModel:
-                    $ref: '#/components/schemas/RoleModel'
+                allOf:
+                  - $ref: '#/components/schemas/RoleModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -1736,10 +1784,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  RoleModel:
-                    $ref: '#/components/schemas/RoleModel'
+                allOf:
+                  - $ref: '#/components/schemas/RoleModel'
+                  - properties:
+                      permissions:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PermissionModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -1773,10 +1824,32 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  RoleModel:
-                    $ref: '#/components/schemas/RoleModel'
+                allOf:
+                  - $ref: '#/components/schemas/RoleModel'
+                  - properties:
+                      permissions:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 1
+                            name:
+                              type: string
+                              example: view-any
+                            granted:
+                              type: boolean
+                              example: true
+                            module:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+                                  example: users
+                                category:
+                                  type: string
+                                  example: uncategorized
       x-code-samples:
       - lang: CURL
         source: |-
@@ -1821,10 +1894,32 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  RoleModel:
-                    $ref: '#/components/schemas/RoleModel'
+                allOf:
+                  - $ref: '#/components/schemas/RoleModel'
+                  - properties:
+                      permissions:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 1
+                            name:
+                              type: string
+                              example: view-any
+                            granted:
+                              type: boolean
+                              example: true
+                            module:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+                                  example: users
+                                category:
+                                  type: string
+                                  example: uncategorized
       x-code-samples:
       - lang: CURL
         source: |-
@@ -1861,10 +1956,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  RoleModel:
-                    $ref: '#/components/schemas/RoleModel'
+                allOf:
+                  - $ref: '#/components/schemas/RoleModel'
+                  - properties:
+                      deleted_at:
+                        example: '2018-10-05 22:48:06'
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -1898,10 +1996,11 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  RoleModel:
-                    $ref: '#/components/schemas/RoleModel'
+                allOf:
+                  - $ref: '#/components/schemas/RoleModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -1933,10 +2032,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  RoleModel:
-                    $ref: '#/components/schemas/RoleModel'
+                allOf:
+                  - $ref: '#/components/schemas/RoleModel'
+                  - properties:
+                      users:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/UserModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -1958,12 +2060,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  users:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/UserModel'
+                allOf:
+                  - $ref: '#/components/schemas/UserModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+                      role:
+                        $ref: '#/components/schemas/RoleModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -2020,10 +2123,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  UserModel:
-                    $ref: '#/components/schemas/UserModel'
+                allOf:
+                  - $ref: '#/components/schemas/UserModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+                      role:
+                        $ref: '#/components/schemas/RoleModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -2068,10 +2174,15 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  UserModel:
-                    $ref: '#/components/schemas/UserModel'
+                allOf:
+                  - $ref: '#/components/schemas/UserModel'
+                  - properties:
+                      role:
+                        $ref: '#/components/schemas/RoleModel'
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+                      token:
+                        $ref: '#/components/schemas/TokenModel'
       # security:
       # - Authorization:
       #   - authenticate-user
@@ -2414,10 +2525,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  UserModel:
-                    $ref: '#/components/schemas/UserModel'
+                allOf:
+                  - $ref: '#/components/schemas/UserModel'
+                  - properties:
+                      role:
+                        $ref: '#/components/schemas/RoleModel'
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -2479,10 +2593,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  UserModel:
-                    $ref: '#/components/schemas/UserModel'
+                allOf:
+                  - $ref: '#/components/schemas/UserModel'
+                  - properties:
+                      role:
+                        $ref: '#/components/schemas/RoleModel'
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -2551,10 +2668,15 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  UserModel:
-                    $ref: '#/components/schemas/UserModel'
+                allOf:
+                  - $ref: '#/components/schemas/UserModel'
+                  - properties:
+                      deleted_at:
+                        example: '2018-10-05 22:48:06'
+                      role:
+                        $ref: '#/components/schemas/RoleModel'
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -2588,10 +2710,13 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  UserModel:
-                    $ref: '#/components/schemas/UserModel'
+                allOf:
+                  - $ref: '#/components/schemas/UserModel'
+                  - properties:
+                      role:
+                        $ref: '#/components/schemas/RoleModel'
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
       - lang: CURL
         source: |-
@@ -2654,6 +2779,7 @@ components:
         deleted_at:
           type: string
           format: date-time
+          default: null
           nullable: true
     RoleModel:
       title: Role
@@ -2688,6 +2814,7 @@ components:
         deleted_at:
           type: string
           format: date-time
+          default: null
           nullable: true
     FacilityModel:
       title: Facility
@@ -2739,13 +2866,14 @@ components:
         deleted_at:
           type: string
           format: date-time
+          default: null
           nullable: true
     ModuleModel:
       title: Module
       type: object
       properties:
         name:
-          maxLength: 100
+          maxLength: 25
           type: string
           example: users
         category:
@@ -2768,6 +2896,7 @@ components:
         deleted_at:
           type: string
           format: date-time
+          default: null
           nullable: true
     PermissionModel:
       title: Permission
@@ -2777,11 +2906,11 @@ components:
           type: integer
           example: 1
         module_name:
-          maxLength: 100
+          maxLength: 25
           type: string
           example: users
         name:
-          maxLength: 100
+          maxLength: 25
           type: string
           format: uuid
         description:
