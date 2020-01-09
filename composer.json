@@ -10,8 +10,9 @@
     "require": {
         "php": "^7.2",
         "bmatovu/laravel-eloquent-uuid": "^0.0.1",
+        "bmatovu/laravel-query-decorator": "^0.0.2",
         "fideloper/proxy": "^4.0",
-        "justinrainbow/json-schema": "^5.2",
+        "justinrainbow/json-schema": "5.2.9",
         "laracasts/flash": "^3.0",
         "laravel/framework": "^6.2",
         "laravel/passport": "^7.5",
@@ -73,8 +74,7 @@
         ],
         "test": [
             "@php artisan config:clear",
-            "php-cs-fixer fix --dry-run",
-            "phpunit --configuration=phpunit.xml",
+            "phpunit --prepend build/xdebug-filter.php --coverage-html build/coverage",
             "@php artisan config:cache"
         ]
     }

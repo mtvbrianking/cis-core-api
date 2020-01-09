@@ -30,7 +30,45 @@ class RoleControllerTest extends TestCase
 
         $user = $this->getAuthorizedUser('view-any', 'roles');
 
-        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/roles?paginate=0');
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/roles');
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'current_page',
+            'data' => [
+                '*' => [
+                    'id',
+                    'facility_id',
+                    'name',
+                    'description',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                ],
+            ],
+            'first_page_url',
+            'from',
+            'last_page',
+            'last_page_url',
+            'next_page_url',
+            'path',
+            'per_page',
+            'prev_page_url',
+            'to',
+            'total',
+        ]);
+    }
+
+    public function test_can_get_non_paginated_roles()
+    {
+        $user = $this->getAuthorizedUser('view-any', 'roles');
+
+        $query = http_build_query([
+            'paginate' => 0,
+        ]);
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles?{$query}");
 
         $response->assertStatus(200);
 
@@ -43,6 +81,95 @@ class RoleControllerTest extends TestCase
                     'description',
                     'created_at',
                     'updated_at',
+                    'deleted_at',
+                ],
+            ],
+        ]);
+    }
+
+    public function test_can_get_roles_for_datatables()
+    {
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/roles/datatables');
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view-any', 'roles');
+
+        $query = http_build_query([
+            'start' => 0,
+            'length' => 10,
+            'draw' => 1,
+            'columns' => [
+                [
+                    'data' => 'id',
+                    'name' => 'id',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+                [
+                    'data' => 'name',
+                    'name' => 'name',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+                [
+                    'data' => 'description',
+                    'name' => 'description',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+                [
+                    'data' => 'deleted_at',
+                    'name' => 'deleted_at',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+            ],
+            'order' => [
+                [
+                    'column' => '1',
+                    'dir' => 'asc',
+                ],
+            ],
+            'search' => [
+                'value' => null,
+                'regex' => 'false',
+            ],
+        ]);
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/datatables?{$query}");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'draw',
+            'recordsTotal',
+            'recordsFiltered',
+            'data' => [
+                '*' => [
+                    'id',
+                    'name',
+                    'description',
                     'deleted_at',
                 ],
             ],
@@ -395,6 +522,34 @@ class RoleControllerTest extends TestCase
         ]);
     }
 
+    public function test_can_delete_non_orphaned_role()
+    {
+        $user = $this->getAuthorizedUser('force-delete', 'roles');
+
+        $role = factory(Role::class)->create([
+            'facility_id' => $user->facility_id,
+            'deleted_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        // Dependant
+        factory(User::class)->create([
+            'facility_id' => $user->facility_id,
+            'role_id' => $role->id,
+        ]);
+
+        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/roles/{$role->id}");
+
+        $response->assertStatus(400);
+
+        $response->assertJsonStructure([
+            'message',
+        ]);
+
+        $this->assertDatabaseHas('roles', [
+            'id' => $role->id,
+        ]);
+    }
+
     public function test_can_get_permissions_for_a_specified_role()
     {
         $user = factory(User::class)->create();
@@ -405,7 +560,7 @@ class RoleControllerTest extends TestCase
 
         // ...
 
-        $user = $this->getAuthorizedUser('view-permissions', 'roles');
+        $user = $this->getAuthorizedUser('view-any', 'permissions');
 
         $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$user->role_id}/permissions");
 
@@ -434,7 +589,7 @@ class RoleControllerTest extends TestCase
             'facility_id' => $user->facility_id,
         ]);
 
-        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$role->id}/permissions/granted");
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$role->id}/permissions/available");
 
         $response->assertStatus(403);
 
@@ -446,7 +601,7 @@ class RoleControllerTest extends TestCase
             'facility_id' => $user->facility_id,
         ]);
 
-        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$role->id}/permissions/granted");
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/{$role->id}/permissions/available");
 
         $response->assertStatus(200);
 
@@ -503,7 +658,7 @@ class RoleControllerTest extends TestCase
     {
         $user = factory(User::class)->create();
 
-        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$user->role_id}/permissions", []);
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$user->role_id}/permissions/available", []);
 
         $response->assertStatus(403);
 
@@ -523,7 +678,7 @@ class RoleControllerTest extends TestCase
             'name' => 'view-any',
         ]);
 
-        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$user->role_id}/permissions", [
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$user->role_id}/permissions/available", [
             'permissions' => [
                 $permission->id,
             ],
@@ -553,6 +708,47 @@ class RoleControllerTest extends TestCase
         $this->assertDatabaseHas('role_permission', [
             'permission_id' => $permission->id,
             'role_id' => $user->role_id,
+        ]);
+    }
+
+    public function test_cant_sync_unknown_permissions_permissions()
+    {
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$user->role_id}/permissions/available");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('assign-permissions', 'permissions');
+
+        $role = factory(Role::class)->create();
+
+        $randomPermissionId = time();
+
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$role->id}/permissions/available", [
+            'permissions' => [
+                $randomPermissionId,
+            ],
+        ]);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'permissions',
+            ],
+        ]);
+
+        $response->assertJson([
+            'message' => 'The given data was invalid.',
+            'errors' => [
+                'permissions' => [
+                    "Unknown permissions: {$randomPermissionId}",
+                ],
+            ],
         ]);
     }
 }

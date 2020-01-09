@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Facility;
 use App\Models\Module;
 use App\Models\Permission;
-use App\Support\Datatable;
-use App\Traits\JqueryDatatables;
-use App\Traits\JsonValidation;
-use App\Traits\QueryDecoration;
+use Bmatovu\QueryDecorator\Json\Schema;
+use Bmatovu\QueryDecorator\Query\Decorator;
+use Bmatovu\QueryDecorator\Support\Datatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -16,8 +16,6 @@ use JsonSchema\Validator as JsonValidator;
 
 class ModuleController extends Controller
 {
-    use JsonValidation, JqueryDatatables, QueryDecoration;
-
     /**
      * Json schema validator.
      *
@@ -43,7 +41,7 @@ class ModuleController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \App\Exceptions\InvalidJsonException
+     * @throws \Bmatovu\QueryDecorator\Exceptions\InvalidJsonException
      *
      * @return \Illuminate\Http\Response
      */
@@ -55,7 +53,7 @@ class ModuleController extends Controller
 
         $schemaPath = resource_path('js/schemas/modules.json');
 
-        static::validateJson($this->jsonValidator, $schemaPath, $request->query());
+        Schema::validate($this->jsonValidator, $schemaPath, $request->query());
 
         // Query modules.
 
@@ -64,18 +62,17 @@ class ModuleController extends Controller
         $query->withTrashed();
 
         // Apply constraints to query.
-
-        $query = static::applyConstraintsToQuery($query, $request);
+        $query = Decorator::decorate($query, (array) $request->query('filters'));
 
         // Pagination.
 
-        $limit = $request->input('limit', 15);
+        $limit = $request->input('limit', 10);
 
-        $modules = $request->input('paginate', true)
-            ? $query->paginate($limit)
-            : $query->take($limit)->get();
+        if ($request->input('paginate', true)) {
+            return response($query->paginate($limit));
+        }
 
-        // $modules->withPath(url()->full());
+        $modules = $query->take($limit)->get();
 
         return response(['modules' => $modules]);
     }
@@ -86,36 +83,43 @@ class ModuleController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Bmatovu\QueryDecorator\Exceptions\InvalidJsonException
      *
      * @return \Illuminate\Http\Response
      */
-    public function indexDt(Request $request)
+    public function datatables(Request $request)
     {
         $this->authorize('viewAny', [Module::class]);
 
         // ...
 
-        $query = Module::query();
+        $params = (array) $request->query();
 
         // ...
-
-        $constraints = Datatable::prepareQueryParameters($request->query());
-
-        // return response($constraints);
+        $constraints = Datatable::buildConstraints($params, 'ilike');
 
         // ...
 
         $schemaPath = resource_path('js/schemas/modules.json');
 
-        static::validateJson($this->jsonValidator, $schemaPath, $constraints);
+        Schema::validate($this->jsonValidator, $schemaPath, $constraints);
 
         // ...
 
-        $tableModelMap = [
-            'modules' => null,
-        ];
+        $query = Module::query();
 
-        return static::queryForDatatables($query, $constraints, $tableModelMap);
+        $availableRecords = $query->count();
+
+        $query = Decorator::decorate($query, $constraints);
+
+        $matchedRecords = $query->get();
+
+        return response([
+            'draw' => (int) $constraints['draw'],
+            'recordsTotal' => $availableRecords,
+            'recordsFiltered' => isset($constraints['filter']) ? $matchedRecords->count() : $availableRecords,
+            'data' => $matchedRecords,
+        ]);
     }
 
     /**
@@ -123,7 +127,7 @@ class ModuleController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
-     * @throws ValidationException
+     * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
@@ -133,8 +137,9 @@ class ModuleController extends Controller
         $this->authorize('create', [Module::class]);
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|max:20',
-            'description' => 'sometimes|max:25',
+            'name' => 'required|max:25',
+            'category' => 'sometimes|in:uncategorized',
+            'description' => 'sometimes|max:100',
         ]);
 
         $validator->after(function ($validator) use ($request) {
@@ -153,6 +158,7 @@ class ModuleController extends Controller
 
         $module = new Module();
         $module->name = $request->name;
+        $module->category = $request->input('category', 'uncategorized');
         $module->description = $request->description;
         $module->save();
 
@@ -180,12 +186,48 @@ class ModuleController extends Controller
     }
 
     /**
+     * Get facilities with this module.
+     *
+     * @param string $moduleName
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function facilities($moduleName)
+    {
+        $this->authorize('viewAny', [Facility::class]);
+
+        $module = Module::with('facilities')->findOrFail($moduleName);
+
+        return response($module);
+    }
+
+    /**
+     * Get permissions beloging to this module.
+     *
+     * @param string $moduleName
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function permissions($moduleName)
+    {
+        $this->authorize('viewAny', [Permission::class]);
+
+        $module = Module::with('permissions')->findOrFail($moduleName);
+
+        return response($module);
+    }
+
+    /**
      * Update specific module.
      *
      * @param \Illuminate\Http\Request $request
      * @param string                   $moduleName
      *
-     * @throws ValidationException
+     * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
@@ -197,9 +239,11 @@ class ModuleController extends Controller
         $module = Module::findOrFail($moduleName);
 
         $this->validate($request, [
-            'description' => 'nullable|max:25',
+            'category' => 'sometimes|in:uncategorized',
+            'description' => 'nullable|max:100',
         ]);
 
+        $module->category = $request->input('category', 'uncategorized');
         $module->description = $request->description;
         $module->save();
 

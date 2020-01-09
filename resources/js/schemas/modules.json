@@ -1,127 +1,268 @@
 {
-  "$id": "#/schema/module",
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "description": "Module model schema",
-  "type": "object",
-  "additionalProperties": true,
-  "properties": {
-    "select": {
-      "$id": "#/properties/select",
-      "type": "array",
-      "minItems": 1,
-      "uniqueItems": true,
-      "additionalItems": false,
-      "items": {
-        "$ref": "#/definitions/field"
-      }
+    "$id": "#/schema/module",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "description": "Module model schema",
+    "type": "object",
+    "properties": {
+        "select": {
+            "$id": "#/properties/select",
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+                "$ref": "#/definitions/column"
+            },
+            "additionalItems": false
+        },
+        "filter": {
+            "$id": "#/properties/filter",
+            "type": "object",
+            "minItems": 1,
+            "items": {
+                "$id": "#/properties/filter/items",
+                "type": "object",
+                "properties": {
+                    "where": {
+                        "$ref": "#/definitions/where"
+                    },
+                    "whereNull": {
+                        "$ref": "#/definitions/whereNull"
+                    },
+                    "whereIn": {
+                        "$ref": "#/definitions/whereIn"
+                    },
+                    "whereBetween": {
+                        "$ref": "#/definitions/whereBetween"
+                    },
+                    "whereGrouped": {
+                        "$ref": "#/definitions/whereGrouped"
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "orderBy": {
+            "$id": "#/properties/orderBy",
+            "type": "array",
+            "items": {
+                "$id": "#/properties/orderBy/items",
+                "type": "object",
+                "required": ["column", "direction"],
+                "properties": {
+                    "column": {
+                        "$ref": "#/definitions/column"
+                    },
+                    "direction": {
+                        "$id": "#/properties/orderBy/items/properties/direction",
+                        "type": "string",
+                        "enum": ["asc", "desc"]
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "offset": {
+            "$id": "#/properties/offset",
+            "type": "integer"
+        },
+        "limit": {
+            "$id": "#/properties/limit",
+            "type": "integer",
+            "default": 15,
+            "minimum": 0,
+            "maximum": 100
+        },
+        "draw": {
+            "$id": "#/properties/draw",
+            "type": "integer"
+        }
     },
-    "where": {
-      "$ref": "#/definitions/where"
-    },
-    "or-where": {
-      "$ref": "#/definitions/where"
-    },
-    "order-by": {
-      "$id": "#/properties/order-by",
-      "type": "array",
-      "items": {
-        "$id": "#/properties/order-by/items",
-        "type": "object",
-        "required": [
-          "field",
-          "direction"
-        ],
-        "properties": {
-          "field": {
-            "$ref": "#/definitions/field"
-          },
-          "direction": {
-            "$id": "#/properties/order-by/items/properties/direction",
+    "additionalProperties": true,
+    "definitions": {
+        "column": {
+            "$id": "#/definitions/column",
             "type": "string",
             "enum": [
-              "asc",
-              "desc"
+                "name",
+                "description",
+                "category",
+                "created_at",
+                "updated_at",
+                "deleted_at"
             ]
-          }
-        }
-      }
-    },
-    "offset": {
-      "$id": "#/properties/offset",
-      "type": "integer"
-    },
-    "limit": {
-      "$id": "#/properties/limit",
-      "type": "integer",
-      "default": 15,
-      "minimum": 0,
-      "maximum": 100
-    },
-    "draw": {
-      "$id": "#/properties/draw",
-      "type": "integer"
-    }
-  },
-  "definitions": {
-    "field": {
-      "$id": "#/definitions/field",
-      "type": "string",
-      "enum": [
-        "name",
-        "description",
-        "category",
-        "created_at",
-        "updated_at",
-        "deleted_at"
-      ]
-    },
-    "operator": {
-      "$id": "#/definitions/operator",
-      "type": "string",
-      "enum": [
-        "=",
-        "!=",
-        "<>",
-        ">",
-        "<",
-        ">=",
-        "<=",
-        "!<",
-        "!>",
-        "like",
-        "ilike",
-        "in",
-        "between"
-      ]
-    },
-    "where": {
-      "$id": "#/definitions/where",
-      "type": "array",
-      "items": {
-        "$id": "#/definitions/where/items",
-        "type": "object",
-        "required": [
-          "field",
-          "operator",
-          "value"
-        ],
-        "properties": {
-          "field": {
-            "$ref": "#/definitions/field"
-          },
-          "operator": {
-            "$ref": "#/definitions/operator"
-          },
-          "value": {
-            "$id": "#/definitions/where/items/properties/value",
-            "type": [
-              "array",
-              "string",
-              "integer"
+        },
+        "operator": {
+            "$id": "#/definitions/operator",
+            "type": "string",
+            "enum": [
+                "=",
+                "<",
+                ">",
+                "<=",
+                ">=",
+                "<>",
+                "!=",
+                "<=>",
+                "like",
+                "like binary",
+                "not like",
+                "ilike",
+                "&",
+                "|",
+                "^",
+                "<<",
+                ">>",
+                "rlike",
+                "not rlike",
+                "regexp",
+                "not regexp",
+                "~",
+                "~*",
+                "!~",
+                "!~*",
+                "similar to",
+                "not similar to",
+                "not ilike",
+                "~~*",
+                "!~~*"
             ]
-          }
+        },
+        "where": {
+            "$id": "#/definitions/where",
+            "type": "array",
+            "items": {
+                "$id": "#/definitions/where/items",
+                "type": "object",
+                "required": ["boolean", "column", "operator", "value"],
+                "properties": {
+                    "boolean": {
+                        "$id": "#/definitions/where/items/properties/boolean",
+                        "type": "string",
+                        "enum": ["and", "or"]
+                    },
+                    "column": {
+                        "$ref": "#/definitions/column"
+                    },
+                    "operator": {
+                        "$ref": "#/definitions/operator"
+                    },
+                    "value": {
+                        "$id": "#/definitions/where/items/properties/value",
+                        "type": ["boolean", "string", "integer"]
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "whereNull": {
+            "$id": "#/definitions/whereNull",
+            "type": "array",
+            "items": {
+                "$id": "#/definitions/whereNull/items",
+                "type": "object",
+                "required": ["boolean", "not", "column"],
+                "properties": {
+                    "boolean": {
+                        "$id": "#/definitions/whereNull/items/properties/boolean",
+                        "type": "string",
+                        "enum": ["and", "or"]
+                    },
+                    "not": {
+                        "$id": "#/definitions/whereNull/items/properties/not",
+                        "type": "boolean"
+                    },
+                    "column": {
+                        "$ref": "#/definitions/column"
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "whereIn": {
+            "$id": "#/definitions/whereIn",
+            "type": "array",
+            "items": {
+                "$id": "#/definitions/whereIn/items",
+                "type": "object",
+                "required": ["boolean", "not", "column", "values"],
+                "properties": {
+                    "boolean": {
+                        "$id": "#/definitions/whereIn/items/properties/boolean",
+                        "type": "string",
+                        "enum": ["and", "or"]
+                    },
+                    "not": {
+                        "$id": "#/definitions/whereNull/items/properties/not",
+                        "type": "boolean"
+                    },
+                    "column": {
+                        "$ref": "#/definitions/column"
+                    },
+                    "values": {
+                        "$id": "#/definitions/whereIn/items/properties/values",
+                        "type": "array"
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "whereBetween": {
+            "$id": "#/definitions/whereBetween",
+            "type": "array",
+            "items": {
+                "$id": "#/definitions/whereBetween/items",
+                "type": "object",
+                "required": ["boolean", "not", "column", "values"],
+                "properties": {
+                    "boolean": {
+                        "$id": "#/definitions/whereBetween/items/properties/boolean",
+                        "type": "string",
+                        "enum": ["and", "or"]
+                    },
+                    "not": {
+                        "$id": "#/definitions/whereNull/items/properties/not",
+                        "type": "boolean"
+                    },
+                    "column": {
+                        "$ref": "#/definitions/column"
+                    },
+                    "values": {
+                        "$id": "#/definitions/whereBetween/items/properties/values",
+                        "type": "array"
+                    }
+                },
+                "additionalProperties": false
+            }
+        },
+        "whereGrouped": {
+            "$id": "#/definitions/whereGrouped",
+            "type": "array",
+            "minItems": 2,
+            "items": {
+                "$id": "#/definitions/whereGrouped/items",
+                "type": "object",
+                "required": ["boolean"],
+                "properties": {
+                    "boolean": {
+                        "$id": "#/definitions/whereGrouped/items/properties/boolean",
+                        "type": "string",
+                        "enum": ["and", "or"]
+                    },
+                    "where": {
+                        "$ref": "#/definitions/where"
+                    },
+                    "whereNull": {
+                        "$ref": "#/definitions/whereNull"
+                    },
+                    "whereIn": {
+                        "$ref": "#/definitions/whereIn"
+                    },
+                    "whereBetween": {
+                        "$ref": "#/definitions/whereBetween"
+                    }
+                },
+                "additionalProperties": false
+            }
         }
-      }
     }
-  }
 }

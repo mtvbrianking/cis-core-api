@@ -5,10 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
-use App\Support\Datatable;
-use App\Traits\JqueryDatatables;
-use App\Traits\JsonValidation;
-use App\Traits\QueryDecoration;
+use Bmatovu\QueryDecorator\Json\Schema;
+use Bmatovu\QueryDecorator\Query\Decorator;
+use Bmatovu\QueryDecorator\Support\Datatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -17,8 +16,6 @@ use JsonSchema\Validator as JsonValidator;
 
 class RoleController extends Controller
 {
-    use JsonValidation, JqueryDatatables, QueryDecoration;
-
     /**
      * Json schema validator.
      *
@@ -44,7 +41,7 @@ class RoleController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \App\Exceptions\InvalidJsonException
+     * @throws \Bmatovu\QueryDecorator\Exceptions\InvalidJsonException
      *
      * @return \Illuminate\Http\Response
      */
@@ -56,7 +53,7 @@ class RoleController extends Controller
 
         $schemaPath = resource_path('js/schemas/roles.json');
 
-        static::validateJson($this->jsonValidator, $schemaPath, $request->query());
+        Schema::validate($this->jsonValidator, $schemaPath, $request->query());
 
         // Query roles.
 
@@ -70,17 +67,17 @@ class RoleController extends Controller
 
         // Apply constraints to query.
 
-        $query = static::applyConstraintsToQuery($query, $request);
+        $query = Decorator::decorate($query, (array) $request->query('filters'));
 
         // Pagination.
 
-        $limit = $request->input('limit', 15);
+        $limit = $request->input('limit', 10);
 
-        $roles = $request->input('paginate', true)
-            ? $query->paginate($limit)
-            : $query->take($limit)->get();
+        if ($request->input('paginate', true)) {
+            return response($query->paginate($limit));
+        }
 
-        // $roles->withPath(url()->full());
+        $roles = $query->take($limit)->get();
 
         return response(['roles' => $roles]);
     }
@@ -91,36 +88,40 @@ class RoleController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Bmatovu\QueryDecorator\Exceptions\InvalidJsonException
      *
      * @return \Illuminate\Http\Response
      */
-    public function indexDt(Request $request)
+    public function datatables(Request $request)
     {
         $this->authorize('viewAny', [Role::class]);
 
         // ...
 
-        $query = Role::query();
+        $params = (array) $request->query();
 
-        // ...
-
-        $constraints = Datatable::prepareQueryParameters($request->query());
-
-        // return response($constraints);
-
-        // ...
+        $constraints = Datatable::buildConstraints($params, 'ilike');
 
         $schemaPath = resource_path('js/schemas/roles.json');
 
-        static::validateJson($this->jsonValidator, $schemaPath, $constraints);
+        Schema::validate($this->jsonValidator, $schemaPath, $constraints);
 
         // ...
 
-        $tableModelMap = [
-            'roles' => null,
-        ];
+        $query = Role::query();
 
-        return static::queryForDatatables($query, $constraints, $tableModelMap);
+        $availableRecords = $query->count();
+
+        $query = Decorator::decorate($query, $constraints);
+
+        $matchedRecords = $query->get();
+
+        return response([
+            'draw' => (int) $constraints['draw'],
+            'recordsTotal' => $availableRecords,
+            'recordsFiltered' => isset($constraints['filter']) ? $matchedRecords->count() : $availableRecords,
+            'data' => $matchedRecords,
+        ]);
     }
 
     /**
@@ -128,7 +129,7 @@ class RoleController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
-     * @throws ValidationException
+     * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
@@ -138,8 +139,9 @@ class RoleController extends Controller
         $this->authorize('create', [Role::class]);
 
         $this->validate($request, [
-            'name' => 'required|max:25',
-            'description' => 'sometimes|max:50',
+            'name' => 'required|max:50',
+            // 'facility_id' => 'sometimes|exists:facilities,id',
+            'description' => 'sometimes|max:100',
         ]);
 
         $user = Auth::guard('api')->user();
@@ -147,10 +149,11 @@ class RoleController extends Controller
         $role = new Role();
         $role->name = $request->name;
         $role->description = $request->description;
+        // $role->facility_id = $request->input('facility_id', $user->facility_id);
         $role->facility()->associate($user->facility);
         $role->save();
 
-        $role->refresh();
+        $role = Role::with('facility')->find($role->id);
 
         return response($role, 201);
     }
@@ -170,7 +173,10 @@ class RoleController extends Controller
 
         $user = Auth::guard('api')->user();
 
-        $role = Role::onlyRelated($user)->withTrashed()->findOrFail($roleId);
+        $role = Role::with('facility')
+            ->onlyRelated($user)
+            ->withTrashed()
+            ->findOrFail($roleId);
 
         return response($role);
     }
@@ -181,7 +187,7 @@ class RoleController extends Controller
      * @param \Illuminate\Http\Request $request
      * @param string                   $roleId
      *
-     * @throws ValidationException
+     * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
@@ -195,15 +201,15 @@ class RoleController extends Controller
         $role = Role::onlyRelated($user)->findOrFail($roleId);
 
         $this->validate($request, [
-            'name' => 'required|max:25',
-            'description' => 'sometimes|max:50',
+            'name' => 'required|max:50',
+            'description' => 'sometimes|max:100',
         ]);
 
         $role->name = $request->name;
         $role->description = $request->description;
         $role->save();
 
-        $role->refresh();
+        $role = Role::with('facility')->find($roleId);
 
         return response($role);
     }
@@ -227,7 +233,7 @@ class RoleController extends Controller
 
         $role->delete();
 
-        $role->refresh();
+        $role = Role::with('facility')->withTrashed()->find($roleId);
 
         return response($role);
     }
@@ -251,7 +257,7 @@ class RoleController extends Controller
 
         $role->restore();
 
-        $role->refresh();
+        $role = Role::with('facility')->find($roleId);
 
         return response($role);
     }
@@ -273,15 +279,11 @@ class RoleController extends Controller
 
         $role = Role::onlyRelated($user)->onlyTrashed()->findOrFail($roleId);
 
-        // ...
-
         $dependants = User::withTrashed()->where('role_id', $roleId)->count();
 
         if ($dependants) {
             return response(['message' => "Can't delete non-orphaned role."], 400);
         }
-
-        // ...
 
         $role->forceDelete();
 
@@ -303,13 +305,13 @@ class RoleController extends Controller
 
         $user = Auth::guard('api')->user();
 
-        $role = Role::onlyRelated($user)->findOrFail($roleId);
+        $role = Role::onlyRelated($user)->with('users')->findOrFail($roleId);
 
-        return response(['users' => $role->users]);
+        return response($role);
     }
 
     /**
-     * All permissions available to this role.
+     * Permissions assigned to this role.
      *
      * @param string $roleId
      *
@@ -319,7 +321,7 @@ class RoleController extends Controller
      */
     public function permissions($roleId)
     {
-        $this->authorize('viewPermissions', [Role::class]);
+        $this->authorize('viewAny', [Permission::class]);
 
         $user = Auth::guard('api')->user();
 
@@ -329,7 +331,7 @@ class RoleController extends Controller
     }
 
     /**
-     * Only permissions granted to this role.
+     * Permissions available to this role.
      *
      * @param string $roleId
      *
@@ -337,7 +339,7 @@ class RoleController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function permissionsGranted($roleId)
+    public function permissionsAvailable($roleId)
     {
         $this->authorize('assignPermissions', [Permission::class]);
 
@@ -397,12 +399,12 @@ class RoleController extends Controller
      * @param \Illuminate\Http\Request $request
      * @param string                   $roleId
      *
-     * @throws ValidationException
+     * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function syncPermissions(Request $request, $roleId)
+    public function syncPermissionsAvailable(Request $request, $roleId)
     {
         $this->authorize('assignPermissions', [Permission::class]);
 

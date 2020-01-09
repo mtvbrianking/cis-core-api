@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Models\Client;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -30,7 +31,48 @@ class UserControllerTest extends TestCase
 
         $consumer = $this->getAuthorizedUser('view-any', 'users');
 
-        $response = $this->actingAs($consumer, 'api')->json('GET', 'api/v1/users?paginate=0');
+        $response = $this->actingAs($consumer, 'api')->json('GET', 'api/v1/users');
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'current_page',
+            'data' => [
+                '*' => [
+                    'id',
+                    'facility_id',
+                    'role_id',
+                    'alias',
+                    'name',
+                    'email',
+                    'email_verified_at',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                ],
+            ],
+            'first_page_url',
+            'from',
+            'last_page',
+            'last_page_url',
+            'next_page_url',
+            'path',
+            'per_page',
+            'prev_page_url',
+            'to',
+            'total',
+        ]);
+    }
+
+    public function test_can_get_non_paginated_facilities()
+    {
+        $consumer = $this->getAuthorizedUser('view-any', 'users');
+
+        $query = http_build_query([
+            'paginate' => 0,
+        ]);
+
+        $response = $this->actingAs($consumer, 'api')->json('GET', "api/v1/users?{$query}");
 
         $response->assertStatus(200);
 
@@ -47,6 +89,132 @@ class UserControllerTest extends TestCase
                     'created_at',
                     'updated_at',
                     'deleted_at',
+                ],
+            ],
+        ]);
+    }
+
+    public function test_can_get_users_for_datatables()
+    {
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/users/datatables');
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view-any', 'users');
+
+        $query = http_build_query([
+            'start' => 0,
+            'length' => 10,
+            'draw' => 1,
+            'columns' => [
+                [
+                    'data' => 'id',
+                    'name' => 'id',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+                [
+                    'data' => 'alias',
+                    'name' => 'alias',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+                [
+                    'data' => 'name',
+                    'name' => 'name',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+                [
+                    'data' => 'email',
+                    'name' => 'email',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+                [
+                    'data' => 'deleted_at',
+                    'name' => 'deleted_at',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+                [
+                    'data' => 'role.name',
+                    'name' => 'role.name',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+                [
+                    'data' => 'facility.name',
+                    'name' => 'facility.name',
+                    'searchable' => 'true',
+                    'orderable' => 'true',
+                    'search' => [
+                        'value' => null,
+                        'regex' => 'false',
+                    ],
+                ],
+            ],
+            'order' => [
+                [
+                    'column' => '1',
+                    'dir' => 'asc',
+                ],
+            ],
+            'search' => [
+                'value' => null,
+                'regex' => 'false',
+            ],
+        ]);
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/users/datatables?{$query}");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'draw',
+            'recordsTotal',
+            'recordsFiltered',
+            'data' => [
+                '*' => [
+                    'id',
+                    'name',
+                    'alias',
+                    'email',
+                    'deleted_at',
+                    'role' => [
+                        'name',
+                    ],
+                    'facility' => [
+                        'name',
+                    ],
                 ],
             ],
         ]);
@@ -169,7 +337,7 @@ class UserControllerTest extends TestCase
         $response->assertJson($attrs);
     }
 
-    public function test_can_create_a_user()
+    public function test_cant_create_a_user_with_unknown_role()
     {
         $consumer = factory(User::class)->create();
 
@@ -179,6 +347,31 @@ class UserControllerTest extends TestCase
 
         // ...
 
+        $consumer = $this->getAuthorizedUser('create', 'users');
+
+        $unrelatedRole = factory(Role::class)->create();
+
+        $attrs = [
+            'alias' => 'jdoe',
+            'name' => 'John Doe',
+            'email' => 'jdoe@example.com',
+            'role_id' => $unrelatedRole->id,
+        ];
+
+        $response = $this->actingAs($consumer, 'api')->json('POST', 'api/v1/users', $attrs);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'role_id',
+            ],
+        ]);
+    }
+
+    public function test_can_create_a_user()
+    {
         $consumer = $this->getAuthorizedUser('create', 'users');
 
         $role = factory(Role::class)->create([
@@ -237,15 +430,10 @@ class UserControllerTest extends TestCase
     {
         $consumer = factory(User::class)->create();
 
-        $role = factory(Role::class)->create([
-            'facility_id' => $consumer->facility_id,
-        ]);
-
         $attrs = [
             'alias' => 'jdoe',
             'name' => 'John Doe',
             'email' => 'jdoe@example.com',
-            'role_id' => $role->id,
         ];
 
         $response = $this->actingAs($consumer, 'api')->json('PUT', "api/v1/users/{$consumer->id}", $attrs);
@@ -268,18 +456,37 @@ class UserControllerTest extends TestCase
         $response->assertJson($attrs);
     }
 
+    public function test_cant_update_a_user_with_unknown_role()
+    {
+        $consumer = $this->getAuthorizedUser('update', 'users');
+
+        $user = factory(User::class)->create([
+            'facility_id' => $consumer->facility_id,
+        ]);
+
+        $unrelatedRole = factory(Role::class)->create();
+
+        $attrs = [
+            'alias' => 'jdoe',
+            'name' => 'John Doe',
+            'email' => 'jdoe@example.com',
+            'role_id' => $unrelatedRole->id,
+        ];
+
+        $response = $this->actingAs($consumer, 'api')->json('PUT', "api/v1/users/{$user->id}", $attrs);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'role_id',
+            ],
+        ]);
+    }
+
     public function test_can_update_any_user_details()
     {
-        $consumer = factory(User::class)->create();
-
-        $user = factory(User::class)->create();
-
-        $response = $this->actingAs($consumer, 'api')->json('PUT', "api/v1/users/{$user->id}");
-
-        $response->assertStatus(403);
-
-        // ...
-
         $consumer = $this->getAuthorizedUser('update', 'users');
 
         $user = factory(User::class)->create([
@@ -518,18 +725,20 @@ class UserControllerTest extends TestCase
     /**
      * Create client credentials grant client app.
      *
-     * @return void
+     * @param bool $isPasswordClient
+     *
+     * @return \App\Models\Client
      */
-    protected function createClient()
+    protected function createClient(bool $isPasswordClient = false): Client
     {
-        $client = new \App\Models\Client();
+        $client = new Client();
         $client->id = Uuid::uuid4()->toString();
         $client->user_id = null;
-        $client->name = 'test-client-grant-client';
+        $client->name = 'test-client-app';
         $client->secret = Str::random('40');
         $client->redirect = '';
         $client->personal_access_client = false;
-        $client->password_client = false;
+        $client->password_client = $isPasswordClient;
         $client->revoked = false;
         $client->save();
 
@@ -658,5 +867,218 @@ class UserControllerTest extends TestCase
         $user->refresh();
 
         $this->assertTrue(password_verify('new-password', $user->password));
+    }
+
+    /**
+     * Request access token.
+     *
+     * @param \App\Models\Client $client
+     * @param array              $scopes
+     * @param array              $options
+     *
+     * @return array token
+     */
+    protected function getClientToken(Client $client, array $scopes = [], array $options = [])
+    {
+        $parameters = array_merge([
+            'grant_type' => 'client_credentials',
+            'client_id' => $client->id,
+            'client_secret' => $client->secret,
+        ], $options);
+
+        $parameters['scope'] = implode(' ', $scopes);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+        ])->call('POST', 'oauth/token', $parameters);
+
+        return json_decode((string) $response->getContent(), false);
+    }
+
+    public function test_an_app_can_authenticate_user()
+    {
+        $user = factory(User::class)->create([
+            'email' => 'jdoe@example.com',
+            'password' => Hash::make('12345678'),
+        ]);
+
+        // ...
+
+        Passport::actingAsClient($this->createClient(true));
+
+        $response = $this->json('POST', 'api/v1/users/auth', [
+            'email' => 'wrong@example.com',
+            'password' => '12345678',
+        ]);
+
+        $response->assertStatus(403);
+
+        // ...
+
+        Passport::actingAsClient($this->createClient(true), ['authenticate-user']);
+
+        $response = $this->json('POST', 'api/v1/users/auth', [
+            'email' => 'wrong@example.com',
+            'password' => '12345678',
+        ]);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'email',
+            ],
+        ]);
+
+        // ...
+
+        $client = $this->createClient(false);
+
+        $token = $this->getClientToken($client, ['authenticate-user']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            'Authorization' => "Bearer {$token->access_token}",
+        ])->json('POST', 'api/v1/users/auth', [
+            'email' => 'jdoe@example.com',
+            'password' => '12345678',
+        ]);
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'id',
+            'facility_id',
+            'role_id',
+            'alias',
+            'name',
+            'email',
+            'email_verified_at',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+            'facility' => [
+                'id',
+                'name',
+                'description',
+                'address',
+                'email',
+                'website',
+                'phone',
+                'created_at',
+                'updated_at',
+                'deleted_at',
+            ],
+            'role' => [
+                'id',
+                'facility_id',
+                'name',
+                'description',
+                'created_at',
+                'updated_at',
+                'deleted_at',
+            ],
+        ]);
+
+        // ...
+
+        $passwordClient = $this->createClient(true);
+
+        $token = $this->getClientToken($passwordClient, ['authenticate-user']);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            'Authorization' => "Bearer {$token->access_token}",
+        ])->json('POST', 'api/v1/users/auth', [
+            'email' => 'jdoe@example.com',
+            'password' => '12345678',
+        ]);
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'id',
+            'facility_id',
+            'role_id',
+            'alias',
+            'name',
+            'email',
+            'email_verified_at',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+            'facility' => [
+                'id',
+                'name',
+                'description',
+                'address',
+                'email',
+                'website',
+                'phone',
+                'created_at',
+                'updated_at',
+                'deleted_at',
+            ],
+            'role' => [
+                'id',
+                'facility_id',
+                'name',
+                'description',
+                'created_at',
+                'updated_at',
+                'deleted_at',
+            ],
+            'token' => [
+                'token_type',
+                'expires_in',
+                'access_token',
+                'refresh_token',
+            ],
+        ]);
+    }
+
+    public function test_an_app_can_deauthenticate_user()
+    {
+        $secret = '12345678';
+
+        $user = factory(User::class)->create([
+            'email' => 'jdoe@example.com',
+            'password' => Hash::make($secret),
+        ]);
+
+        // ...
+
+        $passwordClient = $this->createClient(true);
+
+        $passwordClient->user_id = $user->id;
+        $passwordClient->save();
+
+        $token = $this->getClientToken($passwordClient, [], [
+            'grant_type' => 'password',
+            'username' => $user->email,
+            'password' => $secret,
+        ]);
+
+        $response = $this->withHeaders([
+            'Accept' => 'application/json',
+            'Authorization' => "Bearer {$token->access_token}",
+        ])->json('POST', 'api/v1/users/deauth');
+
+        $response->assertStatus(204);
+
+        $this->assertEquals('', $response->getContent());
+
+        $tokenId = (new \Lcobucci\JWT\Parser())->parse($token->access_token)->getHeader('jti');
+
+        $this->assertDatabaseHas('oauth_access_tokens', [
+            'id' => $tokenId,
+            'revoked' => true,
+        ]);
+
+        $this->assertDatabaseHas('oauth_refresh_tokens', [
+            'access_token_id' => $tokenId,
+            'revoked' => true,
+        ]);
     }
 }

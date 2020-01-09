@@ -15,8 +15,10 @@ class CreateModulesTable extends Migration
     {
         Schema::create('modules', function (Blueprint $table) {
             $table->string('name', 25);
-            $table->enum('category', ['uncategorized'])->default('uncategorized');
-            $table->string('description', 50)->nullable();
+            $table->enum('category', [
+                'uncategorized',
+            ])->default('uncategorized');
+            $table->string('description', 100)->nullable();
             $table->timestamps();
             $table->softDeletes();
 

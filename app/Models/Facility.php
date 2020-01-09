@@ -6,6 +6,11 @@ use Bmatovu\Uuid\Traits\HasUuidKey;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property-read \App\Models\Module $modules
+ * @property-read \App\Models\User $users
+ * @property-read \App\Models\Role $roles
+ */
 class Facility extends Model
 {
     use HasUuidKey, SoftDeletes;
@@ -79,7 +84,7 @@ class Facility extends Model
      */
     public function users()
     {
-        return $this->hasMany(User::class, 'user_id', 'id');
+        return $this->hasMany(User::class, 'facility_id', 'id');
     }
 
     /**
@@ -89,7 +94,7 @@ class Facility extends Model
      */
     public function roles()
     {
-        return $this->hasMany(Role::class, 'role_id', 'id');
+        return $this->hasMany(Role::class, 'facility_id', 'id');
     }
 
     /**

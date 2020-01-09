@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Permission;
-use App\Support\Datatable;
-use App\Traits\JqueryDatatables;
-use App\Traits\JsonValidation;
-use App\Traits\QueryDecoration;
+use App\Models\Role;
+use Bmatovu\QueryDecorator\Json\Schema;
+use Bmatovu\QueryDecorator\Query\Decorator;
+use Bmatovu\QueryDecorator\Support\Datatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -15,8 +15,6 @@ use JsonSchema\Validator as JsonValidator;
 
 class PermissionController extends Controller
 {
-    use JsonValidation, JqueryDatatables, QueryDecoration;
-
     /**
      * Json schema validator.
      *
@@ -42,7 +40,7 @@ class PermissionController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \App\Exceptions\InvalidJsonException
+     * @throws \Bmatovu\QueryDecorator\Exceptions\InvalidJsonException
      *
      * @return \Illuminate\Http\Response
      */
@@ -54,25 +52,24 @@ class PermissionController extends Controller
 
         $schemaPath = resource_path('js/schemas/permissions.json');
 
-        static::validateJson($this->jsonValidator, $schemaPath, $request->query());
+        Schema::validate($this->jsonValidator, $schemaPath, $request->query());
 
         // Query permissions.
 
         $query = Permission::query();
 
         // Apply constraints to query.
-
-        $query = static::applyConstraintsToQuery($query, $request);
+        $query = Decorator::decorate($query, (array) $request->query('filters'));
 
         // Pagination.
 
-        $limit = $request->input('limit', 15);
+        $limit = $request->input('limit', 10);
 
-        $permissions = $request->input('paginate', true)
-            ? $query->paginate($limit)
-            : $query->take($limit)->get();
+        if ($request->input('paginate', true)) {
+            return response($query->paginate($limit));
+        }
 
-        // $permissions->withPath(url()->full());
+        $permissions = $query->take($limit)->get();
 
         return response(['permissions' => $permissions]);
     }
@@ -83,36 +80,44 @@ class PermissionController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Bmatovu\QueryDecorator\Exceptions\InvalidJsonException
      *
      * @return \Illuminate\Http\Response
      */
-    public function indexDt(Request $request)
+    public function datatables(Request $request)
     {
         $this->authorize('viewAny', [Permission::class]);
 
         // ...
 
-        $query = Permission::query();
+        $params = (array) $request->query();
 
         // ...
 
-        $constraints = Datatable::prepareQueryParameters($request->query());
-
-        // return response($constraints);
-
-        // ...
+        $constraints = Datatable::buildConstraints($params, 'ilike');
 
         $schemaPath = resource_path('js/schemas/permissions.json');
 
-        static::validateJson($this->jsonValidator, $schemaPath, $constraints);
+        Schema::validate($this->jsonValidator, $schemaPath, $constraints);
 
         // ...
 
-        $tableModelMap = [
-            'permissions' => null,
-        ];
+        $query = Permission::query();
 
-        return static::queryForDatatables($query, $constraints, $tableModelMap);
+        $query = Decorator::decorate($query, $constraints);
+
+        $availableRecords = $query->count();
+
+        $query = Decorator::decorate($query, $constraints);
+
+        $matchedRecords = $query->get();
+
+        return response([
+            'draw' => (int) $constraints['draw'],
+            'recordsTotal' => $availableRecords,
+            'recordsFiltered' => isset($constraints['filter']) ? $matchedRecords->count() : $availableRecords,
+            'data' => $matchedRecords,
+        ]);
     }
 
     /**
@@ -120,7 +125,7 @@ class PermissionController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      *
-     * @throws ValidationException
+     * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
@@ -130,15 +135,15 @@ class PermissionController extends Controller
         $this->authorize('create', [Permission::class]);
 
         $validator = Validator::make($request->all(), [
-            'name'          => 'required',
-            'description'   => 'sometimes|max:25',
+            'name'          => 'required|max:25',
+            'description'   => 'sometimes|max:100',
             'module_name'   => 'required|exists:modules,name',
         ]);
 
         $validator->after(function ($validator) use ($request) {
             $name = Str::slug($request->name);
 
-            $permission = Permission::where('name', $name)->where('module_name', $request->module_name)->first();
+            $permission = Permission::where('module_name', $request->module_name)->where('name', $name)->first();
 
             if ($permission) {
                 $validator->errors()->add('name', 'The name has already been taken.');
@@ -150,14 +155,12 @@ class PermissionController extends Controller
         }
 
         $permission = new Permission();
-
-        $permission->module_name = $request['module_name'];
-        $permission->name = $request['name'];
-        $permission->description = $request['description'];
-
+        $permission->module_name = $request->module_name;
+        $permission->name = $request->name;
+        $permission->description = $request->description;
         $permission->save();
 
-        $permission->refresh();
+        $permission = Permission::with('module')->find($permission->id);
 
         return response($permission, 201);
     }
@@ -165,7 +168,7 @@ class PermissionController extends Controller
     /**
      * Get specific permission.
      *
-     * @param string $permissionId
+     * @param int $permissionId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
@@ -175,7 +178,7 @@ class PermissionController extends Controller
     {
         $this->authorize('view', [Permission::class]);
 
-        $permission = Permission::findOrFail($permissionId);
+        $permission = Permission::with('module')->findOrFail($permissionId);
 
         return response($permission);
     }
@@ -184,9 +187,9 @@ class PermissionController extends Controller
      * Update specific permission.
      *
      * @param \Illuminate\Http\Request $request
-     * @param string                   $permissionId
+     * @param int                      $permissionId
      *
-     * @throws ValidationException
+     * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
@@ -196,9 +199,9 @@ class PermissionController extends Controller
         $this->authorize('update', [Permission::class]);
 
         $validator = Validator::make($request->all(), [
-            'name'          => 'required',
+            'name'          => 'required|max:25',
             'module_name'   => 'required|exists:modules,name',
-            'description'   => 'sometimes|max:25',
+            'description'   => 'sometimes|max:100',
         ]);
 
         $validator->after(function ($validator) use ($request, $permissionId) {
@@ -224,7 +227,7 @@ class PermissionController extends Controller
         $permission->name = $request->name;
         $permission->save();
 
-        $permission->refresh();
+        $permission = Permission::with('module')->find($permissionId);
 
         return response($permission);
     }
@@ -232,7 +235,7 @@ class PermissionController extends Controller
     /**
      * Permanently delete the specific permission.
      *
-     * @param string $permissionId
+     * @param int $permissionId
      *
      * @throws \Exception
      * @throws \Illuminate\Auth\Access\AuthorizationException
@@ -248,5 +251,23 @@ class PermissionController extends Controller
         $permission->delete();
 
         return response(null, 204);
+    }
+
+    /**
+     * Get roles granted this permission.
+     *
+     * @param string $permissionId
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function roles($permissionId)
+    {
+        $this->authorize('viewAny', [Role::class]);
+
+        $permission = Permission::with('roles')->findOrFail($permissionId);
+
+        return response($permission);
     }
 }

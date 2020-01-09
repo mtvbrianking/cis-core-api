@@ -1,260 +1,488 @@
-swagger: '2.0'
-schemes:
-  - http
-  - https
-host: 'localhost:8000'
-basePath: /v1
+openapi: 3.0.1
+
 info:
-  description: API usage documentation
-  version: 1.0.0
   title: CIS CORE API
-  termsOfService: 'https://github.com/mtvbrianking/cis-core-api/blob/master/readme.md'
+  version: 0.0.1
+  description: API usage documentation.
+  termsOfService: https://opensource.org/licenses/MIT
   contact:
-    url: 'https://github.com/mtvbrianking/cis-core-api'
-  x-logo:
+    name: Support
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
 externalDocs:
   description: Source code documentation
-  url: 'https://mtvbrianking.github.io/cis-core-api'
+  url: https://example.com/documentation
+
+servers:
+  - url: http://sandbox-api.example.com/v1
+    description: Testing
+  - url: http://api.example.com/v1
+    description: Production
+
 tags:
+  - name: token
   - name: facility
   - name: module
   - name: permission
   - name: role
   - name: user
-  - name: oauth
+  - name: token_model
+    x-displayName: Token
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/TokenModel"/>
+  - name: facility_model
+    x-displayName: Facility
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/FacilityModel"/>
+  - name: module_model
+    x-displayName: Module
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/ModuleModel"/>
+  - name: permission_model
+    x-displayName: Permission
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/PermissionModel"/>
+  - name: role_model
+    x-displayName: Role
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/RoleModel"/>
+  - name: user_model
+    x-displayName: User
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/UserModel"/>
+  - name: 401_error
+    x-displayName: 401 Unauthorized
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/401HttpResponse"/>
+  - name: 403_error
+    x-displayName: 403 Forbidden
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/403HttpResponse"/>
+  - name: 404_error
+    x-displayName: 404 Not Found
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/404HttpResponse"/>
+  - name: 405_error
+    x-displayName: 405 Method Not Allowed
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/405HttpResponse"/>
+  - name: 422_error
+    x-displayName: 422 Unprocessable Entity
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/422HttpResponse"/>
+  - name: 429_error
+    x-displayName: 429 Too Many Requests
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/429HttpResponse"/>
+  - name: 500_error
+    x-displayName: 500 Internal Server Error
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/500HttpResponse"/>
+
 x-tagGroups:
-  - name: Resources
+  - name: Authorization
+    tags:
+      - token
+  - name: Administration
     tags:
       - facility
       - module
       - permission
       - role
       - user
-      - oauth
-securityDefinitions:
-  client_credentials_grant:
-    description: Get access to data while protecting your account credentials.
-    type: oauth2
-    flow: application
-    tokenUrl: 'http://localhost:8000/api/v1/oauth/token'
-  authorization_code_grant:
-    description: Get access to data while protecting your account credentials.
-    type: oauth2
-    flow: accessCode
-    authorizationUrl: 'http://localhost:8000/api/v1/oauth/authorize'
-    tokenUrl: 'http://localhost:8000/api/v1/oauth/token'
-  password_grant:
-    description: First party apps only.
-    type: oauth2
-    flow: password
-    tokenUrl: 'http://localhost:8000/api/v1/oauth/token'
-    scopes:
-      authenticate-user: 'Login, logout a user.'
-      confirm-email: 'Indicate that a user has verified their email.'
-      reset-password: "Change a user's forgot password."
-      validate-email: 'Check if a user account exists for given email.'
-x-servers:
-  - url: '//localhost:8000/api/v1'
-    description: Production server
-  - url: '//localhost:9000/api/v1'
-    description: Sandbox server
+  - name: Models
+    tags:
+      - token_model
+      - facility_model
+      - module_model
+      - permission_model
+      - role_model
+      - user_model
+  - name: Errors
+    tags:
+      - 401_error
+      - 403_error
+      - 404_error
+      - 405_error
+      - 422_error
+      - 429_error
+      - 500_error
 
 paths:
+  /oauth/token:
+    post:
+      tags:
+      - token
+      summary: Request OAuth token
+      operationId: requestToken
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - client_id
+              - client_secret
+              - grant_type
+              type: object
+              properties:
+                client_id:
+                  type: string
+                  format: uuid
+                client_secret:
+                  type: string
+                grant_type:
+                  type: string
+                  enum:
+                  - authorization_code
+                  - client_credentials
+                  - password
+                  - refresh_token
+                code:
+                  type: string
+                  description: |-
+                    Authorization code.
+
+                    <strong>Required if</strong> grant_type is `authorization_code`.
+                redirect_uri:
+                  type: string
+                  description: <strong>Required if</strong> grant_type is `authorization_code`.
+                  format: URI
+                refresh_token:
+                  type: string
+                  description: |-
+                    Refresh access-token.
+
+                    <strong>Required if</strong> grant_type is `refresh_token`.
+                username:
+                  type: string
+                  description: <strong>Required if</strong> grant_type is `password`.
+                password:
+                  type: string
+                  description: <strong>Required if</strong> grant_type is `password`.
+                  format: password
+                scopes:
+                  type: array
+                  items:
+                    type: string
+        required: false
+      responses:
+        200:
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenModel'
+      x-code-samples:
+      - lang: CURL - Password
+        source: |-
+          curl -X POST \
+           http://sandbox-api.example.com/v1/oauth/token \
+           -H 'Accept: application/json' \
+           -H 'Content-Type: application/json' \
+           -d '{
+              "grant_type": "password",
+              "client_id": "3102c90b-1936-4968-af9e-3701bcc6147c",
+              "client_secret": "OZHF4AuWWvMY0rKC2VWwEMlvobJ4GfCgGKopdadQ",
+              "username": "jdoe@example.com",
+              "password": "O7SQx63Y12iwaWHQ"
+           }'
+      - lang: CURL - Client Credentials
+        source: |-
+          curl -X POST \
+           http://sandbox-api.example.com/v1/oauth/token \
+           -H 'Accept: application/json' \
+           -H 'Content-Type: application/json' \
+           -d '{
+              "grant_type": "client_credentials",
+              "client_id": "3102c90b-1936-4968-af9e-3701bcc6147c",
+              "client_secret": "OZHF4AuWWvMY0rKC2VWwEMlvobJ4GfCgGKopdadQ"
+           }'
 
   /facilities:
     get:
       tags:
-        - facility
+      - facility
       summary: Get facilities
-      description: |-
-        Requires `view-any` permission on `facilities` module.
+      description: Requires `view-any` permission on `facilities` module.
       operationId: getFacilities
-      # security:
-      # - password_grant:
-      #   - "view-any:facilities"
-      consumes:
-        - application/json
-      produces:
-        - application/json
+      parameters:
+      - name: paginate
+        in: query
+        schema:
+          type: boolean
+          default: true
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            type: object
-            properties:
-              facilities:
-                type: array
-                items:
-                  $ref: '#/definitions/FacilityModel'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_page:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    description: Facilities
+                    items:
+                      $ref: '#/components/schemas/FacilityModel'
+                  first_page_url:
+                    type: string
+                    example: http://sandbox-api.example.com/v1/facilities?page=1
+                  from:
+                    type: integer
+                    example: 1
+                  last_page:
+                    type: integer
+                    example: 1
+                  last_page_url:
+                    type: integer
+                  next_page_url:
+                    type: string
+                    example: null
+                  path:
+                    type: string
+                    example: http://sandbox-api.example.com/v1/facilities
+                  per_page:
+                    type: integer
+                    example: 10
+                  prev_page_url:
+                    type: string
+                    example: null
+                  to:
+                    type: integer
+                    example: 1
+                  total:
+                    type: integer
+                    example: 1
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X GET \
-             http://localhost:8000/api/v1/facilities \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/facilities \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
     post:
       tags:
-        - facility
+      - facility
       summary: Create a facility
-      description: |-
-        Requires `create` permission on `facilities` module.
+      description: Requires `create` permission on `facilities` module.
       operationId: createFacility
-      consumes:
-        - application/x-www-form-urlencoded
-      parameters:
-        - name: name
-          in: formData
-          required: true
-          type: string
-        - name: description
-          in: formData
-          required: false
-          type: string
-        - name: address
-          in: formData
-          required: true
-          type: string
-        - name: email
-          in: formData
-          description: 'See <a href=''#operation/validateEmail''>validate email</a>'
-          required: true
-          type: string
-          format: email
-        - name: website
-          in: formData
-          required: false
-          type: string
-          format: url
-        - name: phone
-          in: formData
-          required: false
-          type: string
-          format: phone
-      produces:
-        - application/json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - address
+              - email
+              - name
+              type: object
+              properties:
+                name:
+                  maxLength: 100
+                  type: string
+                  example: Mulago Hospital
+                description:
+                  maxLength: 100
+                  type: string
+                  example: National Referral Hospital
+                address:
+                  maxLength: 100
+                  type: string
+                  example: Mulago Hill, Kampala
+                email:
+                  maxLength: 50
+                  type: string
+                  format: email
+                  example: cis@mulago.Hospital
+                website:
+                  maxLength: 50
+                  type: string
+                  format: url
+                  example: https://mulago.Hospital
+                phone:
+                  maxLength: 25
+                  pattern: ^\+(?:[0-9] ?){9,16}[0-9]$
+                  type: string
+                  format: tel
+                  example: '+256392741586'
+        required: false
       responses:
-        '201':
+        201:
           description: Created
-          schema:
-            $ref: '#/definitions/FacilityModel'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X POST \
-              http://localhost:8000/api/v1/facilities \
-              -H 'Accept: application/json' \
-              -H 'Authorization: Bearer {access-token}' \
-              -H 'Content-Type: application/json' \
-              -d '{
-                "name":"Mulago Hospital",
-                "description":"Mulago Hospital",
-                "address":"Mulago Hill",
-                "email":"cis@mulago.Hospital",
-                "phone":"+256392741586"
-              }'
-  '/facilities/{facility}':
+      - lang: CURL
+        source: |-
+          curl -X POST \
+            http://sandbox-api.example.com/v1/facilities \
+            -H 'Accept: application/json' \
+            -H 'Authorization: Bearer {access-token}' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "name": "Mulago Hospital",
+              "description": "National Referral Hospital",
+              "address": "Mulago Hill, Kampala",
+              "email": "cis@mulago.Hospital",
+              "website": "https://mulago.Hospital",
+              "phone": "+256392741586"
+            }'
+  /facilities/datatables:
     get:
       tags:
-        - facility
+      - facility
+      summary: Get facilities (datatables)
+      description: |-
+        Requires `view-any` permission on `facilities` module.
+
+        Get facilities formatted for jQuery datatables.
+      operationId: getFacilitiesDatatables
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  draw:
+                    type: integer
+                    example: 1
+                  recordsTotal:
+                    type: integer
+                    example: 1
+                  recordsFiltered:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/facilities/datatables \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /facilities/{facility}:
+    get:
+      tags:
+      - facility
       summary: Get facility
       description: |-
         Requires `view` permission on `facilities` module.
 
         A user can view their facility regardless.
       operationId: getFacility
-      consumes:
-        - application/json
       parameters:
-        - name: facility
-          in: path
-          description: '<a href=''#operation/getFacilties''>Facility ID</a>'
-          required: true
+      - name: facility
+        in: path
+        description: <a href="#operation/getFacilties">Facility ID</a>
+        required: true
+        schema:
           type: string
           format: uuid
-      produces:
-        - application/json
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            $ref: '#/definitions/FacilityModel'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X GET \
-             http://localhost:8000/api/v1/facilities/{facility} \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/facilities/{facility} \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
     put:
       tags:
-        - facility
+      - facility
       summary: Update facility
-      description: |-
-        Requires `update` permission on `facilities` module.
+      description: Requires `update` permission on `facilities` module.
       operationId: updateFacility
-      consumes:
-        - application/x-www-form-urlencoded
       parameters:
-        - name: facility
-          in: path
-          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
-          required: true
+      - name: facility
+        in: path
+        description: <a href="#operation/getFacilties">Facility ID</a>
+        required: true
+        schema:
           type: string
           format: uuid
-        - name: name
-          in: formData
-          required: false
-          type: string
-        - name: description
-          in: formData
-          required: false
-          type: string
-        - name: address
-          in: formData
-          required: false
-          type: string
-        - name: email
-          in: formData
-          required: false
-          type: string
-          format: email
-        - name: website
-          in: formData
-          required: false
-          type: string
-          format: url
-        - name: phone
-          in: formData
-          required: false
-          type: string
-          format: phone
-      produces:
-        - application/json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - address
+              - email
+              - name
+              type: object
+              properties:
+                name:
+                  maxLength: 100
+                  type: string
+                  example: Mulago Hospital
+                description:
+                  maxLength: 100
+                  type: string
+                  example: National Referral Hospital
+                address:
+                  maxLength: 100
+                  type: string
+                  example: Mulago Hill, Kampala
+                email:
+                  maxLength: 50
+                  type: string
+                  format: email
+                  example: cis@mulago.Hospital
+                website:
+                  maxLength: 50
+                  type: string
+                  format: url
+                  example: https://mulago.Hospital
+                phone:
+                  maxLength: 25
+                  pattern: ^\+(?:[0-9] ?){9,16}[0-9]$
+                  type: string
+                  format: tel
+                  example: '+256392741586'
+        required: false
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            $ref: '#/definitions/FacilityModel'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X PUT \
-             http://localhost:8000/api/v1/facilities/{facility} \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}' \
-             -H 'Content-Type: application/json' \
-             -d '{
-                "name":"Mulago Hospital",
-                "description":"Mulago Hospital",
-                "address":"Mulago Hill",
-                "email":"cis@mulago.Hospital",
-                "website":"https://mulago.Hospital",
-                "phone":"+256392741586"
-              }'
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           http://sandbox-api.example.com/v1/facilities/{facility} \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}' \
+           -H 'Content-Type: application/json' \
+           -d '{
+              "name": "Mulago Hospital",
+              "description": "National Referral Hospital",
+              "address": "Mulago Hill, Kampala",
+              "email": "cis@mulago.Hospital",
+              "website": "https://mulago.Hospital",
+              "phone": "+256392741586"
+            }'
     delete:
       tags:
-        - facility
+      - facility
       summary: Delete facility
       description: |-
         <strong>Permanently</strong> remove a facility from database.
@@ -263,277 +491,539 @@ paths:
 
         The facility must be <a href='#operation/revokeFacility'>revoked</a> prior to deletion.
       operationId: deleteFacility
-      consumes:
-        - application/json
       parameters:
-        - name: facility
-          in: path
-          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
-          required: true
+      - name: facility
+        in: path
+        description: <a href="#operation/getFacilities">Facility ID</a>
+        required: true
+        schema:
           type: string
           format: uuid
-      produces:
-        - application/json
       responses:
-        '204':
+        204:
           description: No Content
+          content: {}
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X DELETE \
-             'http://localhost:8000/api/v1/facilities/{facility}' \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
-  '/facilities/{facility}/modules':
-    put:
+      - lang: CURL
+        source: |-
+          curl -X DELETE \
+           'http://sandbox-api.example.com/v1/facilities/{facility}' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /facilities/{facility}/modules:
+    get:
       tags:
-        - facility
-      summary: Reassign facility modules
-      description: |-
-        Requires `assign-modules` permission on `modules` module.
-      operationId: assignFacilityModules
-      consumes:
-        - application/x-www-form-urlencoded
+      - facility
+      summary: Get modules granted to a facility.
+      description: Requires `view-any` permission on `modules` module.
+      operationId: getFacilityModules
       parameters:
-        - name: facility
-          in: path
-          description: '<a href=''#operation/getModules''>Module Name</a>'
-          required: true
+      - name: facility
+        in: path
+        description: <a href="#operation/getFacilities">Facility ID</a>
+        required: true
+        schema:
           type: string
-        - name: modules
-          in: formData
-          description: 'Facility modules.'
-          required: false
-          type: array
-          items:
-            type: string
-      produces:
-        - application/json
+          format: uuid
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            allOf:
-              - $ref: '#/definitions/FacilityModel'
-              - properties:
-                  modules:
-                    type: array
-                    items:
-                      $ref: '#/definitions/ModuleModel'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/FacilityModel'
+                  - properties:
+                      modules:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ModuleModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X PUT \
-             'http://localhost:8000/api/v1/facilities/{facility}/modules' \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
-  '/facilities/{facility}/restore':
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           'http://sandbox-api.example.com/v1/facilities/{facility}/modules' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /facilities/{facility}/modules/available:
+    get:
+      tags:
+      - facility
+      summary: Get modules available to a facility.
+      description: |-
+        Requires `assign-modules` permission on `permissions` module.
+
+        Gives all modules available to a facility indicating whether that module is granted to the facility or not.
+      operationId: getFacilityModulesAvailable
+      parameters:
+      - name: facility
+        in: path
+        description: <a href="#operation/getFacilities">Facility ID</a>
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/FacilityModel'
+                  - properties:
+                      modules:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                              example: users
+                            category:
+                              type: string
+                              example: uncategorized
+                            granted:
+                              type: boolean
+                              example: true
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           'http://sandbox-api.example.com/v1/facilities/{facility}/modules/available' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
     put:
       tags:
-        - facility
+      - facility
+      summary: Reassign modules granted to a facility
+      description: Requires `assign-modules` permission on `modules` module.
+      operationId: assignFacilityModules
+      parameters:
+      - name: facility
+        in: path
+        description: <a href="#operation/getFacilities">Facility ID</a>
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/FacilityModel'
+                - properties:
+                    modules:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                            example: users
+                          category:
+                            type: string
+                            example: uncategorized
+                          granted:
+                            type: boolean
+                            example: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  FacilityModel:
+                    $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           'http://sandbox-api.example.com/v1/facilities/{facility}/modules/available' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}
+           -d '{
+              "modules": [
+                "users"
+              ]
+            }
+  /facilities/{facility}/restore:
+    put:
+      tags:
+      - facility
       summary: Restore facility
       description: |-
         <strong>Reinstate</strong> previously <strike><a href='#operation/revokeFacility'>revoked</a></strike> facility.
 
         Requires `restore` permission on `facilities` module.
       operationId: restoreFacility
-      consumes:
-        - application/json
       parameters:
-        - name: facility
-          in: path
-          description: '<a href=''#operation/getFacilties''>Facility ID</a>'
-          required: true
+      - name: facility
+        in: path
+        description: <a href="#operation/getFacilties">Facility ID</a>
+        required: true
+        schema:
           type: string
           format: uuid
-      produces:
-        - application/json
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            $ref: '#/definitions/FacilityModel'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X PUT \
-             'http://localhost:8000/api/v1/facilities/{facility}/restore' \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
-  '/facilities/{facility}/revoke':
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           'http://sandbox-api.example.com/v1/facilities/{facility}/restore' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /facilities/{facility}/revoke:
     put:
       tags:
-        - facility
+      - facility
       summary: Revoke facility
       description: |-
         Requires `soft-delete` permission on `facilities` module.
 
         Different from <a href='#operation/deleteFacility'>delete facility</a>.
       operationId: revokeFacility
-      consumes:
-        - application/json
       parameters:
-        - name: facility
-          in: path
-          description: '<a href=''#operation/getFacilities''>Facility ID</a>'
-          required: true
+      - name: facility
+        in: path
+        description: <a href="#operation/getFacilities">Facility ID</a>
+        required: true
+        schema:
           type: string
           format: uuid
-      produces:
-        - application/json
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            allOf:
-              - $ref: '#/definitions/FacilityModel'
-              - properties:
-                  deleted_at:
-                    example: '2018-10-05 22:48:06'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/FacilityModel'
+                  - properties:
+                      deleted_at:
+                        example: '2018-10-05 22:48:06'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X PUT \
-             'http://localhost:8000/api/v1/facilities/{facility}/revoke' \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           'http://sandbox-api.example.com/v1/facilities/{facility}/revoke' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /facilities/{facility}/roles:
+    get:
+      tags:
+      - facility
+      summary: Get roles belonging to a facility
+      description: Requires `view-any` permission on `roles` module.
+      operationId: getFacilityRoles
+      parameters:
+      - name: facility
+        in: path
+        description: <a href="#operation/getFacilities">Facility ID</a>
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/FacilityModel'
+                  - properties:
+                      roles:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/RoleModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           'http://sandbox-api.example.com/v1/facilities/{facility}/roles' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /facilities/{facility}/users:
+    get:
+      tags:
+      - facility
+      summary: Get users belonging to a facility.
+      description: Requires `view-any` permission on `users` module.
+      operationId: getFacilityUsers
+      parameters:
+      - name: facility
+        in: path
+        description: <a href="#operation/getFacilities">Facility ID</a>
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/FacilityModel'
+                  - properties:
+                      users:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/UserModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           'http://sandbox-api.example.com/v1/facilities/{facility}/users' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
 
   /modules:
     get:
       tags:
-        - module
+      - module
       summary: Get modules
-      description: |-
-        Requires `view-any` permission on `modules` module.
+      description: Requires `view-any` permission on `modules` module.
       operationId: getModules
-      consumes:
-        - application/json
-      produces:
-        - application/json
+      parameters:
+      - name: paginate
+        in: query
+        schema:
+          type: boolean
+          default: true
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            type: object
-            properties:
-              modules:
-                type: array
-                items:
-                  $ref: '#/definitions/ModuleModel'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_page:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    description: Modules
+                    items:
+                      $ref: '#/components/schemas/ModuleModel'
+                  first_page_url:
+                    type: string
+                    example: http://sandbox-api.example.com/v1/modules?page=1
+                  from:
+                    type: integer
+                    example: 1
+                  last_page:
+                    type: integer
+                    example: 1
+                  last_page_url:
+                    type: integer
+                  next_page_url:
+                    type: string
+                    example: null
+                  path:
+                    type: string
+                    example: http://sandbox-api.example.com/v1/modules
+                  per_page:
+                    type: integer
+                    example: 10
+                  prev_page_url:
+                    type: string
+                    example: null
+                  to:
+                    type: integer
+                    example: 1
+                  total:
+                    type: integer
+                    example: 1
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X GET \
-             http://localhost:8000/api/v1/modules \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/modules \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
     post:
       tags:
-        - module
+      - module
       summary: Create a module
-      description: |-
-        Requires `create` permission on `modules` module.
+      description: Requires `create` permission on `modules` module.
       operationId: createModule
-      consumes:
-        - application/x-www-form-urlencoded
-      parameters:
-        - name: name
-          in: formData
-          description: 'Module name.'
-          required: true
-          type: string
-        - name: description
-          in: formData
-          description: 'Module description.'
-          required: false
-          type: string
-      produces:
-        - application/json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - name
+              type: object
+              properties:
+                name:
+                  maxLength: 25
+                  type: string
+                  example: users
+                category:
+                  type: string
+                  enum:
+                  - uncategorized
+                description:
+                  maxLength: 100
+                  type: string
+                  example: Users module
+        required: false
       responses:
-        '201':
+        201:
           description: Created
-          schema:
-            $ref: '#/definitions/ModuleModel'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X POST \
-              http://localhost:8000/api/v1/modules \
-              -H 'Accept: application/json' \
-              -H 'Authorization: Bearer {access-token}' \
-              -H 'Content-Type: application/json' \
-              -d '{"name":"Users module","description":"Users module"}'
-  '/modules/{module}':
+      - lang: CURL
+        source: |-
+          curl -X POST \
+            http://sandbox-api.example.com/v1/modules \
+            -H 'Accept: application/json' \
+            -H 'Authorization: Bearer {access-token}' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "name":"users",
+              "description":"Users module"
+            }'
+  /modules/datatables:
     get:
       tags:
-        - module
-      summary: Get module
+      - module
+      summary: Get modules (datatables)
       description: |-
-        Requires `view` permission on `modules` module.
-      operationId: getModule
-      consumes:
-        - application/json
-      parameters:
-        - name: module
-          in: path
-          description: '<a href=''#operation/getModules''>Module name</a>'
-          required: true
-          type: string
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: OK
-          schema:
-            $ref: '#/definitions/ModuleModel'
-      x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X GET \
-             http://localhost:8000/api/v1/modules/{module} \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
+        Requires `view-any` permission on `modules` module.
 
+        Get modules formatted for jQuery datatables.
+      operationId: getModulesDatatables
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  draw:
+                    type: integer
+                    example: 1
+                  recordsTotal:
+                    type: integer
+                    example: 1
+                  recordsFiltered:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ModuleModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/modules/datatables \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /modules/{module}:
+    get:
+      tags:
+      - module
+      summary: Get module
+      description: Requires `view` permission on `modules` module.
+      operationId: getModule
+      parameters:
+      - name: module
+        in: path
+        description: <a href="#operation/getModules">Module name</a>
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/modules/{module} \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
     put:
       tags:
-        - module
+      - module
       summary: Update module
-      description: |-
-        Requires `update` permission on `modules` module.
+      description: Requires `update` permission on `modules` module.
       operationId: updateModule
-      consumes:
-        - application/x-www-form-urlencoded
-      produces:
-        - application/json
       parameters:
-        - name: module
-          in: path
-          description: '<a href=''#operation/getModules''>Module name</a>'
-          required: true
+      - name: module
+        in: path
+        description: <a href="#operation/getModules">Module name</a>
+        required: true
+        schema:
           type: string
-        - name: description
-          in: formData
-          description: 'Module description'
-          required: false
-          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                  example: administration
+                  enum:
+                  - uncategorized
+                  - administration
+                description:
+                  maxLength: 100
+                  type: string
+                  example: User accounts' management module
+        required: false
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            $ref: '#/definitions/ModuleModel'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ModuleModel'
+                  - properties:
+                      category:
+                        example: administration
+                      description:
+                        example: User accounts' management module
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X PUT \
-             http://localhost:8000/api/v1/modules/{module} \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}' \
-             -H 'Content-Type: application/json' \
-             -d '{"description":"Users module"}'
-
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           http://sandbox-api.example.com/v1/modules/{module} \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}' \
+           -H 'Content-Type: application/json' \
+           -d '{
+             "category": "administration",
+             "description":"User accounts' management module"
+           }'
     delete:
       tags:
-        - module
+      - module
       summary: Delete module
       description: |-
         <strong>Permanently</strong> remove a module from database.
@@ -542,30 +1032,96 @@ paths:
 
         The module must be <a href='#operation/revokeModule'>revoked</a> before it can be deleted.
       operationId: deleteModule
-      consumes:
-        - application/json
       parameters:
-        - name: module
-          in: path
-          description: '<a href=''#operation/getModules''>Module name</a>'
-          required: true
+      - name: module
+        in: path
+        description: <a href="#operation/getModules">Module name</a>
+        required: true
+        schema:
           type: string
-      produces:
-        - application/json
       responses:
-        '204':
+        204:
           description: No Content
+          content: {}
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X DELETE \
-             'http://localhost:8000/api/v1/modules/{module}' \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
-  '/modules/{module}/restore':
+      - lang: CURL
+        source: |-
+          curl -X DELETE \
+           'http://sandbox-api.example.com/v1/modules/{module}' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /modules/{module}/facilities:
+    get:
+      tags:
+      - module
+      summary: Get facilities granted to a module.
+      description: Requires `view-any` permission on `facilities` module.
+      operationId: getModuleFacilities
+      parameters:
+      - name: module
+        in: path
+        description: <a href="#operation/getModules">Module name</a>
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ModuleModel'
+                  - properties:
+                      facilities:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           'http://sandbox-api.example.com/v1/modules/{module}/facilities' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /modules/{module}/permissions:
+    get:
+      tags:
+      - module
+      summary: Get permissions belonging to a module.
+      description: Requires `view-any` permission on `permissions` module.
+      operationId: getModulePermissions
+      parameters:
+      - name: module
+        in: path
+        description: <a href="#operation/getModules">Module name</a>
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ModuleModel'
+                  - properties:
+                      permissions:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PermissionModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           'http://sandbox-api.example.com/v1/modules/{module}/permissions' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /modules/{module}/restore:
     put:
       tags:
-        - module
+      - module
       summary: Restore module
       description: |-
         <strong>Reinstate</strong> previously <strike>revoked</strike> module.
@@ -574,412 +1130,609 @@ paths:
 
         See <a href='#operation/revokeModule'>revoke module</a>.
       operationId: restoreModule
-      consumes:
-        - application/json
       parameters:
-        - name: module
-          in: path
-          description: '<a href=''#operation/getModules''>Module name</a>'
-          required: true
+      - name: module
+        in: path
+        description: <a href="#operation/getModules">Module name</a>
+        required: true
+        schema:
           type: string
-      produces:
-        - application/json
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            $ref: '#/definitions/ModuleModel'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X PUT \
-             'http://localhost:8000/api/v1/modules/{module}/restore' \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
-  '/modules/{module}/revoke':
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           'http://sandbox-api.example.com/v1/modules/{module}/restore' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /modules/{module}/revoke:
     put:
       tags:
-        - module
+      - module
       summary: Revoke module
       description: |-
         Requires `soft-delete` permission on `modules` module.
 
         Different from <a href='#operation/deleteModule'>delete module</a>.
       operationId: revokeModule
-      consumes:
-        - application/json
       parameters:
-        - name: module
-          in: path
-          description: '<a href=''#operation/getModules''>Module name</a>'
-          required: true
+      - name: module
+        in: path
+        description: <a href="#operation/getModules">Module name</a>
+        required: true
+        schema:
           type: string
-      produces:
-        - application/json
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            allOf:
-              - $ref: '#/definitions/ModuleModel'
-              - properties:
-                  deleted_at:
-                    example: '2018-10-05 22:48:06'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ModuleModel'
+                  - properties:
+                      deleted_at:
+                        example: '2018-10-05 22:48:06'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X PUT \
-             'http://localhost:8000/api/v1/modules/{module}/revoke' \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           'http://sandbox-api.example.com/v1/modules/{module}/revoke' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
 
   /permissions:
     get:
       tags:
-        - permission
+      - permission
       summary: Get permissions
-      description: |-
-        Requires `view-any` permission on `permissions` module.
+      description: Requires `view-any` permission on `permissions` module.
       operationId: getPermissions
-      consumes:
-        - application/json
-      produces:
-        - application/json
+      parameters:
+      - name: paginate
+        in: query
+        schema:
+          type: boolean
+          default: true
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            type: object
-            properties:
-              permissions:
-                type: array
-                items:
-                  $ref: '#/definitions/PermissionModel'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_page:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    description: Permissions
+                    items:
+                      $ref: '#/components/schemas/PermissionModel'
+                  first_page_url:
+                    type: string
+                    example: http://sandbox-api.example.com/v1/permissions?page=1
+                  from:
+                    type: integer
+                    example: 1
+                  last_page:
+                    type: integer
+                    example: 1
+                  last_page_url:
+                    type: integer
+                  next_page_url:
+                    type: string
+                    example: null
+                  path:
+                    type: string
+                    example: http://sandbox-api.example.com/v1/permissions
+                  per_page:
+                    type: integer
+                    example: 10
+                  prev_page_url:
+                    type: string
+                    example: null
+                  to:
+                    type: integer
+                    example: 1
+                  total:
+                    type: integer
+                    example: 1
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X GET \
-             http://localhost:8000/api/v1/permissions \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/permissions \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
     post:
       tags:
-        - permission
+      - permission
       summary: Register permission
-      description: |-
-        Requires `create` permission on `permissions` module.
+      description: Requires `create` permission on `permissions` module.
       operationId: registerPermission
-      consumes:
-        - application/x-www-form-urlencoded
-      parameters:
-        - name: module_name
-          description: '<a href=''#operation/getModules''>Module</a>'
-          in: formData
-          required: true
-          type: string
-        - name: name
-          in: formData
-          required: true
-          type: string
-        - name: description
-          in: formData
-          required: false
-          type: string
-      produces:
-        - application/json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - module_name
+              - name
+              type: object
+              properties:
+                module_name:
+                  type: string
+                  description: <a href="#operation/getModules">Module name</a>
+                  example: users
+                name:
+                  maxLength: 25
+                  type: string
+                  example: view-any
+                description:
+                  maxLength: 100
+                  type: string
+                  example: View any user
+        required: false
       responses:
-        '201':
+        201:
           description: Created
-          schema:
-            allOf:
-              - $ref: '#/definitions/PermissionModel'
-              - properties:
-                  module:
-                    $ref: '#/definitions/ModuleModel'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PermissionModel'
+                  - properties:
+                      module:
+                        $ref: '#/components/schemas/ModuleModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X POST \
-              http://localhost:8000/api/v1/permissions \
-              -H 'Accept: application/json' \
-              -H 'Authorization: Bearer {access-token}' \
-              -H 'Content-Type: application/json' \
-              -d '{
-                "module_name":"users",
-                "name":"view-any",
-                "description":"View any permission."
-              }'
-  '/permissions/{permission}':
+      - lang: CURL
+        source: |-
+          curl -X POST \
+            http://sandbox-api.example.com/v1/permissions \
+            -H 'Accept: application/json' \
+            -H 'Authorization: Bearer {access-token}' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "module_name":"users",
+              "name":"view-any",
+              "description":"View any users."
+            }'
+  /permissions/datatables:
     get:
       tags:
-        - permission
-      summary: Get permission
+      - permission
+      summary: Get permissions (datatables)
       description: |-
-        Requires `view` permission on `permissions` module.
-      operationId: getPermission
-      consumes:
-        - application/json
-      parameters:
-        - name: permission
-          in: path
-          description: '<a href=''#operation/getPermissions''>Permission</a>'
-          required: true
-          type: integer
-      produces:
-        - application/json
+        Requires `view-any` permission on `permissions` module.
+
+        Get permissions formatted for jQuery datatables.
+      operationId: getPermissionsDatatables
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            allOf:
-              - $ref: '#/definitions/PermissionModel'
-              - properties:
-                  module:
-                    $ref: '#/definitions/ModuleModel'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  draw:
+                    type: integer
+                    example: 1
+                  recordsTotal:
+                    type: integer
+                    example: 1
+                  recordsFiltered:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PermissionModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X GET \
-             http://localhost:8000/api/v1/permissions/{permission} \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/permissions/datatables \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /permissions/{permission}:
+    get:
+      tags:
+      - permission
+      summary: Get permission
+      description: Requires `view` permission on `permissions` module.
+      operationId: getPermission
+      parameters:
+      - name: permission
+        in: path
+        description: <a href="#operation/getPermissions">Permission ID</a>
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PermissionModel'
+                  - properties:
+                      module:
+                        $ref: '#/components/schemas/ModuleModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/permissions/{permission} \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
     put:
       tags:
-        - permission
+      - permission
       summary: Update permission
-      description: |-
-        Requires `update` permission on `permissions` module.
+      description: Requires `update` permission on `permissions` module.
       operationId: updatePermission
-      consumes:
-        - application/x-www-form-urlencoded
       parameters:
-        - name: permission
-          in: path
-          description: '<a href=''#operation/getPermissions''>Permission</a>'
-          required: true
+      - name: permission
+        in: path
+        description: <a href="#operation/getPermissions">Permission ID</a>
+        required: true
+        schema:
           type: integer
-        - name: module_name
-          in: formData
-          required: true
-          type: string
-        - name: name
-          in: formData
-          required: true
-          type: string
-        - name: description
-          in: formData
-          required: false
-          type: string
-      produces:
-        - application/json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                module_name:
+                  type: string
+                  description: <a href="#operation/getModules">Module name</a>
+                  example: users
+                name:
+                  maxLength: 25
+                  type: string
+                  example: view-any
+                description:
+                  maxLength: 100
+                  type: string
+                  example: View any user
+        required: false
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            allOf:
-              - $ref: '#/definitions/PermissionModel'
-              - properties:
-                  module:
-                    $ref: '#/definitions/ModuleModel'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PermissionModel'
+                  - properties:
+                      module:
+                        $ref: '#/components/schemas/ModuleModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X PUT \
-             http://localhost:8000/api/v1/permissions/{permission} \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}' \
-             -H 'Content-Type: application/json' \
-             -d '{
-               "module_name":"users",
-               "name":"view-any",
-               "description":"View any user."
-             }'
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           http://sandbox-api.example.com/v1/permissions/{permission} \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}' \
+           -H 'Content-Type: application/json' \
+           -d '{
+             "module_name":"users",
+             "name":"view-any",
+             "description":"View any user."
+           }'
     delete:
       tags:
-        - permission
+      - permission
       summary: Delete permission
       description: |-
         Remove permission from database. This action irreversible.
 
         Requires `delete` permission on `permissions` module.
       operationId: deletePermission
-      consumes:
-        - application/json
       parameters:
-        - name: permission
-          in: path
-          description: '<a href=''#operation/getPermissions''>Permission</a>'
-          required: true
+      - name: permission
+        in: path
+        description: <a href="#operation/getPermissions">Permission ID</a>
+        required: true
+        schema:
           type: integer
-      produces:
-        - application/json
       responses:
-        '204':
+        204:
           description: No Content
+          content: {}
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X DELETE \
-             'http://localhost:8000/api/v1/permissions/{permission}' \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
+      - lang: CURL
+        source: |-
+          curl -X DELETE \
+           'http://sandbox-api.example.com/v1/permissions/{permission}' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /permissions/{permission}/roles:
+    get:
+      tags:
+      - permission
+      summary: Get roles granted this permission.
+      description: Requires `view-any` permission on `roles` permission.
+      operationId: getPermissionRoles
+      parameters:
+      - name: permission
+        in: path
+        description: <a href="#operation/getPermissions">Permission ID</a>
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PermissionModel'
+                  - properties:
+                      roles:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/RoleModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           'http://sandbox-api.example.com/v1/permissions/{permission}/roles' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
 
   /roles:
     get:
       tags:
-        - role
+      - role
       summary: Get roles
-      description: |-
-        Requires `view-any` permission on `roles` module.
+      description: Requires `view-any` permission on `roles` module.
       operationId: getRoles
-      consumes:
-        - application/json
-      produces:
-        - application/json
+      parameters:
+      - name: paginate
+        in: query
+        schema:
+          type: boolean
+          default: true
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            type: object
-            properties:
-              roles:
-                type: array
-                items:
-                  $ref: '#/definitions/RoleModel'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_page:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    description: Roles
+                    items:
+                      $ref: '#/components/schemas/RoleModel'
+                  first_page_url:
+                    type: string
+                    example: http://sandbox-api.example.com/v1/roles?page=1
+                  from:
+                    type: integer
+                    example: 1
+                  last_page:
+                    type: integer
+                    example: 1
+                  last_page_url:
+                    type: integer
+                  next_page_url:
+                    type: string
+                    example: null
+                  path:
+                    type: string
+                    example: http://sandbox-api.example.com/v1/roles
+                  per_page:
+                    type: integer
+                    example: 10
+                  prev_page_url:
+                    type: string
+                    example: null
+                  to:
+                    type: integer
+                    example: 1
+                  total:
+                    type: integer
+                    example: 1
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X GET \
-             http://localhost:8000/api/v1/roles \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/roles \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
     post:
       tags:
-        - role
+      - role
       summary: Register role
-      description: |-
-        Requires `create` permission on `roles` module.
+      description: Requires `create` permission on `roles` module.
       operationId: registerRole
-      consumes:
-        - application/x-www-form-urlencoded
-      parameters:
-        - name: name
-          in: formData
-          required: true
-          type: string
-        - name: description
-          in: formData
-          required: false
-          type: string
-      produces:
-        - application/json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - name
+              type: object
+              properties:
+                name:
+                  maxLength: 50
+                  type: string
+                  example: Sys Admin
+                description:
+                  maxLength: 100
+                  type: string
+                  example: System Administrator
+        required: false
       responses:
-        '201':
+        201:
           description: Created
-          schema:
-            allOf:
-              - $ref: '#/definitions/RoleModel'
-              - properties:
-                  facility:
-                    $ref: '#/definitions/FacilityModel'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/RoleModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X POST \
-              http://localhost:8000/api/v1/roles \
-              -H 'Accept: application/json' \
-              -H 'Authorization: Bearer {access-token}' \
-              -H 'Content-Type: application/json' \
-              -d '{
-                "name":"Sys Admin",
-                "description":"System Administrator"
-              }'
-  '/roles/{role}':
+      - lang: CURL
+        source: |-
+          curl -X POST \
+            http://sandbox-api.example.com/v1/roles \
+            -H 'Accept: application/json' \
+            -H 'Authorization: Bearer {access-token}' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "name":"Sys Admin",
+              "description":"System Administrator"
+            }'
+  /roles/datatables:
     get:
       tags:
-        - role
+      - role
+      summary: Get roles (datatables)
+      description: |-
+        Requires `view-any` permission on `roles` module.
+
+        Get roles formatted for jQuery datatables.
+      operationId: getRolesDatatables
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  draw:
+                    type: integer
+                    example: 1
+                  recordsTotal:
+                    type: integer
+                    example: 1
+                  recordsFiltered:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RoleModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/roles/datatables \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /roles/{role}:
+    get:
+      tags:
+      - role
       summary: Get role
       description: |-
         Requires `view` permission on `roles` module to view other user's roles.
 
         User's can view role regardless.
       operationId: getRole
-      consumes:
-        - application/json
       parameters:
-        - name: role
-          in: path
-          description: '<a href=''#operation/getRoles''>Role</a>'
-          required: true
+      - name: role
+        in: path
+        description: <a href="#operation/getRoles">Role ID</a>
+        required: true
+        schema:
           type: string
           format: uuid
-      produces:
-        - application/json
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            allOf:
-              - $ref: '#/definitions/RoleModel'
-              - properties:
-                  facility:
-                    $ref: '#/definitions/FacilityModel'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/RoleModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X GET \
-             http://localhost:8000/api/v1/roles/{role} \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/roles/{role} \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
     put:
       tags:
-        - role
+      - role
       summary: Update role
-      description: |-
-        Requires `update` permission on `roles` module.
+      description: Requires `update` permission on `roles` module.
       operationId: updateRole
-      consumes:
-        - application/x-www-form-urlencoded
       parameters:
-        - name: role
-          in: path
-          description: '<a href=''#operation/getRoles''>Role</a>'
-          required: true
+      - name: role
+        in: path
+        description: <a href="#operation/getRoles">Role ID</a>
+        required: true
+        schema:
           type: string
-        - name: name
-          in: formData
-          required: false
-          type: string
-        - name: description
-          in: formData
-          required: false
-          type: string
-      produces:
-        - application/json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - name
+              type: object
+              properties:
+                name:
+                  maxLength: 50
+                  type: string
+                  example: Sys Admin
+                description:
+                  maxLength: 100
+                  type: string
+                  example: System Administrator
+        required: false
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            allOf:
-              - $ref: '#/definitions/RoleModel'
-              - properties:
-                  facility:
-                    $ref: '#/definitions/FacilityModel'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/RoleModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X PUT \
-             http://localhost:8000/api/v1/roles/{role} \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}' \
-             -H 'Content-Type: application/json' \
-             -d '{
-               "name":"Sys Admin",
-               "description":"System Administrator"
-             }'
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           http://sandbox-api.example.com/v1/roles/{role} \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}' \
+           -H 'Content-Type: application/json' \
+           -d '{
+             "name":"Sys Admin",
+             "description":"System Administrator"
+           }'
     delete:
       tags:
-        - role
+      - role
       summary: Delete role
       description: |-
         <strong>Permanently</strong> remove role from database.
@@ -988,200 +1741,239 @@ paths:
 
         The role must be <a href='#operation/revokeRole'>revoked</a> before it be deleted.
       operationId: deleteRole
-      consumes:
-        - application/json
       parameters:
-        - name: role
-          in: path
-          description: '<a href=''#operation/getRoles''>Role</a>'
-          required: true
+      - name: role
+        in: path
+        description: <a href="#operation/getRoles">Role ID</a>
+        required: true
+        schema:
           type: string
           format: uuid
-      produces:
-        - application/json
       responses:
-        '204':
+        204:
           description: No Content
+          content: {}
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X DELETE \
-             'http://localhost:8000/api/v1/roles/{role}' \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
-  '/roles/{role}/permissions':
+      - lang: CURL
+        source: |-
+          curl -X DELETE \
+           'http://sandbox-api.example.com/v1/roles/{role}' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /roles/{role}/permissions:
     get:
       tags:
-        - role
-      summary: Get role permissions
+      - role
+      summary: Get granted permissions
       description: |-
-        All permissions available to this role.
+        Get only permissions granted to this role.
 
-        Requires `view-permissions` permission on `roles` module.
+        Requires `view-any` permission on `permissions` module.
       operationId: getRolePermissions
-      consumes:
-        - application/json
       parameters:
-        - name: role
-          in: path
-          description: '<a href=''#operation/getRoles''>Role</a>'
-          required: true
+      - name: role
+        in: path
+        description: <a href="#operation/getRoles">Role ID</a>
+        required: true
+        schema:
           type: string
           format: uuid
-      produces:
-        - application/json
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            type: object
-            properties:
-              permissions:
-                type: array
-                items:
-                  $ref: '#/definitions/PermissionModel'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/RoleModel'
+                  - properties:
+                      permissions:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PermissionModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X GET \
-             http://localhost:8000/api/v1/roles/{role}/permissions \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/roles/{role}/permissions \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /roles/{role}/permissions/available:
+    get:
+      tags:
+      - role
+      summary: Get available permissions
+      description: |-
+        Get all permissions available to this role; granted or not.
+
+        Requires `assign-permissions` permission on `roles` module.
+
+        A user can still access permissions granted to their role regardless.
+      operationId: getRolePermissionsAvailable
+      parameters:
+      - name: role
+        in: path
+        description: <a href="#operation/getRoles">Role ID</a>
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/RoleModel'
+                  - properties:
+                      permissions:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 1
+                            name:
+                              type: string
+                              example: view-any
+                            granted:
+                              type: boolean
+                              example: true
+                            module:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+                                  example: users
+                                category:
+                                  type: string
+                                  example: uncategorized
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/roles/{role}/permissions/available \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
     put:
       tags:
-        - role
-      summary: Synchronize role permissions
+      - role
+      summary: Sync available permissions
       description: |-
         Dettach, re-attach permissions to a role.
 
         Requires `assign-permissions` permission on `permissions` module.
-      operationId: syncRolePermissions
-      consumes:
-        - application/x-www-form-urlencoded
+      operationId: syncRolePermissionsAvailable
       parameters:
-        - name: role
-          in: path
-          description: '<a href=''#operation/getRoles''>Role</a>'
-          required: true
+      - name: role
+        in: path
+        description: <a href="#operation/getRoles">Role ID</a>
+        required: true
+        schema:
           type: string
           format: uuid
-        - name: permissions
-          in: formData
-          required: false
-          type: array
-          items:
-            type: integer
-      produces:
-        - application/json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - permissions
+              type: object
+              properties:
+                permissions:
+                  type: array
+                  description: <a href="#operation/getPermissions">Permission ID</a>
+                  items:
+                    type: integer
+        required: false
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            allOf:
-              - $ref: '#/definitions/RoleModel'
-              - properties:
-                  permissions:
-                    type: array
-                    items:
-                      $ref: '#/definitions/PermissionModel'
-      x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X PUT \
-             http://localhost:8000/api/v1/roles/{role}/permissions \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
-  '/roles/{role}/permissions/granted':
-    get:
-      tags:
-        - role
-      summary: Role permissions - granted
-      description: |-
-        Get all permissions available to this role, indicating weather granted or not.
-
-        Requires `view-permissions` permission on `roles` module.
-
-        A user can still access permissions granted to their role regardless.
-      operationId: getRolePermissionsGranted
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - name: role
-          in: path
-          description: '<a href=''#operation/getRoles''>Role</a>'
-          required: true
-          type: string
-          format: uuid
-      responses:
-        '200':
-          description: OK
-          examples:
+          content:
             application/json:
-              permissions:
-                - id: 1
-                  name: view-any
-                  granted: true
-                  module:
-                    name: users
-                    category: uncategorized
-                - id: 2
-                  name: create
-                  granted: false
-                  module:
-                    name: users
-                    category: uncategorized
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/RoleModel'
+                  - properties:
+                      permissions:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 1
+                            name:
+                              type: string
+                              example: view-any
+                            granted:
+                              type: boolean
+                              example: true
+                            module:
+                              type: object
+                              properties:
+                                name:
+                                  type: string
+                                  example: users
+                                category:
+                                  type: string
+                                  example: uncategorized
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X GET \
-             http://localhost:8000/api/v1/roles/{role}/permissions/granted \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
-  '/roles/{role}/revoke':
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           http://sandbox-api.example.com/v1/roles/{role}/permissions/available \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}' \
+           -d '{
+              "permissions": [
+                1
+              ]
+            }'
+  /roles/{role}/revoke:
     put:
       tags:
-        - role
+      - role
       summary: Revoke role
       description: |-
         Requires `soft-delete` permission on `roles` module.
 
         Different from <a href='#operation/deleteRole'>delete role</a>.
       operationId: revokeRole
-      consumes:
-        - application/json
       parameters:
-        - name: role
-          in: path
-          description: '<a href=''#operation/getRoles''>Role</a>'
-          required: true
+      - name: role
+        in: path
+        description: <a href="#operation/getRoles">Role ID</a>
+        required: true
+        schema:
           type: string
           format: uuid
-      produces:
-        - application/json
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            allOf:
-              - $ref: '#/definitions/RoleModel'
-              - properties:
-                  deleted_at:
-                    example: '2018-10-05 22:48:06'
-                  facility:
-                    $ref: '#/definitions/FacilityModel'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/RoleModel'
+                  - properties:
+                      deleted_at:
+                        example: '2018-10-05 22:48:06'
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X PUT \
-             'http://localhost:8000/api/v1/roles/{role}/revoke' \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
-  '/roles/{role}/restore':
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           'http://sandbox-api.example.com/v1/roles/{role}/revoke' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /roles/{role}/restore:
     put:
       tags:
-        - role
+      - role
       summary: Restore role
       description: |-
         <strong>Reinstate</strong> previously <strike>revoked</strike> role.
@@ -1190,341 +1982,367 @@ paths:
 
         See <a href='#operation/revokeUser'>revoke role</a>.
       operationId: restoreRole
-      consumes:
-        - application/json
       parameters:
-        - name: role
-          in: path
-          description: '<a href=''#operation/getRoles''>Role</a>'
-          required: true
+      - name: role
+        in: path
+        description: <a href="#operation/getRoles">Role ID</a>
+        required: true
+        schema:
           type: string
           format: uuid
-      produces:
-        - application/json
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            allOf:
-              - $ref: '#/definitions/RoleModel'
-              - properties:
-                  facility:
-                    $ref: '#/definitions/FacilityModel'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/RoleModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X PUT \
-             'http://localhost:8000/api/v1/roles/{role}/restore' \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
-  '/roles/{role}/users':
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           'http://sandbox-api.example.com/v1/roles/{role}/restore' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /roles/{role}/users:
     get:
       tags:
-        - role
+      - role
       summary: Get role users
       description: |-
         Get all users having this role.
 
         Requires `view-any` permission on `users` module.
       operationId: getRoleUsers
-      consumes:
-        - application/json
       parameters:
-        - name: role
-          in: path
-          description: '<a href=''#operation/getRoles''>Role</a>'
-          required: true
+      - name: role
+        in: path
+        description: <a href="#operation/getRoles">Role ID</a>
+        required: true
+        schema:
           type: string
           format: uuid
-      produces:
-        - application/json
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            type: object
-            properties:
-              users:
-                type: array
-                items:
-                  $ref: '#/definitions/UserModel'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/RoleModel'
+                  - properties:
+                      users:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/UserModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X PUT \
-             'http://localhost:8000/api/v1/roles/{role}/users' \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           'http://sandbox-api.example.com/v1/roles/{role}/users' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
 
   /users:
     get:
       tags:
-        - user
+      - user
       summary: Get users
-      description: |-
-        Requires `view-any` permission on `users` module.
+      description: Requires `view-any` permission on `users` module.
       operationId: getUsers
-      consumes:
-        - application/json
-      produces:
-        - application/json
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            type: object
-            properties:
-              users:
-                type: array
-                items:
-                  $ref: '#/definitions/UserModel'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/UserModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+                      role:
+                        $ref: '#/components/schemas/RoleModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X GET \
-             http://localhost:8000/api/v1/users \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/users \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
     post:
       tags:
-        - user
+      - user
       summary: Register user
       description: |-
         Requires `create` permission on `users` module.
 
         Sets a random default password; see <a href='#operation/resetPassword'>reset password</a>.
       operationId: registerUser
-      consumes:
-        - application/x-www-form-urlencoded
-      parameters:
-        - name: name
-          in: formData
-          description: Full name.
-          required: true
-          type: string
-        - name: alias
-          in: formData
-          description: Preferred display name.
-          required: true
-          type: string
-        - name: email
-          in: formData
-          description: 'Email address. Must be unique. See <a href=''#operation/validateEmail''>validate email.</a>'
-          required: true
-          type: string
-          format: email
-        - name: role_id
-          in: formData
-          description: '<a href=''#operation/getRoles''>Role</a>'
-          required: true
-          type: string
-          format: uuid
-      produces:
-        - application/json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - alias
+              - email
+              - name
+              - role_id
+              type: object
+              properties:
+                name:
+                  maxLength: 50
+                  type: string
+                  description: Full name
+                  example: John Doe
+                alias:
+                  maxLength: 50
+                  type: string
+                  description: Preferred display name
+                  example: jdoe
+                email:
+                  maxLength: 100
+                  type: string
+                  description: Email address. Must be unique. See <a href='#operation/validateEmail">validate
+                    email.</a>
+                  format: email
+                  example: jdoe@example.com
+                role_id:
+                  type: string
+                  description: <a href="#operation/getRoles">Role ID</a>
+                  format: uuid
+                  example: 1bc27b9c-a963-4fda-b79b-91b125ba0ed1
+        required: false
       responses:
-        '201':
+        201:
           description: Created
-          schema:
-            allOf:
-              - $ref: '#/definitions/UserModel'
-              - properties:
-                  role:
-                    $ref: '#/definitions/RoleModel'
-                  facility:
-                    $ref: '#/definitions/FacilityModel'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/UserModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+                      role:
+                        $ref: '#/components/schemas/RoleModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X POST \
-              http://localhost:8000/api/v1/users \
-              -H 'Accept: application/json' \
-              -H 'Authorization: Bearer {access-token}' \
-              -H 'Content-Type: application/json' \
-              -d '{
-                "name":"John Doe",
-                "alias":"jdoe",
-                "email":"jdoe@example.com",
-                "role_id":"1bc27b9c-a963-4fda-b79b-91b125ba0ed1"
-              }'
+      - lang: CURL
+        source: |-
+          curl -X POST \
+            http://sandbox-api.example.com/v1/users \
+            -H 'Accept: application/json' \
+            -H 'Authorization: Bearer {access-token}' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "name":"John Doe",
+              "alias":"jdoe",
+              "email":"jdoe@example.com",
+              "role_id":"1bc27b9c-a963-4fda-b79b-91b125ba0ed1"
+            }'
   /users/auth:
     post:
       tags:
-        - user
+      - user
       summary: Authenticate user
-      description: |-
-        Requires `authenticate-user` scope.
+      description: Requires `authenticate-user` scope.
       operationId: authenticateUser
-      security:
-        - password_grant:
-          - "authenticate-user"
-      consumes:
-        - application/x-www-form-urlencoded
-      parameters:
-        - name: email
-          in: formData
-          required: true
-          type: string
-          format: email
-        - name: password
-          in: formData
-          required: true
-          type: string
-      produces:
-        - application/json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - email
+              - password
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: jdoe@example.com
+                password:
+                  type: string
+                  example: Gm%Pm5^(
+        required: false
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            allOf:
-              - $ref: '#/definitions/UserModel'
-              - properties:
-                  role:
-                    $ref: '#/definitions/RoleModel'
-                  facility:
-                    $ref: '#/definitions/FacilityModel'
-                  token:
-                    $ref: '#/definitions/TokenModel'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/UserModel'
+                  - properties:
+                      role:
+                        $ref: '#/components/schemas/RoleModel'
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+                      token:
+                        $ref: '#/components/schemas/TokenModel'
+      # security:
+      # - Authorization:
+      #   - authenticate-user
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X POST \
-              http://localhost:8000/api/v1/users/auth \
-              -H 'Accept: application/json' \
-              -H 'Authorization: Bearer {access-token}' \
-              -H 'Content-Type: application/json' \
-              -d '{
-                "email": "jdoe@example.com",
-                "password": "Gm%Pm5^("
-              }'
+      - lang: CURL
+        source: |-
+          curl -X POST \
+            http://sandbox-api.example.com/v1/users/auth \
+            -H 'Accept: application/json' \
+            -H 'Authorization: Bearer {access-token}' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "email": "jdoe@example.com",
+              "password": "Gm%Pm5^("
+            }'
+  /users/datatables:
+    get:
+      tags:
+      - user
+      summary: Get users (datatables)
+      description: |-
+        Requires `view-any` permission on `users` module.
+
+        Get users formatted for jQuery datatables.
+      operationId: getUsersDatatables
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  draw:
+                    type: integer
+                    example: 1
+                  recordsTotal:
+                    type: integer
+                    example: 1
+                  recordsFiltered:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/users/datatables \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
   /users/deauth:
     post:
       tags:
-        - user
+      - user
       summary: Deauthenticate user
       description: |-
         Invalidates existing user tokens to calling client app.
 
         Requires `authenticate-user` scope.
       operationId: deauthenticateUser
-      security:
-        - password_grant:
-          - "authenticate-user"
-      consumes:
-        - application/x-www-form-urlencoded
-      produces:
-        - application/json
       responses:
-        '204':
+        204:
           description: No Content
+          content: {}
+      security:
+      - client_credentials_grant: []
+      - password_grant:
+        - authenticate-user
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X POST \
-              http://localhost:8000/api/v1/users/deauth \
-              -H 'Accept: application/json' \
-              -H 'Authorization: Bearer {access-token}'
+      - lang: CURL
+        source: |-
+          curl -X POST \
+            http://sandbox-api.example.com/v1/users/deauth \
+            -H 'Accept: application/json' \
+            -H 'Authorization: Bearer {access-token}'
   /users/email:
-    post:
-      tags:
-        - user
-      summary: Validate email
-      description: |-
-        Check if a user exists with given email.
-
-        Requires `validate-email` scope.
-      operationId: validateEmail
-      security:
-        - password_grant:
-          - "validate-email"
-      consumes:
-        - application/json
-      parameters:
-        - in: "body"
-          name: "body"
-          required: true
-          schema:
-            $ref: "#/definitions/UserValidateEmailRequest"
-      produces:
-        - application/json
-      responses:
-        '204':
-          description: No Content
-      x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X POST \
-              http://localhost:8000/api/v1/users/email \
-              -H 'Accept: application/json' \
-              -H 'Authorization: Bearer {access-token}' \
-              -H 'Content-Type: application/json' \
-              -d '{
-                "email": "jdoe@example.com"
-              }'
     put:
       tags:
-        - user
+      - user
       summary: Confirm email verification
       description: |-
         Confirm a user has verified their email address.
 
         Requires `confirm-email` scope.
       operationId: confirmEmailVerification
-      consumes:
-        - application/x-www-form-urlencoded
-      parameters:
-        - name: email
-          in: formData
-          description: Verified email address.
-          required: true
-          type: string
-      produces:
-        - application/json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - email
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: Verified email address.
+                  format: email
+                  example: jdoe@example.com
+        required: false
       responses:
-        '204':
+        204:
           description: No Content
+          content: {}
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X PUT \
-             'http://localhost:8000/api/v1/users/email' \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}' \
-             -d '{
-                "email": "jdoe@example.com"
-              }'
-  /users/password:
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           'http://sandbox-api.example.com/v1/users/email' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}' \
+           -d '{
+              "email": "jdoe@example.com"
+            }'
     post:
       tags:
-        - user
-      summary: Confirm password
-      description: Confirm your <strong>own</strong> password.
-      operationId: confirmPassword
-      consumes:
-        - application/x-www-form-urlencoded
-      parameters:
-        - name: password
-          in: formData
-          description: Your user account password.
-          required: true
-          type: string
-      produces:
-        - application/json
+      - user
+      summary: Validate email
+      description: |-
+        Check if a user exists with given email.
+
+        Requires `validate-email` scope.
+      operationId: validateEmail
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - email
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: jdoe@example.com
+        required: false
       responses:
-        '204':
+        204:
           description: No Content
+          content: {}
+      security:
+      - password_grant:
+        - validate-email
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X POST \
-             'http://localhost:8000/api/v1/users/password' \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}' \
-             -d '{
-               "password":"N%x/6j^H"
-             }'
+      - lang: CURL
+        source: |-
+          curl -X POST \
+            http://sandbox-api.example.com/v1/users/email \
+            -H 'Accept: application/json' \
+            -H 'Authorization: Bearer {access-token}' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "email": "jdoe@example.com"
+            }'
+  /users/password:
     put:
       tags:
-        - user
+      - user
       summary: Update password
       description: |-
         Update your <strong>own</strong> password.
@@ -1533,52 +2351,89 @@ paths:
 
         See <a href='#operation/resetPassword'>reset password</a>.
       operationId: updatePassword
-      consumes:
-        - application/x-www-form-urlencoded
-      parameters:
-        - name: password
-          in: formData
-          description: Existing user account password.
-          required: true
-          type: string
-        - name: new_password
-          in: formData
-          description: |-
-            New user account password. Having at least;
-            + 8 characters,
-            + an upper case letter,
-            + a lower case letter,
-            + a number and,
-            + a symbol.
-          required: true
-          type: string
-          pattern: '(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$'
-        - name: new_password_confirmation
-          in: formData
-          description: New password confirmation.
-          required: true
-          type: string
-      produces:
-        - application/json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - new_password
+              - new_password_confirmation
+              - password
+              type: object
+              properties:
+                password:
+                  type: string
+                  description: Existing user account password.
+                  example: N%x/6j^H
+                new_password:
+                  pattern: (?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$
+                  type: string
+                  description: |-
+                    New user account password. Having at least;
+                    + 8 characters,
+                    + an upper case letter,
+                    + a lower case letter,
+                    + a number and,
+                    + a symbol.
+                  example: Gm=Pm5^(
+                new_password_confirmation:
+                  type: string
+                  description: New password confirmation.
+                  example: Gm=Pm5^(
+        required: false
       responses:
-        '204':
+        204:
           description: No Content
+          content: {}
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X PUT \
-             'http://localhost:8000/api/v1/users/password' \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}' \
-             -d '{
-                "password":"N:x/6j^H",
-                "new_password":"Gm":"Pm5^(",
-                "new_password_confirmation":"Gm=Pm5^(",
-              }'
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           'http://sandbox-api.example.com/v1/users/password' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}' \
+           -d '{
+              "password":"N:x/6j^H",
+              "new_password":"Gm=Pm5^(",
+              "new_password_confirmation":"Gm=Pm5^(",
+            }'
+    post:
+      tags:
+      - user
+      summary: Confirm password
+      description: Confirm your <strong>own</strong> password.
+      operationId: confirmPassword
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - password
+              type: object
+              properties:
+                password:
+                  type: string
+                  description: User account password.
+                  example: N%x/6j^H
+        required: false
+      responses:
+        204:
+          description: No Content
+          content: {}
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X POST \
+           'http://sandbox-api.example.com/v1/users/password' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}' \
+           -d '{
+             "password":"N%x/6j^H"
+           }'
   /users/password/reset:
     put:
       tags:
-        - user
+      - user
       summary: Reset password
       description: |-
         Reset password on behalf of the user.
@@ -1589,172 +2444,179 @@ paths:
 
         See <a href='#operation/updatePassword'>update password</a>.
       operationId: resetPassword
-      security:
-        - password_grant:
-          - "reset-password"
-      consumes:
-        - application/x-www-form-urlencoded
-      parameters:
-        - name: email
-          in: formData
-          description: Email for account to reset passport.
-          required: true
-          type: string
-        - name: email_verified_at
-          in: formData
-          description: |-
-            When a user verified their email.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - email
+              - password
+              - password_confirmation
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: Email for account to reset passport.
+                  format: email
+                  example: jdoe@example.com
+                email_verified_at:
+                  type: string
+                  description: |-
+                    When a user verified their email.
 
-            Normally, if password reset was via email, the email is verified implicitly.
-          type: string
-          format: date-time
-          required: false
-        - name: password
-          in: formData
-          description: |-
-            New user account password. Having at least;
-            + 8 characters,
-            + an upper case letter,
-            + a lower case letter,
-            + a number and,
-            + a symbol.
-          required: true
-          type: string
-          pattern: '(?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$'
-        - name: password_confirmation
-          in: formData
-          description: New password confirmation.
-          required: true
-          type: string
-      produces:
-        - application/json
+                    Normally, if password reset was via email, the email is verified implicitly.
+                  format: date-time
+                password:
+                  pattern: (?=^.{8,}$)((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$
+                  type: string
+                  description: |-
+                    New user account password. Having at least;
+                    + 8 characters,
+                    + an upper case letter,
+                    + a lower case letter,
+                    + a number and,
+                    + a symbol.
+                  example: Gm=Pm5^(
+                password_confirmation:
+                  type: string
+                  description: Password confirmation.
+                  example: Gm=Pm5^(
+        required: false
       responses:
-        '204':
+        204:
           description: No Content
+          content: {}
+      security:
+      - password_grant:
+        - reset-password
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X PUT \
-             'http://localhost:8000/api/v1/users/password/reset' \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}' \
-             -d '{
-                "email":"jdoe@example.com",
-                "password":"Gm%Pm5^(",
-                "password_confirmation":"Gm%Pm5^("
-              }'
-  '/users/{user}':
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           'http://sandbox-api.example.com/v1/users/password/reset' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}' \
+           -d '{
+              "email":"jdoe@example.com",
+              "password":"Gm%Pm5^(",
+              "password_confirmation":"Gm%Pm5^("
+            }'
+  /users/{user}:
     get:
       tags:
-        - user
+      - user
       summary: Get user
       description: |-
         Requires `view` permission on `users` module.
 
         User's can view their own regardless.
       operationId: getUser
-      consumes:
-        - application/json
       parameters:
-        - name: user
-          in: path
-          description: '<a href=''#operation/getUsers''>User</a>'
-          required: true
+      - name: user
+        in: path
+        description: <a href="#operation/getUsers">User</a>
+        required: true
+        schema:
           type: string
           format: uuid
-      produces:
-        - application/json
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            allOf:
-              - $ref: '#/definitions/UserModel'
-              - properties:
-                  role:
-                    $ref: '#/definitions/RoleModel'
-                  facility:
-                    $ref: '#/definitions/FacilityModel'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/UserModel'
+                  - properties:
+                      role:
+                        $ref: '#/components/schemas/RoleModel'
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X GET \
-             http://localhost:8000/api/v1/users/{user} \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/users/{user} \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
     put:
       tags:
-        - user
+      - user
       summary: Update user
       description: |-
         Requires `update` permission on `users` module.
 
         Can't update a user's password. See <a href='#operation/updatePassword'>update user password</a>
       operationId: updateUser
-      consumes:
-        - application/x-www-form-urlencoded
       parameters:
-        - name: user
-          in: path
-          description: '<a href=''#operation/getUsers''>User</a>'
-          required: true
+      - name: user
+        in: path
+        description: <a href="#operation/getUsers">User</a>
+        required: true
+        schema:
           type: string
           format: uuid
-        - name: name
-          in: formData
-          description: Full name
-          required: false
-          type: string
-        - name: alias
-          in: formData
-          description: Preferred display name.
-          required: false
-          type: string
-        - name: email
-          in: formData
-          description: |-
-            Email address.\
-            If changed, user must verify new email address.
-            See <a href='#operation/confirmEmailVerification'>confirm email verification.</a>
-          required: false
-          type: string
-          format: email
-        - name: role_id
-          in: formData
-          description: '<a href=''#operation/getRoles''>Role</a>'
-          required: false
-          type: string
-          format: uuid
-      produces:
-        - application/json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  maxLength: 50
+                  type: string
+                  description: Full name
+                  example: John Doe
+                alias:
+                  maxLength: 50
+                  type: string
+                  description: Preferred display name
+                  example: jdoe
+                email:
+                  maxLength: 100
+                  type: string
+                  description: |-
+                    Email address.\
+                    If changed, user must verify new email address.
+                    See <a href='#operation/confirmEmailVerification'>confirm email verification.</a>
+                  format: email
+                  example: jdoe@example.com
+                role_id:
+                  type: string
+                  description: <a href="#operation/getRoles">Role ID</a>
+                  format: uuid
+                  example: 1bc27b9c-a963-4fda-b79b-91b125ba0ed1
+        required: false
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            allOf:
-              - $ref: '#/definitions/UserModel'
-              - properties:
-                  role:
-                    $ref: '#/definitions/RoleModel'
-                  facility:
-                    $ref: '#/definitions/FacilityModel'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/UserModel'
+                  - properties:
+                      role:
+                        $ref: '#/components/schemas/RoleModel'
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X PUT \
-             http://localhost:8000/api/v1/users/{user} \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}' \
-             -H 'Content-Type: application/json' \
-             -d '{
-                "name":"John Doe",
-                "alias":"jdoe",
-                "email":"jdoe@example.com",
-                "role_id":"{role}"
-              }'
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           http://sandbox-api.example.com/v1/users/{user} \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}' \
+           -H 'Content-Type: application/json' \
+           -d '{
+              "name":"John Doe",
+              "alias":"jdoe",
+              "email":"jdoe@example.com",
+              "role_id":"{role}"
+            }'
     delete:
       tags:
-        - user
+      - user
       summary: Delete user
       description: |-
         <strong>Permanently</strong> remove user from database.
@@ -1763,72 +2625,69 @@ paths:
 
         See <a href='#operation/revokeUser'>revoke user</a>
       operationId: deleteUser
-      consumes:
-        - application/json
       parameters:
-        - name: user
-          in: path
-          description: '<a href=''#operation/getUsers''>User</a>'
-          required: true
+      - name: user
+        in: path
+        description: <a href="#operation/getUsers">User</a>
+        required: true
+        schema:
           type: string
           format: uuid
-      produces:
-        - application/json
       responses:
-        '204':
+        204:
           description: No Content
+          content: {}
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X DELETE \
-             'http://localhost:8000/api/v1/users/{user}' \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
-  '/users/{user}/revoke':
+      - lang: CURL
+        source: |-
+          curl -X DELETE \
+           'http://sandbox-api.example.com/v1/users/{user}' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /users/{user}/revoke:
     put:
       tags:
-        - user
+      - user
       summary: Revoke user
       description: |-
         Requires `soft-delete` permission on `users` module.
 
         Different from <a href='#operation/deleteUser'>delete user</a>.
       operationId: revokeUser
-      consumes:
-        - application/json
       parameters:
-        - name: user
-          in: path
-          description: '<a href=''#operation/getUsers''>User</a>'
-          required: true
+      - name: user
+        in: path
+        description: <a href="#operation/getUsers">User</a>
+        required: true
+        schema:
           type: string
           format: uuid
-      produces:
-        - application/json
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            allOf:
-              - $ref: '#/definitions/UserModel'
-              - properties:
-                  deleted_at:
-                    example: '2018-10-05 22:48:06'
-                  role:
-                    $ref: '#/definitions/RoleModel'
-                  facility:
-                    $ref: '#/definitions/FacilityModel'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/UserModel'
+                  - properties:
+                      deleted_at:
+                        example: '2018-10-05 22:48:06'
+                      role:
+                        $ref: '#/components/schemas/RoleModel'
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X PUT \
-             'http://localhost:8000/api/v1/users/{user}/revoke' \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
-  '/users/{user}/restore':
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           'http://sandbox-api.example.com/v1/users/{user}/revoke' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /users/{user}/restore:
     put:
       tags:
-        - user
+      - user
       summary: Restore user
       description: |-
         <strong>Reinstate</strong> previously <strike>revoked</strike> user.
@@ -1837,430 +2696,332 @@ paths:
 
         See <a href='#operation/revokeUser'>revoke user</a>.
       operationId: restoreUser
-      consumes:
-        - application/json
       parameters:
-        - name: user
-          in: path
-          description: '<a href=''#operation/getUsers''>User</a>'
-          required: true
+      - name: user
+        in: path
+        description: <a href="#operation/getUsers">User</a>
+        required: true
+        schema:
           type: string
           format: uuid
-      produces:
-        - application/json
       responses:
-        '200':
+        200:
           description: OK
-          schema:
-            allOf:
-              - $ref: '#/definitions/UserModel'
-              - properties:
-                  role:
-                    $ref: '#/definitions/RoleModel'
-                  facility:
-                    $ref: '#/definitions/FacilityModel'
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/UserModel'
+                  - properties:
+                      role:
+                        $ref: '#/components/schemas/RoleModel'
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
       x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X PUT \
-             'http://localhost:8000/api/v1/users/{user}/restore' \
-             -H 'Accept: application/json' \
-             -H 'Authorization: Bearer {access-token}'
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           'http://sandbox-api.example.com/v1/users/{user}/restore' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
 
-  /oauth/token:
-    post:
-      tags:
-        - oauth
-      summary: Request oauth token
-      operationId: requestToken
-      consumes:
-        - application/x-www-form-urlencoded
-      parameters:
-        - name: client_id
-          in: formData
-          required: true
+components:
+
+  schemas:
+
+    # Models
+
+    UserModel:
+      title: User
+      type: object
+      properties:
+        id:
           type: string
-          format: UUID
-        - name: client_secret
-          in: formData
-          required: true
+          format: uuid
+          example: 0ac99f1b-482c-4af1-be28-ddace07eff20
+        facility_id:
           type: string
-        - name: grant_type
+          description: <a href="#operation/getFacilities">Facility ID</a>
+          format: uuid
+          example: 90cae4ff-6f86-4ba3-8651-134b48fd7a2a
+        role_id:
+          type: string
+          description: <a href="#operation/getRoles">Role ID</a>
+          format: uuid
+          example: f0f95c23-6ba1-4348-b1d9-bfb5e4bb1e3f
+        alias:
+          maxLength: 25
+          type: string
+          description: Display name - unique.
+          example: jdoe
+        name:
+          maxLength: 25
+          type: string
+          description: Full name
+          example: John Doe
+        email:
+          type: string
+          description: Email address - unique.
+          format: email
+          example: jdoe@example.com
+        email_verified_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+        deleted_at:
+          type: string
+          format: date-time
+          default: null
+          nullable: true
+    RoleModel:
+      title: Role
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: f0f95c23-6ba1-4348-b1d9-bfb5e4bb1e3f
+        facility_id:
+          type: string
+          description: <a href="#operation/getFacilities">Facility ID</a>
+          format: uuid
+          example: 0ac99f1b-482c-4af1-be28-ddace07eff20
+        name:
+          maxLength: 50
+          type: string
+          example: Sys Admin
+        description:
+          maxLength: 100
+          type: string
+          nullable: true
+          example: System Administrator
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+        deleted_at:
+          type: string
+          format: date-time
+          default: null
+          nullable: true
+    FacilityModel:
+      title: Facility
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 90cae4ff-6f86-4ba3-8651-134b48fd7a2a
+        name:
+          maxLength: 100
+          type: string
+          example: Mulago Hospital
+        description:
+          maxLength: 100
+          type: string
+          nullable: true
+          example: National Referral Hospital
+        address:
+          maxLength: 100
+          type: string
+          example: Mulago Hill, Kampala
+        email:
+          maxLength: 50
+          type: string
+          format: email
+          example: cis@mulago.Hospital
+        website:
+          maxLength: 50
+          type: string
+          format: uri
+          nullable: true
+          example: https://mulago.Hospital
+        phone:
+          maxLength: 25
+          pattern: ^\+(?:[0-9] ?){9,16}[0-9]$
+          type: string
+          format: tel
+          nullable: true
+          example: '+256392741586'
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+        deleted_at:
+          type: string
+          format: date-time
+          default: null
+          nullable: true
+    ModuleModel:
+      title: Module
+      type: object
+      properties:
+        name:
+          maxLength: 25
+          type: string
+          example: users
+        category:
           type: string
           enum:
-            - authorization_code
-            - client_credentials
-            - password
-            - refresh_token
-          in: formData
-          required: true
-        - name: code
-          in: formData
-          description: |-
-            Authorization code.
-
-            <strong>Required if</strong> grant_type is `authorization_code`.
-          required: false
-          type: string
-        - name: redirect_uri
-          in: formData
-          description: |-
-            <strong>Required if</strong> grant_type is `authorization_code`.
-          required: false
-          type: string
-          format: URI
-        - name: refresh_token
-          in: formData
-          description: |-
-            Refresh access-token.
-
-            <strong>Required if</strong> grant_type is `refresh_token`.
-          required: false
-          type: string
-        - name: username
-          in: formData
-          description: <strong>Required if</strong> grant_type is `password`.
-          required: false
-          type: string
-        - name: password
-          in: formData
-          description: <strong>Required if</strong> grant_type is `password`.
-          required: false
-          type: string
-          format: password
-        - name: scopes
-          in: formData
-          required: false
-          type: array
-          items:
-            type: string
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: Created
-          schema:
-            $ref: '#/definitions/TokenModel'
-      x-code-samples:
-        - lang: CURL - Password
-          source: |-
-            curl -X POST \
-             http://localhost:8000/api/v1/oauth/token \
-             -H 'Accept: application/json' \
-             -H 'Content-Type: application/json' \
-             -d '{
-                "grant_type": "password",
-                "client_id": "3102c90b-1936-4968-af9e-3701bcc6147c",
-                "client_secret": "OZHF4AuWWvMY0rKC2VWwEMlvobJ4GfCgGKopdadQ",
-                "username": "jdoe@example.com",
-                "password": "O7SQx63Y12iwaWHQ"
-             }'
-        - lang: CURL - Client Credentials
-          source: |-
-            curl -X POST \
-             http://localhost:8000/api/v1/oauth/token \
-             -H 'Accept: application/json' \
-             -H 'Content-Type: application/json' \
-             -d '{
-                "grant_type": "client_credentials",
-                "client_id": "3102c90b-1936-4968-af9e-3701bcc6147c",
-                "client_secret": "OZHF4AuWWvMY0rKC2VWwEMlvobJ4GfCgGKopdadQ"
-             }'
-
-definitions:
-
-  # Models
-
-  UserModel:
-    type: object
-    title: User
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: 0ac99f1b-482c-4af1-be28-ddace07eff20
-      facility_id:
-        description: '<a href=''#operation/getFacilities''>Facility</a>'
-        type: string
-        format: uuid
-        example: 90cae4ff-6f86-4ba3-8651-134b48fd7a2a
-      role_id:
-        description: '<a href=''#operation/getRoles''>Role</a>'
-        type: string
-        format: uuid
-        example: f0f95c23-6ba1-4348-b1d9-bfb5e4bb1e3f
-      alias:
-        description: Display name - unique.
-        type: string
-        maxLength: 25
-        example: jdoe
-      name:
-        description: Full name
-        type: string
-        maxLength: 25
-        example: John Doe
-      email:
-        description: Email address - unique.
-        type: string
-        format: email
-        example: jdoe@example.com
-      email_verified_at:
-        type: string
-        format: date-time
-        example: '2018-09-30 17:06:12'
-        x-nullable: true
-      created_at:
-        type: string
-        format: date-time
-        example: '2018-09-30 09:42:23'
-        x-nullable: true
-      updated_at:
-        type: string
-        format: date-time
-        example: '2018-10-02 14:27:09'
-        x-nullable: true
-      deleted_at:
-        type: string
-        format: date-time
-        example: null
-        x-nullable: true
-  RoleModel:
-    type: object
-    title: Role
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: f0f95c23-6ba1-4348-b1d9-bfb5e4bb1e3f
-      facility_id:
-        description: '<a href=''#operation/getFacilities''>Facility</a>'
-        type: string
-        format: uuid
-        example: 0ac99f1b-482c-4af1-be28-ddace07eff20
-      name:
-        description: User role name
-        type: string
-        maxLength: 50
-        example: Sys Admin
-      description:
-        description: User role description
-        type: string
-        maxLength: 100
-        example: System Administrator
-        x-nullable: true
-      created_at:
-        type: string
-        format: date-time
-        example: '2018-09-30 09:42:23'
-        x-nullable: true
-      updated_at:
-        type: string
-        format: date-time
-        example: '2018-10-02 14:27:09'
-        x-nullable: true
-      deleted_at:
-        type: string
-        format: date-time
-        example: null
-        x-nullable: true
-  FacilityModel:
-    type: object
-    title: Facility
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: 90cae4ff-6f86-4ba3-8651-134b48fd7a2a
-      name:
-        type: string
-        maxLength: 100
-        example: Mulago Hospital
-      description:
-        type: string
-        maxLength: 100
-        example: Mulago Hospital
-        x-nullable: true
-      address:
-        type: string
-        maxLength: 100
-        example: Mulago Hill
-      email:
-        type: string
-        format: email
-        maxLength: 50
-        example: cis@mulago.Hospital
-      website:
-        type: string
-        format: uri
-        maxLength: 50
-        example: 'https://mulago.Hospital'
-        x-nullable: true
-      phone:
-        type: string
-        format: tel
-        maxLength: 25
-        example: '+256392741586'
-        x-nullable: true
-      created_at:
-        type: string
-        format: date-time
-        example: '2018-09-30 09:42:23'
-        x-nullable: true
-      updated_at:
-        type: string
-        format: date-time
-        example: '2018-10-02 14:27:09'
-        x-nullable: true
-      deleted_at:
-        type: string
-        format: date-time
-        example: null
-        x-nullable: true
-  ModuleModel:
-    type: object
-    title: Module
-    properties:
-      name:
-        type: string
-        maxLength: 100
-        example: users
-      description:
-        type: string
-        maxLength: 50
-        example: Users module
-        x-nullable: true
-      category:
-        type: string
-        enum:
           - uncategorized
-        default: uncategorized
-      created_at:
-        type: string
-        format: date-time
-        example: '2018-09-30 09:42:23'
-        x-nullable: true
-      updated_at:
-        type: string
-        format: date-time
-        example: '2018-10-02 14:27:09'
-        x-nullable: true
-      deleted_at:
-        type: string
-        format: date-time
-        example: null
-        x-nullable: true
-  PermissionModel:
-    type: object
-    title: Permission
-    properties:
-      id:
-        type: integer
-        example: 1
-      module_name:
-        type: string
-        maxLength: 100
-        example: users
-      name:
-        type: string
-        format: uuid
-        maxLength: 100
-        example: view-any
-      description:
-        type: string
-        maxLength: 100
-        example: View any user
-        x-nullable: true
-      created_at:
-        type: string
-        format: date-time
-        example: '2018-09-30 09:42:23'
-        x-nullable: true
-      updated_at:
-        type: string
-        format: date-time
-        example: '2018-10-02 14:27:09'
-        x-nullable: true
-  TokenModel:
-    type: object
-    title: Token
-    properties:
-      token_type:
-        type: string
-        default: Bearer
-      expires_in:
-        type: integer
-        example: 3600
-      access_token:
-        type: string
-        example: eyJ0eXAiOiJKV1QiLCJhbGcNGY4ODNhMzRmMTM0NTdmMTkyMGNlY...
-      refresh_token:
-        type: string
-        description: \* Missing on client-credentials token.
-        example: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6Ijk4OGM1...
-        x-nullable: true
+        description:
+          maxLength: 50
+          type: string
+          nullable: true
+          example: Users module
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+        deleted_at:
+          type: string
+          format: date-time
+          default: null
+          nullable: true
+    PermissionModel:
+      title: Permission
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        module_name:
+          maxLength: 25
+          type: string
+          example: users
+        name:
+          maxLength: 25
+          type: string
+          format: uuid
+        description:
+          maxLength: 100
+          type: string
+          nullable: true
+          example: View any user
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+    TokenModel:
+      title: Token
+      type: object
+      properties:
+        token_type:
+          type: string
+          default: Bearer
+        expires_in:
+          type: integer
+          example: 3600
+        access_token:
+          type: string
+          example: eyJ0eXAiOiJKV1QiLCJhbGcNGY4ODNhMzRmMTM0NTdmMTkyMGNlY...
+        refresh_token:
+          type: string
+          description: \* Missing on client-credentials token.
+          nullable: true
+          example: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6Ijk4OGM1...
 
-  # Requests
+    # HTTP Response Errors
 
-  UserValidateEmailRequest:
-    type: object
-    required:
-      - email
-    properties:
-      email:
-        description: Email address
-        type: string
-        format: email
-        example: jdoe@example.com
+    401HttpResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Unauthenticated.
+    403HttpResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Insufficient permission.
+    404HttpResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Not found.
+    405HttpResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: The POST method is not supported for this route.
+    422HttpResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: The given data was invalid.
+        errors:
+          type: object
+          properties:
+            email:
+              type: array
+              items:
+                type: string
+                example: The email field is required.
+    429HttpResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: 'Exceeded API request rate limit. Default: throttle:60,1'
+    500HttpResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Something went wrong.
 
-  # Http Responses
-
-  401HttpResponse:
-    type: object
-    properties:
-      message:
-        type: string
-        example: Unauthenticated.
-  403HttpResponse:
-    type: object
-    properties:
-      message:
-        type: string
-        example: Insufficient permission.
-  404HttpResponse:
-    type: object
-    properties:
-      message:
-        type: string
-        example: Not found.
-  405HttpResponse:
-    type: object
-    properties:
-      message:
-        type: string
-        example: 'The POST method is not supported for this route.'
-  422HttpResponse:
-    type: object
-    properties:
-      message:
-        type: string
-        example: The given data was invalid.
-      errors:
-        type: object
-        properties:
-          email:
-            type: array
-            items:
-              type: string
-              example: The email field is required.
-  429HttpResponse:
-    type: object
-    properties:
-      message:
-        type: string
-        example: 'Exceeded API request rate limit. Default: throttle:60,1'
-  500HttpResponse:
-    type: object
-    properties:
-      message:
-        type: string
-        example: Something went wrong.
+  securitySchemes:
+    client_credentials_grant:
+      type: oauth2
+      description: Get access to data while protecting your account credentials.
+      flows:
+        clientCredentials:
+          tokenUrl: http://sandbox-api.example.com/v1/oauth/token
+          scopes: {}
+    authorization_code_grant:
+      type: oauth2
+      description: Get access to data while protecting your account credentials.
+      flows:
+        authorizationCode:
+          authorizationUrl: http://sandbox-api.example.com/v1/oauth/authorize
+          tokenUrl: http://sandbox-api.example.com/v1/oauth/token
+          scopes: {}
+    password_grant:
+      type: oauth2
+      description: First party apps only.
+      flows:
+        password:
+          tokenUrl: http://sandbox-api.example.com/v1/oauth/token
+          scopes:
+            authenticate-user: Login, logout a user.
+            confirm-email: Indicate that a user has verified their email.
+            reset-password: Change a user's forgot password.
+            validate-email: Check if a user account exists for given email.

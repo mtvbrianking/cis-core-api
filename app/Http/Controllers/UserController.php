@@ -4,15 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Role;
 use App\Models\User;
-use App\Support\Datatable;
-use App\Traits\JqueryDatatables;
-use App\Traits\JsonValidation;
-use App\Traits\QueryDecoration;
+use Bmatovu\QueryDecorator\Json\Schema;
+use Bmatovu\QueryDecorator\Query\Decorator;
+use Bmatovu\QueryDecorator\Support\Datatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -20,8 +18,6 @@ use JsonSchema\Validator as JsonValidator;
 
 class UserController extends Controller
 {
-    use JsonValidation, JqueryDatatables, QueryDecoration;
-
     /**
      * Json schema validator.
      *
@@ -52,7 +48,7 @@ class UserController extends Controller
      * @param \Illuminate\http\Request $request
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \App\Exceptions\InvalidJsonException
+     * @throws \Bmatovu\QueryDecorator\Exceptions\InvalidJsonException
      *
      * @return \Illuminate\Http\Response
      */
@@ -64,7 +60,7 @@ class UserController extends Controller
 
         $schemaPath = resource_path('js/schemas/users.json');
 
-        static::validateJson($this->jsonValidator, $schemaPath, $request->query());
+        Schema::validate($this->jsonValidator, $schemaPath, $request->query());
 
         // Query users.
 
@@ -76,17 +72,25 @@ class UserController extends Controller
 
         // Apply constraints to query.
 
-        $query = static::applyConstraintsToQuery($query, $request);
+        $tableModelMap = [
+            'users' => null,
+            'roles' => 'role',
+            'facilities' => 'facility',
+        ];
+
+        $constraints = (array) $request->query('filters');
+
+        $query = Decorator::decorate($query, $constraints, $tableModelMap, true);
 
         // Pagination.
 
-        $limit = $request->input('limit', 15);
+        $limit = $request->input('limit', 10);
 
-        $users = $request->input('paginate', true)
-            ? $query->paginate($limit)
-            : $query->take($limit)->get();
+        if ($request->input('paginate', true)) {
+            return response($query->paginate($limit));
+        }
 
-        // $users->withPath(url()->full());
+        $users = $query->take($limit)->get();
 
         return response(['users' => $users]);
     }
@@ -97,14 +101,17 @@ class UserController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Bmatovu\QueryDecorator\Exceptions\InvalidJsonException
      *
      * @return \Illuminate\Http\Response
      */
-    public function indexDt(Request $request)
+    public function datatables(Request $request)
     {
         $this->authorize('viewAny', [User::class]);
 
         // ...
+
+        $params = (array) $request->query();
 
         $query = User::query();
 
@@ -114,27 +121,31 @@ class UserController extends Controller
 
         // ...
 
-        $constraints = Datatable::prepareQueryParameters($request->query());
-
-        // return response($constraints);
+        $constraints = Datatable::buildConstraints($params, 'ilike');
 
         // ...
 
         $schemaPath = resource_path('js/schemas/users.json');
 
-        static::validateJson($this->jsonValidator, $schemaPath, $constraints);
+        Schema::validate($this->jsonValidator, $schemaPath, $constraints);
 
         // ...
 
-        $tables = Datatable::extraTables($constraints['select']);
+        $relations = Decorator::getRelations($constraints['select']);
 
-        if (in_array('roles', $tables)) {
+        $isRelated = (bool) count($relations);
+
+        if (in_array('role', $relations)) {
             $query->leftJoin('roles', 'roles.id', '=', 'users.role_id');
         }
 
-        if (in_array('facilities', $tables)) {
+        if (in_array('facility', $relations)) {
             $query->leftJoin('facilities', 'facilities.id', '=', 'users.facility_id');
         }
+
+        $availableRecords = $query->count();
+
+        // ...
 
         $tableModelMap = [
             'users' => null,
@@ -142,7 +153,18 @@ class UserController extends Controller
             'facilities' => 'facility',
         ];
 
-        return static::queryForDatatables($query, $constraints, $tableModelMap);
+        $query = Decorator::decorate($query, $constraints, $tableModelMap, $isRelated);
+
+        $matchedRecords = $query->get();
+
+        $data = Decorator::resultsByModel($matchedRecords, $tableModelMap);
+
+        return response([
+            'draw' => (int) $constraints['draw'],
+            'recordsTotal' => $availableRecords,
+            'recordsFiltered' => isset($constraints['filter']) ? $matchedRecords->count() : $availableRecords,
+            'data' => $data,
+        ]);
     }
 
     /**
@@ -160,8 +182,8 @@ class UserController extends Controller
 
         $consumer = Auth::guard('api')->user();
 
-        $user = User::with(['role', 'facility'])
-            ->onlyRelated($consumer)
+        $user = User::onlyRelated($consumer)
+            ->with(['role', 'facility'])
             ->withTrashed()
             ->findOrFail($userId);
 
@@ -195,7 +217,7 @@ class UserController extends Controller
 
         if (! $role) {
             $validator = Validator::make([], []);
-            $validator->errors()->add('role', 'Unknown role.');
+            $validator->errors()->add('role_id', 'Unknown role.');
 
             throw new ValidationException($validator);
         }
@@ -245,7 +267,7 @@ class UserController extends Controller
 
             if (! $role) {
                 $validator = Validator::make([], []);
-                $validator->errors()->add('role', 'Unknown role.');
+                $validator->errors()->add('role_id', 'Unknown role.');
 
                 throw new ValidationException($validator);
             }
@@ -477,7 +499,7 @@ class UserController extends Controller
     }
 
     /**
-     * Reset a user's forgotten password.
+     * Authenticate user.
      *
      * @param \Illuminate\Http\Request $request
      *
@@ -525,12 +547,12 @@ class UserController extends Controller
             'client_secret' => $client->secret,
             'username' => $request->email,
             'password' => $request->password,
-            'scope' => $request->input('scopes', $token->scopes),
+            'scope' => implode(' ', $request->input('scopes', $token->scopes)),
         ];
 
-        $user = $user->toArray();
+        $user->token = $this->getToken('POST', 'oauth/token', $parameters, $headers);
 
-        $user['token'] = $this->getToken('POST', 'oauth/token', $parameters, $headers);
+        // $user->token = $this->getToken('POST', 'api/v1/oauth/token', $parameters, $headers);
 
         return response($user);
     }
@@ -538,13 +560,9 @@ class UserController extends Controller
     /**
      * Invalidate user tokens.
      *
-     * @param \Illuminate\Http\Request $request
-     *
-     * @throws \Illuminate\Validation\ValidationException
-     *
      * @return \Illuminate\Http\Response
      */
-    public function deauthenticate(Request $request)
+    public function deauthenticate()
     {
         $user = Auth::guard('api')->user();
 
@@ -563,50 +581,25 @@ class UserController extends Controller
     }
 
     /**
-     * Get authenticated client application.
-     *
-     * @link https://github.com/laravel/passport/issues/124#issuecomment-252434309
-     * @link https://github.com/laravel/passport/issues/143#issuecomment-290443170
-     *
-     * @param \Illuminate\Http\Request $request
-     *
-     * @return \App\Models\Client
-     */
-    protected function getClient(Request $request)
-    {
-        $bearerToken = $request->bearerToken();
-        $tokenId = (new \Lcobucci\JWT\Parser())->parse($bearerToken)->getHeader('jti');
-
-        return \Laravel\Passport\Token::find($tokenId)->client;
-    }
-
-    /**
      * Request for token.
+     *
+     * @see \Symfony\Component\HttpFoundation\Request
      *
      * @param string $method
      * @param string $uri
      * @param array  $parameters
      * @param array  $headers
      *
-     * @return null|array token
+     * @return array token
      */
     protected function getToken($method, $uri, $parameters = [], $headers = [])
     {
-        // Symfony\Component\HttpFoundation\Request@create
         $request = Request::create($uri, $method, $parameters);
+
         $request->headers->add($headers);
 
-        try {
-            $response = app()->handle($request);
+        $response = app()->handle($request);
 
-            return json_decode((string) $response->getContent(), true);
-        } catch (\Exception $e) {
-            Log::error(json_encode([
-                'code' => $e->getCode(),
-                'message' => $e->getMessage(),
-            ]));
-
-            return null;
-        }
+        return json_decode((string) $response->getContent(), true);
     }
 }
