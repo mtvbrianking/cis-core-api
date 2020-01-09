@@ -309,7 +309,7 @@ paths:
                   pattern: ^\+(?:[0-9] ?){9,16}[0-9]$
                   type: string
                   format: tel
-                  example: +256392741586
+                  example: '+256392741586'
         required: false
       responses:
         201:
@@ -455,7 +455,7 @@ paths:
                   pattern: ^\+(?:[0-9] ?){9,16}[0-9]$
                   type: string
                   format: tel
-                  example: +256392741586
+                  example: '+256392741586'
         required: false
       responses:
         200:
@@ -2854,7 +2854,7 @@ components:
           type: string
           format: tel
           nullable: true
-          example: +256392741586
+          example: '+256392741586'
         created_at:
           type: string
           format: date-time
