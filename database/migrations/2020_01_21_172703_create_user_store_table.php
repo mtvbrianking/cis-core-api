@@ -14,10 +14,10 @@ class CreateUserStoreTable extends Migration
     public function up()
     {
         Schema::create('pharm_user_store', function (Blueprint $table) {
-            $table->bigIncrements('id');
             $table->uuid('user_id');
             $table->unsignedBigInteger('store_id');
-            $table->timestamps();
+            
+            $table->primary(['user_id', 'store_id']);
 
             $table->foreign('user_id')->references('id')->on('users')
                 ->onUpdate('restrict')->onDelete('restrict');
