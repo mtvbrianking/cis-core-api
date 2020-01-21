@@ -110,7 +110,7 @@ class Module extends Model
     }
 
     /**
-     * Facilities assigned this facility.
+     * Facilities assigned this module.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
