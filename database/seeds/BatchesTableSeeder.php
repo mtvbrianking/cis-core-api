@@ -14,8 +14,7 @@ class BatchesTableSeeder extends Seeder
      */
     public function run()
     {
-        Catalog::all()->each(function($catalog){
-
+        Catalog::all()->each(function ($catalog) {
             $batch = new Batch();
             $batch->manufactured_date = '2010-02-01';
             $batch->expires_at = '2020-08-01';
@@ -23,7 +22,6 @@ class BatchesTableSeeder extends Seeder
             $batch->catalog()->associate($catalog);
             $batch->cost_price = '2500';
             $batch->save();
-
 
             $batch = new Batch();
             $batch->manufactured_date = '2010-03-01';

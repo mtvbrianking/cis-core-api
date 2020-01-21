@@ -16,7 +16,7 @@ class CreateUserStoreTable extends Migration
         Schema::create('pharm_user_store', function (Blueprint $table) {
             $table->uuid('user_id');
             $table->unsignedBigInteger('store_id');
-            
+
             $table->primary(['user_id', 'store_id']);
 
             $table->foreign('user_id')->references('id')->on('users')

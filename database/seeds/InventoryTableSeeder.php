@@ -16,7 +16,7 @@ class InventoryTableSeeder extends Seeder
     {
         $store = Store::first();
 
-        Batch::all()->each(function($batch) use ($store){
+        Batch::all()->each(function ($batch) use ($store) {
             $inventory = new Inventory();
             $inventory->store_id = $store->id;
             $inventory->batch_id = $batch->id;

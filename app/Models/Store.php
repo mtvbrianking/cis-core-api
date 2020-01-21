@@ -13,9 +13,8 @@ class Store extends Model
      */
     protected $table = 'pharm_stores';
 
-
     // Relationships
-    
+
     /**
      * Users assigned this store.
      *

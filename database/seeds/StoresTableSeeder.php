@@ -15,7 +15,7 @@ class StoresTableSeeder extends Seeder
     public function run()
     {
         $facility = Facility::first();
-        
+
         $store = factory(Store::class)->create(['facility_id' => $facility->id]);
 
         // Assign the created store to the seed user.

@@ -13,8 +13,6 @@ class Batch extends Model
      */
     protected $table = 'pharm_batches';
 
-
-
     // Relationships
 
     /**

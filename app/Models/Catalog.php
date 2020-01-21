@@ -13,9 +13,6 @@ class Catalog extends Model
      */
     protected $table = 'pharm_catalog';
 
-
-
-
     // Relationships
 
     /**
