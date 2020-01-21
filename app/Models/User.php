@@ -111,6 +111,17 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->belongsTo(Facility::class, 'facility_id', 'id');
     }
 
+    /**
+     * Stores assigned to this user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function stores()
+    {
+        return $this->belongsToMany(Store::class, 'pharm_user_store', 'user_id', 'store_id');
+    }
+    
+
     // Scopes
 
     /**
