@@ -21,7 +21,7 @@ class CreateInventoryTable extends Migration
 
             $table->foreign('store_id')->references('id')->on('pharm_stores')
                 ->onUpdate('restrict')->onDelete('restrict');
-            
+
             $table->foreign('batch_id')->references('id')->on('pharm_batches')
                 ->onUpdate('restrict')->onDelete('restrict');
 

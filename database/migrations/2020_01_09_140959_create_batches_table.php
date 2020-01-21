@@ -17,7 +17,7 @@ class CreateBatchesTable extends Migration
             $table->bigIncrements('id');
             $table->uuid('facility_id');
             $table->unsignedBigInteger('catalog_id');
-            $table->float('cost_price');           
+            $table->float('cost_price');
 
             $table->date('manufactured_date');
             $table->date('expires_at');

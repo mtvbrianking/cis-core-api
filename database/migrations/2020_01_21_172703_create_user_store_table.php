@@ -21,7 +21,7 @@ class CreateUserStoreTable extends Migration
 
             $table->foreign('user_id')->references('id')->on('users')
                 ->onUpdate('restrict')->onDelete('restrict');
-            
+
             $table->foreign('store_id')->references('id')->on('pharm_stores')
                 ->onUpdate('restrict')->onDelete('restrict');
         });
