@@ -20,6 +20,6 @@ class CatalogTableSeeder extends Seeder
         // $catalog->facility()->associate($facility);
         // $catalog->save();
 
-        factory(Catalog::class, 5)->create(['facility_id' => $facility->id]);
+        factory(Catalog::class, 5)->create();
     }
 }

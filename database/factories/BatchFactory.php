@@ -9,10 +9,10 @@ $factory->define(Batch::class, function (Faker $faker) {
     $catalog = factory(Catalog::class)->create();
 
     return [
-        'facility_id'   => $catalog->facility_id,
+        // 'facility_id'   => $catalog->facility_id,
         'catalog_id'    => $catalog->id,
         'cost_price' => $faker->randomFloat(),
-        'manufactured_date' => $faker->dateTime($max = 'now'),
+        'mfd_at' => $faker->dateTime($max = 'now'),
         'expires_at' => $faker->dateTimeBetween('now', '+10 days'),
     ];
 });

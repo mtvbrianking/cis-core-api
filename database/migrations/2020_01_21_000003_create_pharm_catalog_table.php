@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateCatalogTable extends Migration
+class CreatePharmCatalogTable extends Migration
 {
     /**
      * Run the migrations.
@@ -15,9 +15,11 @@ class CreateCatalogTable extends Migration
     {
         Schema::create('pharm_catalog', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->uuid('facility_id');
+            // $table->uuid('facility_id');
             $table->string('name', 255);
             $table->string('brand', 255);
+            $table->string('manufacturer', 255)->nullable();
+            $table->string('category', 150)->nullable(); //enum
             $table->string('concentration', 100)->nullable();
             $table->enum('package', ['tablet', 'syrup', 'pcs', 'bottles']);
             $table->text('description')->nullable();
@@ -26,8 +28,8 @@ class CreateCatalogTable extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('facility_id')->references('id')->on('facilities')
-                ->onUpdate('cascade')->onDelete('restrict');
+            // $table->foreign('facility_id')->references('id')->on('facilities')
+            //     ->onUpdate('cascade')->onDelete('restrict');
         });
     }
 
@@ -38,9 +40,9 @@ class CreateCatalogTable extends Migration
      */
     public function down()
     {
-        Schema::table('pharm_catalog', function (Blueprint $table) {
-            $table->dropForeign(['facility_id']);
-        });
+        // Schema::table('pharm_catalog', function (Blueprint $table) {
+        //     $table->dropForeign(['facility_id']);
+        // });
 
         Schema::dropIfExists('pharm_catalog');
     }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateInventoryTable extends Migration
+class CreatePharmBatchesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,19 +13,26 @@ class CreateInventoryTable extends Migration
      */
     public function up()
     {
-        Schema::create('pharm_inventory', function (Blueprint $table) {
+        Schema::create('pharm_batches', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('store_id');
-            $table->unsignedBigInteger('batch_id');
+            $table->unsignedBigInteger('catalog_id');
+
             $table->integer('quantity');
+            $table->float('unit_price');
+
+            $table->string('mfr_batch_no', 255)->nullable();
+            $table->date('mfd_at');
+            $table->date('expires_at');
+
+            $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('store_id')->references('id')->on('pharm_stores')
                 ->onUpdate('restrict')->onDelete('restrict');
 
-            $table->foreign('batch_id')->references('id')->on('pharm_batches')
+            $table->foreign('catalog_id')->references('id')->on('pharm_catalog')
                 ->onUpdate('restrict')->onDelete('restrict');
-
-            $table->timestamps();
         });
     }
 
@@ -36,11 +43,11 @@ class CreateInventoryTable extends Migration
      */
     public function down()
     {
-        Schema::table('pharm_inventory', function (Blueprint $table) {
+        Schema::table('pharm_batches', function (Blueprint $table) {
             $table->dropForeign(['store_id']);
-            $table->dropForeign(['batch_id']);
+            $table->dropForeign(['catalog_id']);
         });
 
-        Schema::dropIfExists('pharm_inventory');
+        Schema::dropIfExists('pharm_batches');
     }
 }
