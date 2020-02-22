@@ -14,10 +14,13 @@ class CreatePharmStoresTable extends Migration
     public function up()
     {
         Schema::create('pharm_stores', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->string('id', 11);
             $table->uuid('facility_id');
             $table->string('name', 100);
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->primary('id');
 
             $table->foreign('facility_id')->references('id')->on('facilities')
                 ->onUpdate('restrict')->onDelete('restrict');

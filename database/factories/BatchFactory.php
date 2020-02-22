@@ -1,17 +1,21 @@
 <?php
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
-use App\Models\Batch;
-use App\Models\Catalog;
+use App\Models\Pharmacy\Batch;
+use App\Models\Pharmacy\Catalog;
+use App\Models\Pharmacy\Store;
 use Faker\Generator as Faker;
 
 $factory->define(Batch::class, function (Faker $faker) {
-    $catalog = factory(Catalog::class)->create();
-
     return [
-        // 'facility_id'   => $catalog->facility_id,
-        'catalog_id'    => $catalog->id,
-        'cost_price' => $faker->randomFloat(),
+        'store_id' => function () {
+            return factory(Store::class)->create()->id;
+        },
+        'catalog_id' => function () {
+            return factory(Catalog::class)->create()->id;
+        },
+        'quantity' => $faker->numberBetween(0, 100),
+        'unit_price' => $faker->randomFloat(),
         'mfd_at' => $faker->dateTime($max = 'now'),
         'expires_at' => $faker->dateTimeBetween('now', '+10 days'),
     ];

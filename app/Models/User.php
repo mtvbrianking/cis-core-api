@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Pharmacy\Store;
 use App\Traits\HasRolePermissions;
 use Bmatovu\Uuid\Traits\HasUuidKey;
 use Illuminate\Contracts\Auth\MustVerifyEmail;

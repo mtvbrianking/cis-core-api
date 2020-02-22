@@ -1,11 +1,15 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Pharmacy;
 
+use App\Models\User;
+use App\Traits\HasHashedKey;
 use Illuminate\Database\Eloquent\Model;
 
 class Store extends Model
 {
+    use HasHashedKey;
+
     /**
      * The database table used by the model.
      *

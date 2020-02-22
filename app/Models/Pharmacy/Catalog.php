@@ -1,11 +1,14 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Pharmacy;
 
+use App\Traits\HasHashedKey;
 use Illuminate\Database\Eloquent\Model;
 
 class Catalog extends Model
 {
+    use HasHashedKey;
+
     /**
      * The database table used by the model.
      *

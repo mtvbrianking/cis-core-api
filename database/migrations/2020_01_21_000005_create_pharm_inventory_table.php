@@ -14,18 +14,20 @@ class CreatePharmInventoryTable extends Migration
     public function up()
     {
         Schema::create('pharm_inventory', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('store_id');
-            $table->unsignedBigInteger('batch_id');
+            $table->string('id', 11);
+            $table->string('store_id', 11);
+            $table->string('catalog_id', 11);
             $table->integer('quantity');
+            $table->float('unit_price');
+            $table->timestamps();
+
+            $table->primary('id');
 
             $table->foreign('store_id')->references('id')->on('pharm_stores')
                 ->onUpdate('restrict')->onDelete('restrict');
 
-            $table->foreign('batch_id')->references('id')->on('pharm_batches')
+            $table->foreign('catalog_id')->references('id')->on('pharm_catalog')
                 ->onUpdate('restrict')->onDelete('restrict');
-
-            $table->timestamps();
         });
     }
 
@@ -38,7 +40,7 @@ class CreatePharmInventoryTable extends Migration
     {
         Schema::table('pharm_inventory', function (Blueprint $table) {
             $table->dropForeign(['store_id']);
-            $table->dropForeign(['batch_id']);
+            $table->dropForeign(['catalog_id']);
         });
 
         Schema::dropIfExists('pharm_inventory');
