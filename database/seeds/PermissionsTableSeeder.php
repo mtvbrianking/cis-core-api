@@ -174,5 +174,36 @@ class PermissionsTableSeeder extends Seeder
                 'name' => 'force-delete',
             ],
         ]);
+
+        Permission::insert([
+            [
+                'module_name' => 'pharm-stores',
+                'name' => 'view-any',
+            ],
+            [
+                'module_name' => 'pharm-stores',
+                'name' => 'view',
+            ],
+            [
+                'module_name' => 'pharm-stores',
+                'name' => 'create',
+            ],
+            [
+                'module_name' => 'pharm-stores',
+                'name' => 'update',
+            ],
+            [
+                'module_name' => 'pharm-stores',
+                'name' => 'soft-delete',
+            ],
+            [
+                'module_name' => 'pharm-stores',
+                'name' => 'restore',
+            ],
+            [
+                'module_name' => 'pharm-stores',
+                'name' => 'force-delete',
+            ],
+        ]);
     }
 }

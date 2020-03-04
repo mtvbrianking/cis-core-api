@@ -126,3 +126,17 @@ Route::group(['prefix' => 'users'], function () {
     Route::put('/{user}/restore', 'UserController@restore');
     Route::put('/{user}/revoke', 'UserController@revoke');
 });
+
+Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'pharmacy'], function () {
+    Route::pattern('store', '^[0-9a-fA-F]{11}$');
+
+    Route::group(['prefix' => 'stores'], function () {
+        Route::get('/', 'StoreController@index');
+        Route::post('/', 'StoreController@store');
+        Route::get('/{store}', 'StoreController@show');
+        Route::put('/{store}', 'StoreController@update');
+        Route::delete('/{store}', 'StoreController@destroy');
+        Route::put('/{store}/restore', 'StoreController@restore');
+        Route::put('/{store}/revoke', 'StoreController@revoke');
+    });
+});
