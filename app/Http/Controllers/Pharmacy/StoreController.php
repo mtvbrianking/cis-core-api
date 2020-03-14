@@ -87,9 +87,11 @@ class StoreController extends Controller
      */
     public function show($storeId)
     {
-        $this->authorize('view', [Store::class]);
+        $this->authorize('view', [Store::class, $storeId]);
 
-        $store = Store::withTrashed()->findOrFail($storeId);
+        $user = Auth::guard('api')->user();
+
+        $store = Store::onlyRelated($user)->withTrashed()->findOrFail($storeId);
 
         return response($store);
     }
@@ -107,7 +109,7 @@ class StoreController extends Controller
      */
     public function update(Request $request, $storeId)
     {
-        $this->authorize('view', [Store::class]);
+        $this->authorize('update', [Store::class]);
 
         $user = Auth::guard('api')->user();
 
@@ -185,5 +187,25 @@ class StoreController extends Controller
         Store::onlyTrashed()->findOrFail($storeId)->forceDelete();
 
         return response(null, 204);
+    }
+
+    /**
+     * Stores attached to this user.
+     *
+     * @param string $userId
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function users($userId)
+    {
+        $this->authorize('viewAny', [User::class]);
+
+        $user = Auth::guard('api')->user();
+
+        $store = Store::onlyRelated($user)->with('users')->findOrFail($storeId);
+
+        return response($store);
     }
 }

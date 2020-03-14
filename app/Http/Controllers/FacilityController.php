@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Facility;
 use App\Models\Module;
+use App\Models\Pharmacy\Store;
 use App\Models\Role;
 use App\Models\User;
 use App\Rules\Tel;
@@ -330,6 +331,24 @@ class FacilityController extends Controller
         $this->authorize('viewAny', [User::class]);
 
         $facility = Facility::with('users')->findOrFail($facilityId);
+
+        return response($facility);
+    }
+
+    /**
+     * Pharmacy belonging to this facility.
+     *
+     * @param string $facilityId
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function pharmacyStores($facilityId)
+    {
+        $this->authorize('viewAny', [Store::class]);
+
+        $facility = Facility::with('pharm_stores')->findOrFail($facilityId);
 
         return response($facility);
     }

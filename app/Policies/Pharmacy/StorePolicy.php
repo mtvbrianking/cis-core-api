@@ -25,11 +25,16 @@ class StorePolicy
      * Determine whether the user can view the store.
      *
      * @param \App\Models\User $user
+     * @param string           $storeId
      *
      * @return bool
      */
-    public function view(User $user)
+    public function view(User $user, string $storeId)
     {
+        if ($user->stores()->wherePivot('store_id', $storeId)->exists()) {
+            return true;
+        }
+
         return $user->hasPermissionTo('view', 'pharm-stores');
     }
 
@@ -91,5 +96,17 @@ class StorePolicy
     public function forceDelete(User $user)
     {
         return $user->hasPermissionTo('force-delete', 'pharm-stores');
+    }
+
+    /**
+     * Determine whether the user can sync users to stores.
+     *
+     * @param \App\Models\User $user
+     *
+     * @return bool
+     */
+    public function syncStoreUsers(User $user)
+    {
+        return $user->hasPermissionTo('sync-store-users', 'pharm-stores');
     }
 }

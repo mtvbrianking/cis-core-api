@@ -2,11 +2,13 @@
 
 namespace App\Models\Pharmacy;
 
+use App\Models\Facility;
 use App\Models\User;
 use App\Traits\HasHashedKey;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Store extends Model
 {
@@ -64,6 +66,16 @@ class Store extends Model
     }
 
     // Relationships
+
+    /**
+     * Facility for this store.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function facility()
+    {
+        return $this->belongsTo(Facility::class, 'facility_id', 'id');
+    }
 
     /**
      * Users assigned this store.

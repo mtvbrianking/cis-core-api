@@ -57,6 +57,7 @@ Route::group(['prefix' => 'facilities'], function () {
     Route::get('/{facility}/modules', 'FacilityController@modules');
     Route::get('/{facility}/modules/available', 'FacilityController@modulesAvailable');
     Route::put('/{facility}/modules/available', 'FacilityController@syncModulesAvailable');
+    Route::get('/{facility}/pharmacy/stores', 'FacilityController@pharmacyStores');
     Route::put('/{facility}/restore', 'FacilityController@restore');
     Route::put('/{facility}/revoke', 'FacilityController@revoke');
     Route::get('/{facility}/roles', 'FacilityController@roles');
@@ -123,6 +124,9 @@ Route::group(['prefix' => 'users'], function () {
     Route::get('/{user}', 'UserController@show');
     Route::put('/{user}', 'UserController@update');
     Route::delete('/{user}', 'UserController@destroy');
+    Route::get('/{user}/pharmacy/stores', 'UserController@pharmacyStores');
+    // Route::get('/{user}/pharmacy/stores/available', 'UserController@pharmacyStoresAvailable');
+    // Route::put('/{user}/pharmacy/stores/available', 'UserController@syncPharmacyStoresAvailable');
     Route::put('/{user}/restore', 'UserController@restore');
     Route::put('/{user}/revoke', 'UserController@revoke');
 });
@@ -138,5 +142,8 @@ Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'phar
         Route::delete('/{store}', 'StoreController@destroy');
         Route::put('/{store}/restore', 'StoreController@restore');
         Route::put('/{store}/revoke', 'StoreController@revoke');
+        Route::get('/{store}/users', 'StoreController@users');
+        // Route::get('/{store}/users/available', 'StoreController@usersAvailable');
+        // Route::put('/{store}/users/available', 'StoreController@syncUsersAvailable');
     });
 });
