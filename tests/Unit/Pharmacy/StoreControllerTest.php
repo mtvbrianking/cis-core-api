@@ -174,14 +174,6 @@ class StoreControllerTest extends TestCase
 
         $store = factory(Store::class)->create($attrs);
 
-        // ...
-
-        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/pharmacy/stores/{$store->id}");
-
-        $response->assertStatus(403);
-
-        // ...
-
         $store->users()->sync($user->id, true);
         $store->save();
 
