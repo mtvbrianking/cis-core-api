@@ -119,7 +119,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function stores()
     {
-        return $this->belongsToMany(Store::class, 'pharm_user_store', 'user_id', 'store_id');
+        return $this->belongsToMany(Store::class, 'pharm_store_user', 'user_id', 'store_id');
     }
 
     // Scopes

@@ -448,9 +448,7 @@ class FacilityController extends Controller
             'modules.*' => 'required|string',
         ]);
 
-        $available_mods = Module::get()->map(function ($module) {
-            return $module->name;
-        })->toArray();
+        $available_mods = Module::select('name')->pluck('name')->toArray();
 
         $unknown_mods = array_values(array_diff($request->modules, $available_mods));
 

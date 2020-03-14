@@ -84,7 +84,7 @@ class Store extends Model
      */
     public function users()
     {
-        return $this->belongsToMany(User::class, 'pharm_user_store', 'store_id', 'user_id');
+        return $this->belongsToMany(User::class, 'pharm_store_user', 'store_id', 'user_id');
     }
 
     // Scopes

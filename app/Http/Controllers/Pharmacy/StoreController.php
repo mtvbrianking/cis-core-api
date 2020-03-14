@@ -192,13 +192,13 @@ class StoreController extends Controller
     /**
      * Stores attached to this user.
      *
-     * @param string $userId
+     * @param string $storeId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function users($userId)
+    public function users($storeId)
     {
         $this->authorize('viewAny', [User::class]);
 

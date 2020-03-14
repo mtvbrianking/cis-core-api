@@ -500,7 +500,7 @@ class UserController extends Controller
     }
 
     /**
-     * Stores attached to this user.
+     * Stores assigned to this user.
      *
      * @param string $userId
      *
