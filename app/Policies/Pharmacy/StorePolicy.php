@@ -31,7 +31,7 @@ class StorePolicy
      */
     public function view(User $user, string $storeId)
     {
-        if ($user->stores()->wherePivot('store_id', $storeId)->exists()) {
+        if ($user->pharm_stores()->wherePivot('store_id', $storeId)->exists()) {
             return true;
         }
 

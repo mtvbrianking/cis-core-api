@@ -34,7 +34,7 @@ class StoreUserControllerTest extends TestCase
             'facility_id' => $user->facility_id,
         ]);
 
-        $user->stores()->sync($granted_pharm->id, true);
+        $user->pharm_stores()->sync($granted_pharm->id, true);
         $user->save();
 
         $response = $this->actingAs($user, 'api')->json('GET', "api/v1/users/{$user->id}/pharmacy-stores/available");
@@ -96,7 +96,7 @@ class StoreUserControllerTest extends TestCase
             'facility_id' => $user->facility_id,
         ]);
 
-        $user->stores()->sync($granted_pharm->id, true);
+        $user->pharm_stores()->sync($granted_pharm->id, true);
         $user->save();
 
         $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/users/{$user->id}/pharmacy-stores/available", [
@@ -154,7 +154,7 @@ class StoreUserControllerTest extends TestCase
             'facility_id' => $user->facility_id,
         ]);
 
-        $user->stores()->sync($granted_pharm->id, true);
+        $user->pharm_stores()->sync($granted_pharm->id, true);
         $user->save();
 
         $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/users/{$user->id}/pharmacy-stores/available", [

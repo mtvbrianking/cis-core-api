@@ -15,7 +15,7 @@ class StoreControllerTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_can_create_a_facility()
+    public function test_can_create_a_store()
     {
         $user = factory(User::class)->create();
 

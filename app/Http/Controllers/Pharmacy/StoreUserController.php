@@ -117,7 +117,7 @@ class StoreUserController extends Controller
 
         // Sync stores...
 
-        $user->stores()->sync($request->stores, true);
+        $user->pharm_stores()->sync($request->stores, true);
         $user->save();
 
         $user->stores = $this->queryPharmacyStores($user);
