@@ -29,6 +29,8 @@ tags:
   - name: permission
   - name: role
   - name: user
+  - name: pharmacy_store
+
   - name: token_model
     x-displayName: Token
     description: |
@@ -53,6 +55,11 @@ tags:
     x-displayName: User
     description: |
       <SchemaDefinition schemaRef="#/components/schemas/UserModel"/>
+  - name: pharmacy_store_model
+    x-displayName: Pharmacy Store
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/PharmacyStoreModel"/>
+
   - name: 401_error
     x-displayName: 401 Unauthorized
     description: |
@@ -93,6 +100,9 @@ x-tagGroups:
       - permission
       - role
       - user
+  - name: Pharmacy
+    tags:
+      - pharmacy_store
   - name: Models
     tags:
       - token_model
@@ -101,6 +111,7 @@ x-tagGroups:
       - permission_model
       - role_model
       - user_model
+      - pharmacy_store_model
   - name: Errors
     tags:
       - 401_error
@@ -508,6 +519,41 @@ paths:
         source: |-
           curl -X DELETE \
            'http://sandbox-api.example.com/v1/facilities/{facility}' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /facilities/{facility}/pharmacy-stores:
+    get:
+      tags:
+      - facility
+      summary: Get pharmacy stores belonging to a facility.
+      description: Requires `view-any` permission on `pharm-stores` module.
+      operationId: getFacilityPharmacyStores
+      parameters:
+      - name: facility
+        in: path
+        description: <a href="#operation/getFacilities">Facility ID</a>
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/FacilityModel'
+                  - properties:
+                      pharm_stores:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PharmacyStoreModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           'http://sandbox-api.example.com/v1/facilities/{facility}/pharmacy-stores' \
            -H 'Accept: application/json' \
            -H 'Authorization: Bearer {access-token}'
   /facilities/{facility}/modules:
@@ -2724,6 +2770,462 @@ paths:
            'http://sandbox-api.example.com/v1/users/{user}/restore' \
            -H 'Accept: application/json' \
            -H 'Authorization: Bearer {access-token}'
+  /users/{user}/pharmacy-stores:
+    get:
+      tags:
+      - user
+      summary: Get pharmacy stores belonging to a user.
+      description: Requires `view-any` permission on `pharm-stores` module.
+      operationId: getUserPharmacyStores
+      parameters:
+      - name: user
+        in: path
+        description: <a href="#operation/getUsers">User ID</a>
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/UserModel'
+                  - properties:
+                      pharm_stores:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PharmacyStoreModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           'http://sandbox-api.example.com/v1/users/{user}/pharmacy-stores' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /users/{user}/pharmacy-stores/available:
+    get:
+      tags:
+      - user
+      summary: Get available pharmacy stores
+      description: |-
+        Get all pharmacy stores available to this user; granted or not.
+
+        Requires `sync-store-users` permission on `pharm-stores` module.
+      operationId: getUserPharmacyStoresAvailable
+      parameters:
+      - name: user
+        in: path
+        description: <a href="#operation/getUsers">User ID</a>
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/UserModel'
+                  - properties:
+                      stores:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              maxLength: 11
+                              example: e68b75bdf25
+                            name:
+                              type: string
+                              example: OPD Pharmacy
+                            granted:
+                              type: boolean
+                              example: true
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/users/{user}/pharmacy-stores/available \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+    put:
+      tags:
+      - user
+      summary: Sync available pharmacy stores
+      description: |-
+        Dettach, re-attach pharmacy stores to a user.
+
+        Requires `sync-store-users` permission on `pharm-stores` module.
+      operationId: syncUserPharmacyStoresAvailable
+      parameters:
+      - name: user
+        in: path
+        description: <a href="#operation/getUsers">User ID</a>
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - stores
+              type: object
+              properties:
+                stores:
+                  type: array
+                  description: <a href="#operation/getPharmacyStores">Pharmacy Store ID</a>
+                  items:
+                    type: string
+                    example: e68b75bdf25
+        required: false
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PharmacyStoreModel'
+                  - properties:
+                      stores:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              example: e68b75bdf25
+                            name:
+                              type: string
+                              example: OPD Pharmacy
+                            granted:
+                              type: boolean
+                              example: true
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           http://sandbox-api.example.com/v1/users/{user}/pharmacy-stores/available \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}' \
+           -d '{
+              "stores": [
+                "e68b75bdf25"
+              ]
+            }'
+  /pharmacy/stores:
+    get:
+      tags:
+      - pharmacy_store
+      summary: Get pharmacy stores
+      description: Requires `view-any` permission on `pharm-stores` module.
+      operationId: getPharmacyStores
+      parameters:
+      - name: paginate
+        in: query
+        schema:
+          type: boolean
+          default: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      stores:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PharmacyStoreModel'
+                  - type: object
+                    properties:
+                      current_page:
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PharmacyStoreModel'
+                      first_page_url:
+                        type: string
+                        example: http://sandbox-api.example.com/v1/pharmacy/stores?page=1
+                      from:
+                        type: integer
+                        example: 1
+                      last_page:
+                        type: integer
+                        example: 1
+                      last_page_url:
+                        type: integer
+                      next_page_url:
+                        type: string
+                        example: null
+                      path:
+                        type: string
+                        example: http://sandbox-api.example.com/v1/pharmacy/stores
+                      per_page:
+                        type: integer
+                        example: 10
+                      prev_page_url:
+                        type: string
+                        example: null
+                      to:
+                        type: integer
+                        example: 1
+                      total:
+                        type: integer
+                        example: 1
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/pharmacy/stores \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+    post:
+      tags:
+      - pharmacy_store
+      summary: Register pharmacy store
+      description: Requires `create` permission on `pharm-stores` module.
+      operationId: registerPharmacyStore
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - name
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 50
+                  example: OPD Pharmacy
+        required: false
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PharmacyStoreModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X POST \
+            http://sandbox-api.example.com/v1/pharmacy/stores \
+            -H 'Accept: application/json' \
+            -H 'Authorization: Bearer {access-token}' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "name":"OPD Pharmacy"
+            }'
+  /pharmacy/stores/{store}:
+    get:
+      tags:
+      - pharmacy_store
+      summary: Get pharmacy store
+      description: |-
+        Requires `view` permission on `pharm-stores` module to view other user's roles.
+
+        User's can view assigned stores regardless.
+      operationId: getPharmacyStore
+      parameters:
+      - name: store
+        in: path
+        description: <a href="#operation/getPharmacyStores">Store ID</a>
+        required: true
+        schema:
+          type: string
+          pattern: '^[0-9a-fA-F]{11}$'
+          example: e68b75bdf25
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PharmacyStoreModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/pharmacy/stores/{store} \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+    put:
+      tags:
+      - pharmacy_store
+      summary: Update pahrmacy store
+      description: Requires `update` permission on `pharm-stores` module.
+      operationId: updatePharmacyStore
+      parameters:
+      - name: store
+        in: path
+        description: <a href="#operation/getPharmacyStores">Store ID</a>
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - name
+              type: object
+              properties:
+                name:
+                  type: string
+                  maxLength: 100
+                  example: OPD Pharmacy
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PharmacyStoreModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           http://sandbox-api.example.com/v1/pharmacy/stores/{store} \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}' \
+           -H 'Content-Type: application/json' \
+           -d '{
+             "name":"OPD Pharmacy"
+           }'
+    delete:
+      tags:
+      - pharmacy_store
+      summary: Delete pharmacy store
+      description: |-
+        <strong>Permanently</strong> remove store from database.
+
+        Requires `force-delete` permission on `pharm-stores` module.
+
+        The store must be <a href='#operation/revokePharmacyStore'>revoked</a> before it be deleted.
+      operationId: deletePharmacyStore
+      parameters:
+      - name: store
+        in: path
+        description: <a href="#operation/getPharmacyStores">Store ID</a>
+        required: true
+        schema:
+          type: string
+          pattern: '^[0-9a-fA-F]{11}$'
+          example: e68b75bdf25
+      responses:
+        204:
+          description: No Content
+          content: {}
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X DELETE \
+           http://sandbox-api.example.com/v1/pharmacy/stores/{store} \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /pharmacy/stores/{store}/revoke:
+    put:
+      tags:
+      - pharmacy_store
+      summary: Revoke pharmacy store
+      description: |-
+        Requires `soft-delete` permission on `pharm-stores` module.
+
+        Different from <a href='#operation/deletePharmacyStore'>delete store</a>.
+      operationId: revokePharmacyStore
+      parameters:
+      - name: store
+        in: path
+        description: <a href="#operation/getPharmacyStores">Store ID</a>
+        required: true
+        schema:
+          type: string
+          pattern: '^[0-9a-fA-F]{11}$'
+          example: e68b75bdf25
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PharmacyStoreModel'
+                  - properties:
+                      deleted_at:
+                        example: '2018-10-05 22:48:06'
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           'http://sandbox-api.example.com/v1/pharmacy/stores/{store}/revoke' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /pharmacy/stores/{store}/restore:
+    put:
+      tags:
+      - pharmacy_store
+      summary: Restore pharmacy store
+      description: |-
+        <strong>Reinstate</strong> previously <strike>revoked</strike> store.
+
+        Requires `restore` permission on `pharm-stores` module.
+
+        See <a href='#operation/revokePharmacyStore'>revoke store</a>.
+      operationId: restorePharmacyStore
+      parameters:
+      - name: store
+        in: path
+        description: <a href="#operation/getPharmacyStores">Store ID</a>
+        required: true
+        schema:
+          type: string
+          pattern: '^[0-9a-fA-F]{11}$'
+          example: e68b75bdf25
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PharmacyStoreModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           'http://sandbox-api.example.com/v1/pharmacy/stores/{store}/restore' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
 
 components:
 
@@ -2779,7 +3281,7 @@ components:
         deleted_at:
           type: string
           format: date-time
-          default: null
+          example: null
           nullable: true
     RoleModel:
       title: Role
@@ -2814,7 +3316,7 @@ components:
         deleted_at:
           type: string
           format: date-time
-          default: null
+          example: null
           nullable: true
     FacilityModel:
       title: Facility
@@ -2866,7 +3368,7 @@ components:
         deleted_at:
           type: string
           format: date-time
-          default: null
+          example: null
           nullable: true
     ModuleModel:
       title: Module
@@ -2896,7 +3398,7 @@ components:
         deleted_at:
           type: string
           format: date-time
-          default: null
+          example: null
           nullable: true
     PermissionModel:
       title: Permission
@@ -2906,16 +3408,16 @@ components:
           type: integer
           example: 1
         module_name:
-          maxLength: 25
           type: string
+          maxLength: 25
           example: users
         name:
+          type: string
           maxLength: 25
-          type: string
-          format: uuid
+          example: view-any
         description:
-          maxLength: 100
           type: string
+          maxLength: 100
           nullable: true
           example: View any user
         created_at:
@@ -2925,6 +3427,36 @@ components:
         updated_at:
           type: string
           format: date-time
+          nullable: true
+    PharmacyStoreModel:
+      title: Pharmacy Store
+      type: object
+      properties:
+        id:
+          type: string
+          pattern: '^[0-9a-fA-F]{11}$'
+          example: e68b75bdf25
+        facility_id:
+          type: string
+          description: <a href="#operation/getFacilities">Facility ID</a>
+          format: uuid
+          example: '0ac99f1b-482c-4af1-be28-ddace07eff20'
+        name:
+          type: string
+          maxLength: 100
+          example: OPD Pharmacy
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+        deleted_at:
+          type: string
+          format: date-time
+          example: null
           nullable: true
     TokenModel:
       title: Token
