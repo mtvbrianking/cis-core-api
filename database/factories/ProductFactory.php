@@ -2,10 +2,10 @@
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 use App\Models\Facility;
-use App\Models\Pharmacy\Catalog;
+use App\Models\Pharmacy\Product;
 use Faker\Generator as Faker;
 
-$factory->define(Catalog::class, function (Faker $faker) {
+$factory->define(Product::class, function (Faker $faker) {
     return [
         'facility_id' => function () {
             return factory(Facility::class)->create()->id;

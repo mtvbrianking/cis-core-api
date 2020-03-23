@@ -19,12 +19,12 @@ class Batch extends Model
     // Relationships
 
     /**
-     * Catalog to which this batch belongs.
+     * Product to which this batch belongs.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function catalog()
+    public function product()
     {
-        return $this->belongsTo(Catalog::class);
+        return $this->belongsTo(Product::class);
     }
 }

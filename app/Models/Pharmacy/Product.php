@@ -5,7 +5,7 @@ namespace App\Models\Pharmacy;
 use App\Traits\HasHashedKey;
 use Illuminate\Database\Eloquent\Model;
 
-class Catalog extends Model
+class Product extends Model
 {
     use HasHashedKey;
 
@@ -14,12 +14,12 @@ class Catalog extends Model
      *
      * @var string
      */
-    protected $table = 'pharm_catalog';
+    protected $table = 'pharm_product';
 
     // Relationships
 
     /**
-     * Batches belonging to this catalog.
+     * Batches belonging to this product.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePharmCatalogTable extends Migration
+class CreatePharmProductTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreatePharmCatalogTable extends Migration
      */
     public function up()
     {
-        Schema::create('pharm_catalog', function (Blueprint $table) {
+        Schema::create('pharm_product', function (Blueprint $table) {
             $table->string('id', 11);
             $table->uuid('facility_id');
             $table->string('name', 255);
@@ -40,10 +40,10 @@ class CreatePharmCatalogTable extends Migration
      */
     public function down()
     {
-        Schema::table('pharm_catalog', function (Blueprint $table) {
+        Schema::table('pharm_product', function (Blueprint $table) {
             $table->dropForeign(['facility_id']);
         });
 
-        Schema::dropIfExists('pharm_catalog');
+        Schema::dropIfExists('pharm_product');
     }
 }
