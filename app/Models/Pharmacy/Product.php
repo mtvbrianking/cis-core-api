@@ -2,12 +2,15 @@
 
 namespace App\Models\Pharmacy;
 
+use App\Models\User;
 use App\Traits\HasHashedKey;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasHashedKey;
+    use HasHashedKey, SoftDeletes;
 
     /**
      * The database table used by the model.
@@ -26,5 +29,20 @@ class Product extends Model
     public function batches()
     {
         return $this->hasMany(Batch::class);
+    }
+
+    // Scopes
+
+    /**
+     * Scope - only those belonging to a users' facility.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param \App\Models\User                      $user
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeOnlyRelated(Builder $query, User $user)
+    {
+        return $query->where("{$this->table}.facility_id", $user->facility_id);
     }
 }

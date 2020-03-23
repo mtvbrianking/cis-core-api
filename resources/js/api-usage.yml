@@ -30,6 +30,7 @@ tags:
   - name: role
   - name: user
   - name: pharmacy_store
+  - name: pharmacy_product
 
   - name: token_model
     x-displayName: Token
@@ -59,6 +60,10 @@ tags:
     x-displayName: Pharmacy Store
     description: |
       <SchemaDefinition schemaRef="#/components/schemas/PharmacyStoreModel"/>
+  - name: pharmacy_product_model
+    x-displayName: Pharmacy Product
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/PharmacyProductModel"/>
 
   - name: 401_error
     x-displayName: 401 Unauthorized
@@ -103,6 +108,7 @@ x-tagGroups:
   - name: Pharmacy
     tags:
       - pharmacy_store
+      - pharmacy_product
   - name: Models
     tags:
       - token_model
@@ -112,6 +118,7 @@ x-tagGroups:
       - role_model
       - user_model
       - pharmacy_store_model
+      - pharmacy_product_model
   - name: Errors
     tags:
       - 401_error
@@ -3227,6 +3234,78 @@ paths:
            -H 'Accept: application/json' \
            -H 'Authorization: Bearer {access-token}'
 
+  /pharmacy/products:
+    get:
+      tags:
+      - pharmacy_product
+      summary: Get pharmacy products
+      description: Requires `view-any` permission on `pharm-products` module.
+      operationId: getPharmacyProducts
+      parameters:
+      - name: paginate
+        in: query
+        schema:
+          type: boolean
+          default: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      products:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PharmacyProductModel'
+                  - type: object
+                    properties:
+                      current_page:
+                        type: integer
+                        example: 1
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PharmacyProductModel'
+                      first_page_url:
+                        type: string
+                        example: http://sandbox-api.example.com/v1/pharmacy/products?page=1
+                      from:
+                        type: integer
+                        example: 1
+                      last_page:
+                        type: integer
+                        example: 1
+                      last_page_url:
+                        type: integer
+                      next_page_url:
+                        type: string
+                        example: null
+                      path:
+                        type: string
+                        example: http://sandbox-api.example.com/v1/pharmacy/products
+                      per_page:
+                        type: integer
+                        example: 10
+                      prev_page_url:
+                        type: string
+                        example: null
+                      to:
+                        type: integer
+                        example: 1
+                      total:
+                        type: integer
+                        example: 1
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/pharmacy/products \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+
 components:
 
   schemas:
@@ -3445,6 +3524,69 @@ components:
           type: string
           maxLength: 100
           example: OPD Pharmacy
+        created_at:
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
+        deleted_at:
+          type: string
+          format: date-time
+          example: null
+          nullable: true
+    PharmacyProductModel:
+      title: Pharmacy Product
+      type: object
+      required:
+        - id
+        - facility_id
+        - name
+        - brand
+        - package
+      properties:
+        id:
+          type: string
+          pattern: '^[0-9a-fA-F]{11}$'
+          example: e68b75bdf25
+        facility_id:
+          type: string
+          description: <a href="#operation/getFacilities">Facility ID</a>
+          format: uuid
+          example: '0ac99f1b-482c-4af1-be28-ddace07eff20'
+        name:
+          type: string
+          maxLength: 255
+          example: Paracetamol
+        brand:
+          type: string
+          maxLength: 255
+          example: Panadol
+        manufacturer:
+          type: string
+          maxLength: 255
+          example: GlaxoSmithKline
+        category:
+          type: string
+          maxLength: 150
+          example: Analgesics
+        concentration:
+          type: string
+          maxLength: 100
+          example: 100mg
+        package:
+          type: string
+          enum:
+          - tablet
+          - syrup
+          - pcs
+          - bottles
+          example: tablet
+        description:
+          type: string
+          example: Paracetamol, also known as acetaminophen, is a medication used to treat pain and fever.
         created_at:
           type: string
           format: date-time

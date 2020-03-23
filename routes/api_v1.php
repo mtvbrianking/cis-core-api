@@ -148,3 +148,11 @@ Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'phar
         Route::get('/{store}/users', 'StoreController@users');
     });
 });
+
+Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'pharmacy'], function () {
+    Route::pattern('product', '^[0-9a-fA-F]{11}$');
+
+    Route::group(['prefix' => 'products'], function () {
+        Route::get('/', 'ProductController@index');
+    });
+});
