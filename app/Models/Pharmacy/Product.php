@@ -2,6 +2,7 @@
 
 namespace App\Models\Pharmacy;
 
+use App\Models\Facility;
 use App\Models\User;
 use App\Traits\HasHashedKey;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,6 +21,16 @@ class Product extends Model
     protected $table = 'pharm_product';
 
     // Relationships
+
+    /**
+     * Facility for this store.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function facility()
+    {
+        return $this->belongsTo(Facility::class, 'facility_id', 'id');
+    }
 
     /**
      * Batches belonging to this product.

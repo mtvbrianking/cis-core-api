@@ -154,5 +154,6 @@ Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'phar
 
     Route::group(['prefix' => 'products'], function () {
         Route::get('/', 'ProductController@index');
+        Route::post('/', 'ProductController@store');
     });
 });

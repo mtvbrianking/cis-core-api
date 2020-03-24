@@ -21,7 +21,7 @@ class CreatePharmProductTable extends Migration
             $table->string('manufacturer', 255)->nullable();
             $table->string('category', 150)->nullable(); //enum
             $table->string('concentration', 100)->nullable();
-            $table->enum('package', ['tablet', 'syrup', 'pcs', 'bottles']);
+            $table->enum('package', ['tablet', 'pce', 'bottle']);
             $table->text('description')->nullable();
             $table->timestamps();
             $table->softDeletes();

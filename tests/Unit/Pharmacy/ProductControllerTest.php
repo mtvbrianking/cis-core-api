@@ -91,4 +91,47 @@ class ProductControllerTest extends TestCase
             ],
         ]);
     }
+
+    public function test_can_register_a_product()
+    {
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/pharmacy/products');
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('create', 'pharm-products');
+
+        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/pharmacy/products', [
+            'name' => 'Paracentamol',
+            'brand' => 'Panadol',
+            'package' => 'tablet',
+        ]);
+
+        $response->assertStatus(201);
+
+        $response->assertJsonStructure([
+            'id',
+            'facility_id',
+            'name',
+            'brand',
+            'manufacturer',
+            'category',
+            'concentration',
+            'package',
+            'description',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+            'facility',
+        ]);
+
+        $attrs['name'] = 'Paracentamol';
+        $attrs['brand'] = 'Panadol';
+        $attrs['facility_id'] = $user->facility_id;
+
+        $response->assertJson($attrs);
+    }
 }

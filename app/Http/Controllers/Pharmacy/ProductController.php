@@ -44,4 +44,46 @@ class ProductController extends Controller
 
         return response(['products' => $products]);
     }
+
+    /**
+     * Create a product.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $this->authorize('create', [Product::class]);
+
+        $this->validate($request, [
+            'name' => 'required|max:255',
+            'brand' => 'required|max:255',
+            'manufacturer' => 'nullable|max:255',
+            'category' => 'nullable|max:150',
+            'concentration' => 'nullable|max:100',
+            'package' => 'required|in:tablet,pce,bottle',
+            'description' => 'nullable',
+        ]);
+
+        $user = Auth::guard('api')->user();
+
+        $product = new Product();
+        $product->name = $request->name;
+        $product->brand = $request->brand;
+        $product->manufacturer = $request->manufacturer;
+        $product->category = $request->category;
+        $product->concentration = $request->concentration;
+        $product->package = $request->package;
+        $product->description = $request->description;
+        $product->facility()->associate($user->facility);
+        $product->save();
+
+        $product->refresh();
+
+        return response($product, 201);
+    }
 }

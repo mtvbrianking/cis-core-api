@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Pharmacy\Store;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
 
 class StoreController extends Controller
 {
@@ -60,7 +59,7 @@ class StoreController extends Controller
     {
         $this->authorize('create', [Store::class]);
 
-        $validator = Validator::make($request->all(), [
+        $this->validate($request, [
             'name' => 'required|max:100',
         ]);
 
