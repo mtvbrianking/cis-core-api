@@ -26,7 +26,7 @@ class CreatePharmInventoryTable extends Migration
             $table->foreign('store_id')->references('id')->on('pharm_stores')
                 ->onUpdate('restrict')->onDelete('restrict');
 
-            $table->foreign('product_id')->references('id')->on('pharm_product')
+            $table->foreign('product_id')->references('id')->on('pharm_products')
                 ->onUpdate('restrict')->onDelete('restrict');
         });
     }

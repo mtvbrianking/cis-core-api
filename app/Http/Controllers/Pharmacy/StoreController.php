@@ -127,7 +127,7 @@ class StoreController extends Controller
     }
 
     /**
-     * Temporarily delete (ban) the specific module.
+     * Temporarily delete (ban) the specific store.
      *
      * @param string $storeId
      *
@@ -149,7 +149,7 @@ class StoreController extends Controller
     }
 
     /**
-     * Restore the specific banned module.
+     * Restore the specific banned store.
      *
      * @param string $storeId
      *
@@ -171,7 +171,7 @@ class StoreController extends Controller
     }
 
     /**
-     * Permanently delete the specific module.
+     * Permanently delete the specific store.
      *
      * @param string $storeId
      *

@@ -13,7 +13,7 @@ class CreatePharmProductTable extends Migration
      */
     public function up()
     {
-        Schema::create('pharm_product', function (Blueprint $table) {
+        Schema::create('pharm_products', function (Blueprint $table) {
             $table->string('id', 11);
             $table->uuid('facility_id');
             $table->string('name', 255);
@@ -40,10 +40,10 @@ class CreatePharmProductTable extends Migration
      */
     public function down()
     {
-        Schema::table('pharm_product', function (Blueprint $table) {
+        Schema::table('pharm_products', function (Blueprint $table) {
             $table->dropForeign(['facility_id']);
         });
 
-        Schema::dropIfExists('pharm_product');
+        Schema::dropIfExists('pharm_products');
     }
 }

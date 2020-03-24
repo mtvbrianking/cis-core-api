@@ -155,5 +155,10 @@ Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'phar
     Route::group(['prefix' => 'products'], function () {
         Route::get('/', 'ProductController@index');
         Route::post('/', 'ProductController@store');
+        Route::get('/{product}', 'ProductController@show');
+        Route::put('/{product}', 'ProductController@update');
+        Route::delete('/{product}', 'ProductController@destroy');
+        Route::put('/{product}/restore', 'ProductController@restore');
+        Route::put('/{product}/revoke', 'ProductController@revoke');
     });
 });

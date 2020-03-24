@@ -13,7 +13,7 @@ $factory->define(Product::class, function (Faker $faker) {
         'name' => $faker->name,
         'brand' => $faker->name,
         'concentration' => $faker->sentence(2),
-        'package' => $faker->randomElement(['tablet', 'syrup', 'pcs', 'bottles']),
+        'package' => $faker->randomElement(['tablet', 'pce', 'bottle']),
         'description' => $faker->paragraph,
     ];
 });

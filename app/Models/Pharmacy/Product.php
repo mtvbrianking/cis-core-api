@@ -18,7 +18,7 @@ class Product extends Model
      *
      * @var string
      */
-    protected $table = 'pharm_product';
+    protected $table = 'pharm_products';
 
     // Relationships
 

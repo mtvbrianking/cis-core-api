@@ -3343,9 +3343,198 @@ paths:
               "category": "Analgesics",
               "concentration": "100mg",
               "package": "tablet",
-              "description": "Paracetamol, also known as acetaminophen, is a medication used to treat pain and fever."
+              "description": "Paracetamol, also known as acetaminophen."
             }'
+  /pharmacy/products/{product}:
+    get:
+      tags:
+      - pharmacy_product
+      summary: Get pharmacy product
+      description: |-
+        Requires `view` permission on `pharm-products` module to view other user's roles.
+      operationId: getPharmacyProduct
+      parameters:
+      - name: product
+        in: path
+        description: <a href="#operation/getPharmacyProducts">Product ID</a>
+        required: true
+        schema:
+          type: string
+          pattern: '^[0-9a-fA-F]{11}$'
+          example: e68b75bdf25
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PharmacyProductModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/pharmacy/products/{product} \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+    put:
+      tags:
+      - pharmacy_product
+      summary: Update pahrmacy product
+      description: Requires `update` permission on `pharm-products` module.
+      operationId: updatePharmacyProduct
+      parameters:
+      - name: product
+        in: path
+        description: <a href="#operation/getPharmacyProducts">Product ID</a>
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PharmacyProductModel'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PharmacyProductModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           http://sandbox-api.example.com/v1/pharmacy/products/{product} \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}' \
+           -H 'Content-Type: application/json' \
+           -d '{
+              "name": "Paracetamol",
+              "brand": "Panadol",
+              "manufacturer": "GlaxoSmithKline",
+              "category": "Analgesics",
+              "concentration": "100mg",
+              "package": "tablet",
+              "description": "Paracetamol, also known as acetaminophen."
+            }'
+    delete:
+      tags:
+      - pharmacy_product
+      summary: Delete pharmacy product
+      description: |-
+        <strong>Permanently</strong> remove product from database.
 
+        Requires `force-delete` permission on `pharm-products` module.
+
+        The product must be <a href='#operation/revokePharmacyProduct'>revoked</a> before it be deleted.
+      operationId: deletePharmacyProduct
+      parameters:
+      - name: product
+        in: path
+        description: <a href="#operation/getPharmacyProducts">Product ID</a>
+        required: true
+        schema:
+          type: string
+          pattern: '^[0-9a-fA-F]{11}$'
+          example: e68b75bdf25
+      responses:
+        204:
+          description: No Content
+          content: {}
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X DELETE \
+           http://sandbox-api.example.com/v1/pharmacy/products/{product} \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /pharmacy/products/{product}/revoke:
+    put:
+      tags:
+      - pharmacy_product
+      summary: Revoke pharmacy product
+      description: |-
+        Requires `soft-delete` permission on `pharm-products` module.
+
+        Different from <a href='#operation/deletePharmacyProduct'>delete product</a>.
+      operationId: revokePharmacyProduct
+      parameters:
+      - name: product
+        in: path
+        description: <a href="#operation/getPharmacyProducts">Product ID</a>
+        required: true
+        schema:
+          type: string
+          pattern: '^[0-9a-fA-F]{11}$'
+          example: e68b75bdf25
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PharmacyProductModel'
+                  - properties:
+                      deleted_at:
+                        example: '2018-10-05 22:48:06'
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           'http://sandbox-api.example.com/v1/pharmacy/products/{product}/revoke' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /pharmacy/products/{product}/restore:
+    put:
+      tags:
+      - pharmacy_product
+      summary: Restore pharmacy product
+      description: |-
+        <strong>Reinstate</strong> previously <strike>revoked</strike> product.
+
+        Requires `restore` permission on `pharm-products` module.
+
+        See <a href='#operation/revokePharmacyProduct'>revoke product</a>.
+      operationId: restorePharmacyProduct
+      parameters:
+      - name: product
+        in: path
+        description: <a href="#operation/getPharmacyProducts">Product ID</a>
+        required: true
+        schema:
+          type: string
+          pattern: '^[0-9a-fA-F]{11}$'
+          example: e68b75bdf25
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PharmacyProductModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           'http://sandbox-api.example.com/v1/pharmacy/products/{product}/restore' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
 components:
 
   schemas:
@@ -3627,7 +3816,7 @@ components:
           example: tablet
         description:
           type: string
-          example: Paracetamol, also known as acetaminophen, is a medication used to treat pain and fever.
+          example: Paracetamol, also known as acetaminophen.
         created_at:
           readOnly: true
           type: string
