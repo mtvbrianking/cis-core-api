@@ -22,7 +22,7 @@ return [
             app_path(),
         ],
     ],
-    'middleware' => null,
+    'middleware' => 'dev',
     'auto-migrate' => false,
 
     /*
