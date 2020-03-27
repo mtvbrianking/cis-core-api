@@ -240,5 +240,12 @@ class PermissionsTableSeeder extends Seeder
                 'name' => 'force-delete',
             ],
         ]);
+
+        Permission::insert([
+            [
+                'module_name' => 'pharm-batches',
+                'name' => 'create',
+            ],
+        ]);
     }
 }

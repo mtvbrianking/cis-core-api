@@ -33,13 +33,13 @@ class Product extends Model
     }
 
     /**
-     * Batches belonging to this product.
+     * Batches for this product.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function batches()
     {
-        return $this->hasMany(Batch::class);
+        return $this->hasMany(Batch::class, 'product_id', 'id');
     }
 
     // Scopes

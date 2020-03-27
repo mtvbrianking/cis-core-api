@@ -31,6 +31,7 @@ tags:
   - name: user
   - name: pharmacy_store
   - name: pharmacy_product
+  - name: pharmacy_batch
 
   - name: token_model
     x-displayName: Token
@@ -64,6 +65,10 @@ tags:
     x-displayName: Pharmacy Product
     description: |
       <SchemaDefinition schemaRef="#/components/schemas/PharmacyProductModel"/>
+  - name: pharmacy_batch_model
+    x-displayName: Pharmacy Batch
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/PharmacyBatchModel"/>
 
   - name: 401_error
     x-displayName: 401 Unauthorized
@@ -109,6 +114,7 @@ x-tagGroups:
     tags:
       - pharmacy_store
       - pharmacy_product
+      - pharmacy_batch
   - name: Models
     tags:
       - token_model
@@ -119,6 +125,7 @@ x-tagGroups:
       - user_model
       - pharmacy_store_model
       - pharmacy_product_model
+      - pharmacy_batch_model
   - name: Errors
     tags:
       - 401_error
@@ -3535,6 +3542,48 @@ paths:
            'http://sandbox-api.example.com/v1/pharmacy/products/{product}/restore' \
            -H 'Accept: application/json' \
            -H 'Authorization: Bearer {access-token}'
+
+  /pharmacy/batches:
+    post:
+      tags:
+      - pharmacy_batch
+      summary: Register pharmacy batch
+      description: Requires `create` permission on `pharm-batches` module.
+      operationId: registerPharmacyBatch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PharmacyBatchModel'
+        required: false
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PharmacyBatchModel'
+                  - properties:
+                      store:
+                        $ref: '#/components/schemas/PharmacyStoreModel'
+                      product:
+                        $ref: '#/components/schemas/PharmacyProductModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X POST \
+            http://sandbox-api.example.com/v1/pharmacy/batches \
+            -H 'Accept: application/json' \
+            -H 'Authorization: Bearer {access-token}' \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "store_id": "e6b272e1448",
+              "product_id": "1711d84a7a5",
+              "quantity": 10,
+              "unit_price": 2500.00
+            }'
+
 components:
 
   schemas:
@@ -3817,6 +3866,64 @@ components:
         description:
           type: string
           example: Paracetamol, also known as acetaminophen.
+        created_at:
+          readOnly: true
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          readOnly: true
+          type: string
+          format: date-time
+          nullable: true
+        deleted_at:
+          readOnly: true
+          type: string
+          format: date-time
+          example: null
+          nullable: true
+    PharmacyBatchModel:
+      title: Pharmacy Batch
+      type: object
+      required:
+        - id
+        - store_id
+        - product_id
+        - quantity
+        - unit_price
+      properties:
+        id:
+          readOnly: true
+          type: string
+          pattern: '^[0-9a-fA-F]{11}$'
+          example: e68b75bdf25
+        store_id:
+          type: string
+          description: <a href="#operation/getPharmacyStores">Store ID</a>
+          example: 'e6b272e1448'
+        product_id:
+          type: string
+          description: <a href="#operation/getPharmacyProducts">Product ID</a>
+          example: '1711d84a7a5'
+        quantity:
+          type: integer
+          example: 10
+        unit_price:
+          type: integer
+          format: float
+          example: '2500.00'
+        mfr_batch_no:
+          type: string
+          maxLength: 255
+          nullable: true
+        mfd_at:
+          type: string
+          format: date
+          nullable: true
+        expires_at:
+          type: string
+          format: date
+          nullable: true
         created_at:
           readOnly: true
           type: string

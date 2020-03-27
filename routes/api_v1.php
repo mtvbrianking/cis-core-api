@@ -162,3 +162,11 @@ Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'phar
         Route::put('/{product}/revoke', 'ProductController@revoke');
     });
 });
+
+Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'pharmacy'], function () {
+    Route::pattern('batch', '^[0-9a-fA-F]{11}$');
+
+    Route::group(['prefix' => 'batches'], function () {
+        Route::post('/', 'BatchController@store');
+    });
+});

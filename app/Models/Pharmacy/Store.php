@@ -87,6 +87,16 @@ class Store extends Model
         return $this->belongsToMany(User::class, 'pharm_store_user', 'store_id', 'user_id');
     }
 
+    /**
+     * Batches belonging to this store.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function batches()
+    {
+        return $this->hasMany(Batch::class, 'store_id', 'id');
+    }
+
     // Scopes
 
     /**
