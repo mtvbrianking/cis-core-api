@@ -1,71 +1,55 @@
+# Travis CI Build Config Explorer
+# https://config.travis-ci.com/explore
+
 language: php
+os:
+  - linux
+dist: xenial
 
 # https://docs.travis-ci.com/user/database-setup/#postgresql
-
 # services:
-# - postgresql
-
-cache:
-  directories:
-    - $HOME/.composer/cache/files
-
-# https://docs.travis-ci.com/user/build-stages
-
-jobs:
-  include:
-    - stage: test
-
-      php: 7.2
-
-      before_script:
-        # - psql -c 'create database travis_ci_test;' -U postgres
-        - travis_retry composer self-update
-        - travis_retry composer update --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
-        - vendor/bin/phpunit --dump-xdebug-filter build/xdebug-filter.php
-
-      script:
-        - vendor/bin/phpunit --prepend build/xdebug-filter.php --coverage-text --coverage-clover=coverage.clover
-
-      after_script:
-        - wget https://scrutinizer-ci.com/ocular.phar
-        - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
-
-    # - stage: test
-    # php: 7.3
-
-    # before_script:
-    #   - psql -c 'create database travis_ci_test;' -U postgres
-    #   - travis_retry composer self-update
-    #   - travis_retry composer update --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
-
-    # script:
-    #   - vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
-
-    - stage: deploy
-
-      if: branch = master
-
-      name: "Source code Docs"
-
-      php: 7.2
-
-      install:
-        - curl -O http://get.sensiolabs.org/sami.phar
-
-      script:
-        - php sami.phar update .sami
-
-      # https://docs.travis-ci.com/user/deployment/pages/
-      deploy:
-        provider: pages
-        skip-cleanup: true
-        github-token: $GITHUB_TOKEN
-        local_dir: docs
-        on:
-          branch: master
+#   - postgresql
 
 # https://docs.travis-ci.com/user/notifications
 notifications:
   email:
     on_success: never
     on_failure: always
+
+jobs:
+  include:
+
+    - stage: test
+      php: '7.2'
+      cache:
+        directories:
+          - "$HOME/.composer/cache/files"
+      before_script:
+        # - psql -c 'create database travis_ci_test;' -U postgres
+        - travis_retry composer self-update
+        - travis_retry composer update --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
+        - vendor/bin/phpunit --dump-xdebug-filter build/xdebug-filter.php
+      script:
+        - vendor/bin/phpunit --prepend build/xdebug-filter.php --coverage-text --coverage-clover=coverage.clover
+      after_script:
+        - wget https://scrutinizer-ci.com/ocular.phar
+        - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+
+    # https://docs.travis-ci.com/user/deployment/pages
+    - stage: deploy
+      if: branch = master
+      name: Source Code Docs
+      php: '7.2'
+      install:
+      - curl -O http://get.sensiolabs.org/sami.phar
+      script:
+      - php sami.phar update .sami
+      deploy:
+      - provider: pages
+        strategy: git
+        local_dir: docs
+        'on':
+          branch:
+          - master
+        cleanup: true
+        token: "$GITHUB_TOKEN"

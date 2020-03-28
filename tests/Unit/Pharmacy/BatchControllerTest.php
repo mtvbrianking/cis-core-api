@@ -17,11 +17,11 @@ class BatchControllerTest extends TestCase
 
     public function test_can_create_a_batch()
     {
-        // $user = factory(User::class)->create();
+        $user = factory(User::class)->create();
 
-        // $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/pharmacy/batches');
+        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/pharmacy/batches');
 
-        // $response->assertStatus(403);
+        $response->assertStatus(403);
 
         // ...
 
