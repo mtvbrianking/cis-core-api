@@ -3544,6 +3544,73 @@ paths:
            -H 'Authorization: Bearer {access-token}'
 
   /pharmacy/batches:
+    get:
+      tags:
+      - pharmacy_batch
+      summary: Get pharmacy batches
+      description: Requires `view-any` permission on `pharm-batches` module.
+      operationId: getPharmacyBatches
+      parameters:
+      - name: store
+        in: query
+        description: <a href="#operation/getPharmacyStores">Store ID</a>
+        required: true
+        schema:
+          type: string
+          pattern: '^[0-9a-fA-F]{11}$'
+          example: e68b75bdf25
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_page:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PharmacyBatchModel'
+                  first_page_url:
+                    type: string
+                    example: http://sandbox-api.example.com/v1/pharmacy/batches?page=1
+                  from:
+                    type: integer
+                    example: 1
+                  last_page:
+                    type: integer
+                    example: 1
+                  last_page_url:
+                    type: integer
+                  next_page_url:
+                    type: string
+                    example: null
+                  path:
+                    type: string
+                    example: http://sandbox-api.example.com/v1/pharmacy/batches
+                  per_page:
+                    type: integer
+                    example: 10
+                  prev_page_url:
+                    type: string
+                    example: null
+                  to:
+                    type: integer
+                    example: 1
+                  total:
+                    type: integer
+                    example: 1
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET -G \
+           http://sandbox-api.example.com/v1/pharmacy/batches \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}' \
+           -d 'store_id: e68b75bdf25'
     post:
       tags:
       - pharmacy_batch
@@ -3965,12 +4032,6 @@ components:
           readOnly: true
           type: string
           format: date-time
-          nullable: true
-        deleted_at:
-          readOnly: true
-          type: string
-          format: date-time
-          example: null
           nullable: true
     TokenModel:
       title: Token
