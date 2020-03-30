@@ -23,6 +23,7 @@
         "facade/ignition": "^1.4",
         "fzaninotto/faker": "^1.4",
         "mockery/mockery": "^1.0",
+        "mtolhuys/laravel-schematics": "^0.10.3",
         "nunomaduro/collision": "^3.0",
         "phpunit/phpunit": "^8.0"
     },
@@ -74,6 +75,7 @@
         ],
         "test": [
             "@php artisan config:clear",
+            "phpunit --dump-xdebug-filter build/xdebug-filter.php",
             "phpunit --prepend build/xdebug-filter.php --coverage-html build/coverage",
             "@php artisan config:cache"
         ]

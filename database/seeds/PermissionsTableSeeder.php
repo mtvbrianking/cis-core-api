@@ -174,5 +174,90 @@ class PermissionsTableSeeder extends Seeder
                 'name' => 'force-delete',
             ],
         ]);
+
+        Permission::insert([
+            [
+                'module_name' => 'pharm-stores',
+                'name' => 'view-any',
+            ],
+            [
+                'module_name' => 'pharm-stores',
+                'name' => 'view',
+            ],
+            [
+                'module_name' => 'pharm-stores',
+                'name' => 'create',
+            ],
+            [
+                'module_name' => 'pharm-stores',
+                'name' => 'update',
+            ],
+            [
+                'module_name' => 'pharm-stores',
+                'name' => 'soft-delete',
+            ],
+            [
+                'module_name' => 'pharm-stores',
+                'name' => 'restore',
+            ],
+            [
+                'module_name' => 'pharm-stores',
+                'name' => 'force-delete',
+            ],
+            [
+                'module_name' => 'pharm-stores',
+                'name' => 'sync-store-users',
+            ],
+        ]);
+
+        Permission::insert([
+            [
+                'module_name' => 'pharm-products',
+                'name' => 'view-any',
+            ],
+            [
+                'module_name' => 'pharm-products',
+                'name' => 'view',
+            ],
+            [
+                'module_name' => 'pharm-products',
+                'name' => 'create',
+            ],
+            [
+                'module_name' => 'pharm-products',
+                'name' => 'update',
+            ],
+            [
+                'module_name' => 'pharm-products',
+                'name' => 'soft-delete',
+            ],
+            [
+                'module_name' => 'pharm-products',
+                'name' => 'restore',
+            ],
+            [
+                'module_name' => 'pharm-products',
+                'name' => 'force-delete',
+            ],
+        ]);
+
+        Permission::insert([
+            [
+                'module_name' => 'pharm-batches',
+                'name' => 'view-any',
+            ],
+            [
+                'module_name' => 'pharm-batches',
+                'name' => 'view',
+            ],
+            [
+                'module_name' => 'pharm-batches',
+                'name' => 'create',
+            ],
+            [
+                'module_name' => 'pharm-batches',
+                'name' => 'delete',
+            ],
+        ]);
     }
 }

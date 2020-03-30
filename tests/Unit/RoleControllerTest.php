@@ -324,7 +324,7 @@ class RoleControllerTest extends TestCase
 
         $user = factory(User::class)->create();
 
-        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/roles', []);
+        $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/roles/{$role->id}", []);
 
         $response->assertStatus(403);
 
@@ -522,7 +522,7 @@ class RoleControllerTest extends TestCase
         ]);
     }
 
-    public function test_can_delete_non_orphaned_role()
+    public function test_cant_delete_non_orphaned_role()
     {
         $user = $this->getAuthorizedUser('force-delete', 'roles');
 

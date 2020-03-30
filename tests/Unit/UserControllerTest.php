@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Models\Client;
+use App\Models\Pharmacy\Store;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -1079,6 +1080,64 @@ class UserControllerTest extends TestCase
         $this->assertDatabaseHas('oauth_refresh_tokens', [
             'access_token_id' => $tokenId,
             'revoked' => true,
+        ]);
+    }
+
+    public function test_can_get_user_pharmacy_stores()
+    {
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/users/{$user->id}/pharmacy-stores");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $this->withoutExceptionHandling();
+
+        $user = $this->getAuthorizedUser('view-any', 'pharm-stores');
+
+        $store = factory(Store::class)->create([
+            'facility_id' => $user->facility_id,
+        ]);
+
+        $user->pharm_stores()->sync($store->id, true);
+        $user->save();
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/users/{$user->id}/pharmacy-stores");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'id',
+            'facility_id',
+            'role_id',
+            'alias',
+            'name',
+            'email',
+            'email_verified_at',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+            'pharm_stores' => [
+                '*' => [
+                    'id',
+                    'facility_id',
+                    'name',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                ],
+            ],
+        ]);
+
+        $response->assertJson([
+            'id' => $user->id,
+            'pharm_stores' => [
+                [
+                    'id' => $store->id,
+                ],
+            ],
         ]);
     }
 }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBatchesTable extends Migration
+class CreatePharmBatchesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,21 +14,23 @@ class CreateBatchesTable extends Migration
     public function up()
     {
         Schema::create('pharm_batches', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->uuid('facility_id');
-            $table->unsignedBigInteger('catalog_id');
-            $table->float('cost_price');
-
-            $table->date('manufactured_date');
-            $table->date('expires_at');
-
+            $table->string('id', 11);
+            $table->string('store_id', 11);
+            $table->string('product_id', 11);
+            $table->integer('quantity');
+            $table->float('unit_price');
+            $table->string('mfr_batch_no', 255)->nullable();
+            $table->date('mfd_at')->nullable();
+            $table->date('expires_at')->nullable();
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('facility_id')->references('id')->on('facilities')
+            $table->primary('id');
+
+            $table->foreign('store_id')->references('id')->on('pharm_stores')
                 ->onUpdate('restrict')->onDelete('restrict');
 
-            $table->foreign('catalog_id')->references('id')->on('pharm_catalog')
+            $table->foreign('product_id')->references('id')->on('pharm_products')
                 ->onUpdate('restrict')->onDelete('restrict');
         });
     }
@@ -41,8 +43,8 @@ class CreateBatchesTable extends Migration
     public function down()
     {
         Schema::table('pharm_batches', function (Blueprint $table) {
-            $table->dropForeign(['facility_id']);
-            $table->dropForeign(['catalog_id']);
+            $table->dropForeign(['store_id']);
+            $table->dropForeign(['product_id']);
         });
 
         Schema::dropIfExists('pharm_batches');

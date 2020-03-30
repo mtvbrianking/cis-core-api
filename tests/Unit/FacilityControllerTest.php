@@ -633,6 +633,56 @@ class FacilityControllerTest extends TestCase
         ]);
     }
 
+    public function test_can_get_facility_pharmacy_stores()
+    {
+        $facility = factory(Facility::class)->create();
+
+        // ...
+
+        $user = factory(User::class)->create([
+            'facility_id' => $facility->id,
+        ]);
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/facilities/{$facility->id}/pharmacy-stores");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view-any', 'pharm-stores');
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/facilities/{$facility->id}/pharmacy-stores");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'id',
+            'name',
+            'description',
+            'address',
+            'email',
+            'website',
+            'phone',
+            'created_at',
+            'updated_at',
+            'deleted_at',
+            'pharm_stores' => [
+                '*' => [
+                    'id',
+                    'facility_id',
+                    'name',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                ],
+            ],
+        ]);
+
+        $response->assertJson([
+            'id' => $facility->id,
+        ]);
+    }
+
     public function test_can_get_facility_modules()
     {
         $facility = factory(Facility::class)->create();

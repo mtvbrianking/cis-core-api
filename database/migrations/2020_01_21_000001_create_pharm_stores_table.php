@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateStoresTable extends Migration
+class CreatePharmStoresTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,10 +14,13 @@ class CreateStoresTable extends Migration
     public function up()
     {
         Schema::create('pharm_stores', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->string('id', 11);
             $table->uuid('facility_id');
             $table->string('name', 100);
             $table->timestamps();
+            $table->softDeletes();
+
+            $table->primary('id');
 
             $table->foreign('facility_id')->references('id')->on('facilities')
                 ->onUpdate('restrict')->onDelete('restrict');
