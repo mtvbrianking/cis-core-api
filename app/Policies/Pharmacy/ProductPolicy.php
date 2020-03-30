@@ -25,7 +25,6 @@ class ProductPolicy
      * Determine whether the user can view the product.
      *
      * @param \App\Models\User $user
-     * @param string           $productId
      *
      * @return bool
      */
