@@ -167,6 +167,7 @@ Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'phar
     Route::pattern('batch', '^[0-9a-fA-F]{11}$');
 
     Route::group(['prefix' => 'batches'], function () {
+        Route::get('/', 'BatchController@index');
         Route::post('/', 'BatchController@store');
         Route::delete('/{batch}', 'BatchController@destroy');
     });

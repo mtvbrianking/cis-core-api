@@ -19,6 +19,38 @@ class BatchController extends Controller
     }
 
     /**
+     * Batches.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        $this->authorize('viewAny', [Batch::class]);
+
+        $user = Auth::guard('api')->user();
+
+        $this->validate($request, [
+            'store_id' => [
+                'required',
+                Rule::exists('pharm_store_user', 'store_id')
+                    ->where(function ($query) use ($user) {
+                        $query->where('user_id', $user->id);
+                    }),
+            ],
+        ]);
+
+        $query = Batch::where('store_id', $request->store_id);
+
+        $limit = $request->input('limit', 10);
+
+        return response($query->paginate($limit));
+    }
+
+    /**
      * Create a batch.
      *
      * @param \Illuminate\Http\Request $request

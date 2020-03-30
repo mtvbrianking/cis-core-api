@@ -10,6 +10,18 @@ class BatchPolicy
     use HandlesAuthorization;
 
     /**
+     * Determine whether the user can view any batches.
+     *
+     * @param \App\Models\User $user
+     *
+     * @return bool
+     */
+    public function viewAny(User $user)
+    {
+        return $user->hasPermissionTo('view-any', 'pharm-batches');
+    }
+
+    /**
      * Determine whether the user can create batches.
      *
      * @param \App\Models\User $user

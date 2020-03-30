@@ -244,6 +244,10 @@ class PermissionsTableSeeder extends Seeder
         Permission::insert([
             [
                 'module_name' => 'pharm-batches',
+                'name' => 'view-any',
+            ],
+            [
+                'module_name' => 'pharm-batches',
                 'name' => 'create',
             ],
             [

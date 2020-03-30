@@ -16,6 +16,74 @@ class BatchControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_can_get_batches()
+    {
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/pharmacy/batches');
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view-any', 'pharm-batches');
+
+        $store = factory(Store::class)->create();
+
+        $query = http_build_query([
+            'store_id' => $store->id,
+        ]);
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/pharmacy/batches?{$query}");
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'store_id',
+            ],
+        ]);
+
+        // ...
+
+        $user->pharm_stores()->sync([
+            $store->id,
+        ], true);
+
+        $user->save();
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/pharmacy/batches?{$query}");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'current_page',
+            'data' => [
+                '*' => [
+                    'id',
+                    'store_id',
+                    'product_id',
+                    'quantity',
+                    'unit_price',
+                    'mfr_batch_no',
+                    'mfd_at',
+                    'expires_at',
+                ],
+            ],
+            'first_page_url',
+            'from',
+            'last_page',
+            'last_page_url',
+            'next_page_url',
+            'path',
+            'per_page',
+            'prev_page_url',
+            'to',
+            'total',
+        ]);
+    }
+
     public function test_can_create_a_batch()
     {
         $user = factory(User::class)->create();

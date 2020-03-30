@@ -76,7 +76,7 @@
         "test": [
             "@php artisan config:clear",
             "phpunit --dump-xdebug-filter build/xdebug-filter.php",
-            "phpunit --prepend build/xdebug-filter.php --coverage-html build/coverage",
+            "phpunit --prepend build/xdebug-filter.php --filter test_can_get_batches --coverage-html build/coverage",
             "@php artisan config:cache"
         ]
     }
