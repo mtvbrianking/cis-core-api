@@ -51,6 +51,30 @@ class BatchController extends Controller
     }
 
     /**
+     * Batch details.
+     *
+     * @param string $batchId
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function show($batchId)
+    {
+        $this->authorize('view', [Batch::class]);
+
+        $batch = Batch::with(['store', 'product'])->findOrFail($batchId);
+
+        $user = Auth::guard('api')->user();
+
+        if (! $user->pharm_stores()->wherePivot('store_id', $batch->store_id)->exists()) {
+            return response(['message' => "Batch doesn't belong to any of your stores."], 403);
+        }
+
+        return response($batch);
+    }
+
+    /**
      * Create a batch.
      *
      * @param \Illuminate\Http\Request $request

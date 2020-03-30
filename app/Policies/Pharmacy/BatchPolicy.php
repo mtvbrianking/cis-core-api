@@ -22,6 +22,18 @@ class BatchPolicy
     }
 
     /**
+     * Determine whether the user can view the batch.
+     *
+     * @param \App\Models\User $user
+     *
+     * @return bool
+     */
+    public function view(User $user)
+    {
+        return $user->hasPermissionTo('view', 'pharm-batches');
+    }
+
+    /**
      * Determine whether the user can create batches.
      *
      * @param \App\Models\User $user

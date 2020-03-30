@@ -248,6 +248,10 @@ class PermissionsTableSeeder extends Seeder
             ],
             [
                 'module_name' => 'pharm-batches',
+                'name' => 'view',
+            ],
+            [
+                'module_name' => 'pharm-batches',
                 'name' => 'create',
             ],
             [

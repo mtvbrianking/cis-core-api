@@ -3651,6 +3651,42 @@ paths:
               "unit_price": 2500.00
             }'
   /pharmacy/batches/{batch}:
+    get:
+      tags:
+      - pharmacy_batch
+      summary: Get pharmacy batch
+      description: |-
+        Requires `view` permission on `pharm-batches` module.
+      operationId: getPharmacyBatch
+      parameters:
+      - name: batch
+        in: path
+        description: <a href="#operation/getPharmacyBatches">Batch ID</a>
+        required: true
+        schema:
+          type: string
+          pattern: '^[0-9a-fA-F]{11}$'
+          example: e68b75bdf25
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PharmacyBatchModel'
+                  - properties:
+                      store:
+                        $ref: '#/components/schemas/PharmacyStoreModel'
+                      product:
+                        $ref: '#/components/schemas/PharmacyProductModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET \
+           http://sandbox-api.example.com/v1/pharmacy/batches/{batch} \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
     delete:
       tags:
       - pharmacy_batch

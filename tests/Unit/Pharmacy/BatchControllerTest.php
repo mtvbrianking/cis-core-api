@@ -84,6 +84,59 @@ class BatchControllerTest extends TestCase
         ]);
     }
 
+    public function test_can_get_specified_batch()
+    {
+        $user = factory(User::class)->create();
+
+        // ...
+
+        $batch = factory(Batch::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/pharmacy/batches/{$batch->id}");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('view', 'pharm-batches');
+
+        $random_batch_id = base_convert(microtime(true), 10, 16);
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/pharmacy/batches/{$random_batch_id}");
+
+        $response->assertStatus(404);
+
+        // ...
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/pharmacy/batches/{$batch->id}");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user->pharm_stores()->sync([
+            $batch->store_id,
+        ], true);
+        $batch->save();
+
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/pharmacy/batches/{$batch->id}");
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'id',
+            'store_id',
+            'product_id',
+            'quantity',
+            'unit_price',
+            'mfr_batch_no',
+            'mfd_at',
+            'expires_at',
+            'store',
+            'product',
+        ]);
+    }
+
     public function test_can_create_a_batch()
     {
         $user = factory(User::class)->create();
@@ -156,8 +209,6 @@ class BatchControllerTest extends TestCase
         $response->assertStatus(404);
 
         // ...
-
-        // $user = $this->getAuthorizedUser('delete', 'pharm-batches');
 
         $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/pharmacy/batches/{$batch->id}");
 
