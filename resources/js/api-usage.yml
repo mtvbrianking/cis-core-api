@@ -3583,6 +3583,38 @@ paths:
               "quantity": 10,
               "unit_price": 2500.00
             }'
+  /pharmacy/batches/{batch}:
+    delete:
+      tags:
+      - pharmacy_batch
+      summary: Delete pharmacy batch
+      description: |-
+        <strong>Permanently</strong> remove a batch from the database.
+
+        Requires `delete` permission on `pharm-batches` module.
+
+        A user may only delete a batch at any of their stores.
+      operationId: deletePharmacyBatch
+      parameters:
+      - name: batch
+        in: path
+        description: <a href="#operation/getPharmacyBatches">Batch ID</a>
+        required: true
+        schema:
+          type: string
+          pattern: '^[0-9a-fA-F]{11}$'
+          example: e68b75bdf25
+      responses:
+        204:
+          description: No Content
+          content: {}
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X DELETE \
+           http://sandbox-api.example.com/v1/pharmacy/batches/{batch} \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
 
 components:
 

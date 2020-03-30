@@ -69,4 +69,30 @@ class BatchController extends Controller
 
         return response($batch, 201);
     }
+
+    /**
+     * Permanently delete the specific batch.
+     *
+     * @param string $batchId
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($batchId)
+    {
+        $this->authorize('delete', [Batch::class]);
+
+        $batch = Batch::findOrFail($batchId);
+
+        $user = Auth::guard('api')->user();
+
+        if (! $user->pharm_stores()->wherePivot('store_id', $batch->store_id)->exists()) {
+            return response(['message' => "Batch doesn't belong to any of your stores."], 403);
+        }
+
+        $batch->delete();
+
+        return response(null, 204);
+    }
 }

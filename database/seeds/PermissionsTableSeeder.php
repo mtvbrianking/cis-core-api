@@ -246,6 +246,10 @@ class PermissionsTableSeeder extends Seeder
                 'module_name' => 'pharm-batches',
                 'name' => 'create',
             ],
+            [
+                'module_name' => 'pharm-batches',
+                'name' => 'delete',
+            ],
         ]);
     }
 }

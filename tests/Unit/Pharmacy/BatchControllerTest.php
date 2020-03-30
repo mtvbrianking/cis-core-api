@@ -2,6 +2,7 @@
 
 namespace Tests\Unit\Pharmacy;
 
+use App\Models\Pharmacy\Batch;
 use App\Models\Pharmacy\Product;
 use App\Models\Pharmacy\Store;
 use App\Models\User;
@@ -62,5 +63,53 @@ class BatchControllerTest extends TestCase
         ]);
 
         $response->assertJson($attrs);
+    }
+
+    public function test_can_delete_specified_batch()
+    {
+        $user = factory(User::class)->create();
+
+        // ...
+
+        $batch = factory(Batch::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/pharmacy/batches/{$batch->id}");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('delete', 'pharm-batches');
+
+        $random_batch_id = base_convert(microtime(true), 10, 16);
+
+        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/pharmacy/batches/{$random_batch_id}");
+
+        $response->assertStatus(404);
+
+        // ...
+
+        // $user = $this->getAuthorizedUser('delete', 'pharm-batches');
+
+        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/pharmacy/batches/{$batch->id}");
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user->pharm_stores()->sync([
+            $batch->store_id,
+        ], true);
+        $batch->save();
+
+        $response = $this->actingAs($user, 'api')->json('DELETE', "api/v1/pharmacy/batches/{$batch->id}");
+
+        $response->assertStatus(204);
+
+        $this->assertEquals('', $response->getContent());
+
+        $this->assertDatabaseMissing('pharm_batches', [
+            'id' => $batch->id,
+        ]);
     }
 }
