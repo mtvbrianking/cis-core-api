@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pharmacy\Store;
 use App\Models\Role;
 use App\Models\User;
 use Bmatovu\QueryDecorator\Json\Schema;
@@ -496,6 +497,26 @@ class UserController extends Controller
         $user->save();
 
         return response(null, 204);
+    }
+
+    /**
+     * Stores assigned to this user.
+     *
+     * @param string $userId
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function pharmacyStores($userId)
+    {
+        $this->authorize('viewAny', [Store::class]);
+
+        $consumer = Auth::guard('api')->user();
+
+        $user = User::onlyRelated($consumer)->with('pharm_stores')->findOrFail($userId);
+
+        return response($user);
     }
 
     /**

@@ -28,6 +28,15 @@ class ModulesTableSeeder extends Seeder
             [
                 'name' => 'users',
             ],
+            [
+                'name' => 'pharm-stores',
+            ],
+            [
+                'name' => 'pharm-products',
+            ],
+            [
+                'name' => 'pharm-batches',
+            ],
         ]);
     }
 }

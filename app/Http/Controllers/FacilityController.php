@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Facility;
 use App\Models\Module;
+use App\Models\Pharmacy\Store;
 use App\Models\Role;
 use App\Models\User;
 use App\Rules\Tel;
@@ -335,6 +336,24 @@ class FacilityController extends Controller
     }
 
     /**
+     * Pharmacy belonging to this facility.
+     *
+     * @param string $facilityId
+     *
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function pharmacyStores($facilityId)
+    {
+        $this->authorize('viewAny', [Store::class]);
+
+        $facility = Facility::with('pharm_stores')->findOrFail($facilityId);
+
+        return response($facility);
+    }
+
+    /**
      * Modules granted to this facility.
      *
      * @param string $facilityId
@@ -429,9 +448,7 @@ class FacilityController extends Controller
             'modules.*' => 'required|string',
         ]);
 
-        $available_mods = Module::get()->map(function ($module) {
-            return $module->name;
-        })->toArray();
+        $available_mods = Module::select('name')->pluck('name')->toArray();
 
         $unknown_mods = array_values(array_diff($request->modules, $available_mods));
 

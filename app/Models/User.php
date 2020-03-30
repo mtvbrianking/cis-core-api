@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Pharmacy\Store;
 use App\Traits\HasRolePermissions;
 use Bmatovu\Uuid\Traits\HasUuidKey;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -109,6 +110,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function facility()
     {
         return $this->belongsTo(Facility::class, 'facility_id', 'id');
+    }
+
+    /**
+     * Stores assigned to this user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function pharm_stores()
+    {
+        return $this->belongsToMany(Store::class, 'pharm_store_user', 'user_id', 'store_id');
     }
 
     // Scopes

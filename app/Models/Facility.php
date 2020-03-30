@@ -106,4 +106,24 @@ class Facility extends Model
     {
         return $this->belongsToMany(Module::class, 'facility_module', 'facility_id', 'module_name');
     }
+
+    /**
+     * Pharmacy stores belonging to this facility.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function pharm_stores()
+    {
+        return $this->hasMany(Pharmacy\Store::class, 'facility_id', 'id');
+    }
+
+    /**
+     * Pharmacy products belonging to this facility.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function pharm_products()
+    {
+        return $this->hasMany(Pharmacy\Product::class, 'facility_id', 'id');
+    }
 }
