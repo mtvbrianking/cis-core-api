@@ -23,7 +23,6 @@ class CreatePharmBatchesTable extends Migration
             $table->date('mfd_at')->nullable();
             $table->date('expires_at')->nullable();
             $table->timestamps();
-            $table->softDeletes();
 
             $table->primary('id');
 

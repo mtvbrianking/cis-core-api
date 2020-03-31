@@ -33,6 +33,7 @@ class PermissionServiceProvider extends ServiceProvider
         'App\Models\Pharmacy\Store' => 'App\Policies\Pharmacy\StorePolicy',
         'App\Models\Pharmacy\Product' => 'App\Policies\Pharmacy\ProductPolicy',
         'App\Models\Pharmacy\Batch' => 'App\Policies\Pharmacy\BatchPolicy',
+        'App\Models\Pharmacy\Inventory' => 'App\Policies\Pharmacy\InventoryPolicy',
     ];
 
     /**

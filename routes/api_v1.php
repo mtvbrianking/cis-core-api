@@ -173,3 +173,16 @@ Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'phar
         Route::delete('/{batch}', 'BatchController@destroy');
     });
 });
+
+Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'pharmacy'], function () {
+    Route::pattern('item', '^[0-9a-fA-F]{11}$');
+
+    Route::group(['prefix' => 'inventories'], function () {
+        Route::get('/', 'InventoryController@index');
+        // Route::put('/credit', 'InventoryController@credit'); -> Stocking
+        // Route::put('/debit', 'InventoryController@debit'); -> Selling
+        Route::delete('/{item}', 'InventoryController@destroy');
+        Route::put('/{item}/restore', 'InventoryController@restore');
+        Route::put('/{item}/revoke', 'InventoryController@revoke');
+    });
+});

@@ -24,6 +24,7 @@ class BatchController extends Controller
      * @param \Illuminate\Http\Request $request
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
      *
      * @return \Illuminate\Http\Response
      */

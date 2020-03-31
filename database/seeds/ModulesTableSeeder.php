@@ -37,6 +37,9 @@ class ModulesTableSeeder extends Seeder
             [
                 'name' => 'pharm-batches',
             ],
+            [
+                'name' => 'pharm-inventories',
+            ],
         ]);
     }
 }

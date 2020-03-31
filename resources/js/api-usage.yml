@@ -32,6 +32,7 @@ tags:
   - name: pharmacy_store
   - name: pharmacy_product
   - name: pharmacy_batch
+  - name: pharmacy_inventory
 
   - name: token_model
     x-displayName: Token
@@ -69,6 +70,10 @@ tags:
     x-displayName: Pharmacy Batch
     description: |
       <SchemaDefinition schemaRef="#/components/schemas/PharmacyBatchModel"/>
+  - name: pharmacy_inventory_model
+    x-displayName: Pharmacy Inventory
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/PharmacyInventoryModel"/>
 
   - name: 401_error
     x-displayName: 401 Unauthorized
@@ -115,6 +120,7 @@ x-tagGroups:
       - pharmacy_store
       - pharmacy_product
       - pharmacy_batch
+      - pharmacy_inventory
   - name: Models
     tags:
       - token_model
@@ -126,6 +132,7 @@ x-tagGroups:
       - pharmacy_store_model
       - pharmacy_product_model
       - pharmacy_batch_model
+      - pharmacy_inventory_model
   - name: Errors
     tags:
       - 401_error
@@ -3719,6 +3726,189 @@ paths:
            -H 'Accept: application/json' \
            -H 'Authorization: Bearer {access-token}'
 
+  /pharmacy/inventories:
+    get:
+      tags:
+      - pharmacy_inventory
+      summary: Get pharmacy inventories
+      description: Requires `view-any` permission on `pharm-inventories` module.
+      operationId: getPharmacyInventories
+      parameters:
+      - name: store
+        in: query
+        description: <a href="#operation/getPharmacyStores">Store ID</a>
+        required: true
+        schema:
+          type: string
+          pattern: '^[0-9a-fA-F]{11}$'
+          example: e68b75bdf25
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_page:
+                    type: integer
+                    example: 1
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PharmacyInventoryModel'
+                  first_page_url:
+                    type: string
+                    example: http://sandbox-api.example.com/v1/pharmacy/inventories?page=1
+                  from:
+                    type: integer
+                    example: 1
+                  last_page:
+                    type: integer
+                    example: 1
+                  last_page_url:
+                    type: integer
+                  next_page_url:
+                    type: string
+                    example: null
+                  path:
+                    type: string
+                    example: http://sandbox-api.example.com/v1/pharmacy/inventories
+                  per_page:
+                    type: integer
+                    example: 10
+                  prev_page_url:
+                    type: string
+                    example: null
+                  to:
+                    type: integer
+                    example: 1
+                  total:
+                    type: integer
+                    example: 1
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET -G \
+           http://sandbox-api.example.com/v1/pharmacy/inventories \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}' \
+           -d 'store_id: e68b75bdf25'
+  /pharmacy/inventories/{inventory}:
+    delete:
+      tags:
+      - pharmacy_inventory
+      summary: Delete pharmacy inventory
+      description: |-
+        <strong>Permanently</strong> remove inventory from database.
+
+        Requires `force-delete` permission on `pharm-inventories` module.
+
+        The inventory must be <a href='#operation/revokePharmacyInventory'>revoked</a> before it be deleted.
+      operationId: deletePharmacyInventory
+      parameters:
+      - name: inventory
+        in: path
+        description: <a href="#operation/getPharmacyInventories">Inventory ID</a>
+        required: true
+        schema:
+          type: string
+          pattern: '^[0-9a-fA-F]{11}$'
+          example: e68b75bdf25
+      responses:
+        204:
+          description: No Content
+          content: {}
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X DELETE \
+           http://sandbox-api.example.com/v1/pharmacy/inventories/{inventory} \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /pharmacy/inventories/{inventory}/revoke:
+    put:
+      tags:
+      - pharmacy_inventory
+      summary: Revoke pharmacy inventory
+      description: |-
+        Requires `soft-delete` permission on `pharm-inventories` module.
+
+        Different from <a href='#operation/deletePharmacyInventory'>delete inventory</a>.
+      operationId: revokePharmacyInventory
+      parameters:
+      - name: inventory
+        in: path
+        description: <a href="#operation/getPharmacyInventories">Inventory ID</a>
+        required: true
+        schema:
+          type: string
+          pattern: '^[0-9a-fA-F]{11}$'
+          example: e68b75bdf25
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PharmacyInventoryModel'
+                  - properties:
+                      deleted_at:
+                        example: '2018-10-05 22:48:06'
+                      store:
+                        $ref: '#/components/schemas/PharmacyStoreModel'
+                      product:
+                        $ref: '#/components/schemas/PharmacyProductModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           'http://sandbox-api.example.com/v1/pharmacy/inventories/{inventory}/revoke' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+  /pharmacy/inventories/{inventory}/restore:
+    put:
+      tags:
+      - pharmacy_inventory
+      summary: Restore pharmacy inventory
+      description: |-
+        <strong>Reinstate</strong> previously <strike>revoked</strike> inventory.
+
+        Requires `restore` permission on `pharm-inventories` module.
+
+        See <a href='#operation/revokePharmacyInventory'>revoke inventory</a>.
+      operationId: restorePharmacyInventory
+      parameters:
+      - name: inventory
+        in: path
+        description: <a href="#operation/getPharmacyInventories">Inventory ID</a>
+        required: true
+        schema:
+          type: string
+          pattern: '^[0-9a-fA-F]{11}$'
+          example: e68b75bdf25
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PharmacyInventoryModel'
+                  - properties:
+                      store:
+                        $ref: '#/components/schemas/PharmacyStoreModel'
+                      product:
+                        $ref: '#/components/schemas/PharmacyProductModel'
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           'http://sandbox-api.example.com/v1/pharmacy/inventories/{inventory}/restore' \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}'
+
 components:
 
   schemas:
@@ -4068,6 +4258,51 @@ components:
           readOnly: true
           type: string
           format: date-time
+          nullable: true
+    PharmacyInventoryModel:
+      title: Pharmacy Inventory
+      type: object
+      required:
+        - id
+        - store_id
+        - product_id
+        - quantity
+        - unit_price
+      properties:
+        id:
+          readOnly: true
+          type: string
+          pattern: '^[0-9a-fA-F]{11}$'
+          example: e68b75bdf25
+        store_id:
+          type: string
+          description: <a href="#operation/getPharmacyStores">Store ID</a>
+          example: 'e6b272e1448'
+        product_id:
+          type: string
+          description: <a href="#operation/getPharmacyProducts">Product ID</a>
+          example: '1711d84a7a5'
+        quantity:
+          type: integer
+          example: 10
+        unit_price:
+          type: integer
+          format: float
+          example: '2500.00'
+        created_at:
+          readOnly: true
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          readOnly: true
+          type: string
+          format: date-time
+          nullable: true
+        deleted_at:
+          type: string
+          format: date-time
+          example: null
           nullable: true
     TokenModel:
       title: Token
