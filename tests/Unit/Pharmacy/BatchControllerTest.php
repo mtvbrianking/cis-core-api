@@ -69,6 +69,8 @@ class BatchControllerTest extends TestCase
                     'mfr_batch_no',
                     'mfd_at',
                     'expires_at',
+                    'created_at',
+                    'updated_at',
                 ],
             ],
             'first_page_url',
@@ -132,6 +134,8 @@ class BatchControllerTest extends TestCase
             'mfr_batch_no',
             'mfd_at',
             'expires_at',
+            'created_at',
+            'updated_at',
             'store',
             'product',
         ]);
@@ -179,6 +183,8 @@ class BatchControllerTest extends TestCase
             'mfr_batch_no',
             'mfd_at',
             'expires_at',
+            'created_at',
+            'updated_at',
             'store',
             'product',
         ]);

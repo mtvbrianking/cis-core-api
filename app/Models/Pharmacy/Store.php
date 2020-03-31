@@ -48,7 +48,7 @@ class Store extends Model
      * @var array
      */
     protected $fillable = [
-        'alias', 'name', 'email', 'password',
+        // ...
     ];
 
     // Mutators
@@ -95,6 +95,16 @@ class Store extends Model
     public function batches()
     {
         return $this->hasMany(Batch::class, 'store_id', 'id');
+    }
+
+    /**
+     * Inventories belonging to this store.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function inventories()
+    {
+        return $this->hasMany(Inventory::class, 'store_id', 'id');
     }
 
     // Scopes

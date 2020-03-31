@@ -42,6 +42,16 @@ class Product extends Model
         return $this->hasMany(Batch::class, 'product_id', 'id');
     }
 
+    /**
+     * Inventories for this product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function inventories()
+    {
+        return $this->hasMany(Inventory::class, 'product_id', 'id');
+    }
+
     // Scopes
 
     /**

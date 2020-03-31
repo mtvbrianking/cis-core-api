@@ -259,5 +259,24 @@ class PermissionsTableSeeder extends Seeder
                 'name' => 'delete',
             ],
         ]);
+
+        Permission::insert([
+            [
+                'module_name' => 'pharm-inventories',
+                'name' => 'view-any',
+            ],
+            [
+                'module_name' => 'pharm-inventories',
+                'name' => 'soft-delete',
+            ],
+            [
+                'module_name' => 'pharm-inventories',
+                'name' => 'restore',
+            ],
+            [
+                'module_name' => 'pharm-inventories',
+                'name' => 'force-delete',
+            ],
+        ]);
     }
 }
