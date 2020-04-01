@@ -27,7 +27,7 @@ jobs:
         - psql -c 'create database travis_pgsql_test_db;' -U postgres
         - travis_retry composer self-update
         - travis_retry composer update --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
-        - php artisan migrate:fresh --seed --database=travis_ci --force
+        - php artisan migrate:fresh --database=travis_ci --force
         - vendor/bin/phpunit --dump-xdebug-filter build/xdebug-filter.php
       script:
         - vendor/bin/phpunit --prepend build/xdebug-filter.php --coverage-text --coverage-clover=coverage.clover
