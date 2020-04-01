@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use Bmatovu\QueryDecorator\Exceptions\InvalidJsonException;
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
