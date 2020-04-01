@@ -5,7 +5,7 @@ namespace Tests\Unit;
 use App\Models\Module;
 use App\Models\Permission;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -14,7 +14,7 @@ use Tests\TestCase;
  */
 class PermissionControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     public function test_can_get_permissions()
     {

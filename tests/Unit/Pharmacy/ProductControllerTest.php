@@ -5,7 +5,7 @@ namespace Tests\Unit\Pharmacy;
 use App\Models\Pharmacy\Batch;
 use App\Models\Pharmacy\Product;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 /**
@@ -13,7 +13,7 @@ use Tests\TestCase;
  */
 class ProductControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     public function test_can_get_products()
     {
@@ -420,6 +420,9 @@ class ProductControllerTest extends TestCase
 
     public function test_cant_delete_non_orphaned_product()
     {
+        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectExceptionCode('25P02');
+
         $user = $this->getAuthorizedUser('force-delete', 'pharm-products');
 
         $product = factory(Product::class)->create([

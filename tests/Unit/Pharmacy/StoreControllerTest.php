@@ -4,7 +4,7 @@ namespace Tests\Unit\Pharmacy;
 
 use App\Models\Pharmacy\Store;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
@@ -13,7 +13,7 @@ use Tests\TestCase;
  */
 class StoreControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     public function test_can_create_a_store()
     {
@@ -410,6 +410,9 @@ class StoreControllerTest extends TestCase
 
     public function test_cant_delete_non_orphaned_store()
     {
+        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectExceptionCode('25P02');
+
         $user = $this->getAuthorizedUser('force-delete', 'pharm-stores');
 
         $store = factory(Store::class)->create([
