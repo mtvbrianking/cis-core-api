@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\Batch;
-use App\Models\Inventory;
-use App\Models\Store;
+use App\Models\Pharmacy\Batch;
+use App\Models\Pharmacy\Inventory;
+use App\Models\Pharmacy\Store;
 use Illuminate\Database\Seeder;
 
 class InventoryTableSeeder extends Seeder
@@ -19,8 +19,9 @@ class InventoryTableSeeder extends Seeder
         Batch::all()->each(function ($batch) use ($store) {
             $inventory = new Inventory();
             $inventory->store_id = $store->id;
-            $inventory->batch_id = $batch->id;
+            $inventory->product_id = $batch->product->id;
             $inventory->quantity = rand(1, 20);
+            $inventory->unit_price = 2000;
             $inventory->save();
         });
     }

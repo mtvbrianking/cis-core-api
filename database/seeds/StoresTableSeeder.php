@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Facility;
-use App\Models\Store;
+use App\Models\Pharmacy\Store;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
