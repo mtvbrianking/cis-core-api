@@ -4,18 +4,32 @@ namespace App\Http\Controllers\Pharmacy;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pharmacy\Inventory;
+use Bmatovu\QueryDecorator\Json\Schema;
+use Bmatovu\QueryDecorator\Query\Decorator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use JsonSchema\Validator as JsonValidator;
 
 class InventoryController extends Controller
 {
     /**
-     * Constructor.
+     * Json schema validator.
+     *
+     * @var \JsonSchema\Validator
      */
-    public function __construct()
+    protected $jsonValidator;
+
+    /**
+     * Constructor.
+     *
+     * @param \JsonSchema\Validator $jsonValidator
+     */
+    public function __construct(JsonValidator $jsonValidator)
     {
         $this->middleware('auth:api');
+
+        $this->jsonValidator = $jsonValidator;
     }
 
     /**
@@ -34,6 +48,12 @@ class InventoryController extends Controller
 
         $user = Auth::guard('api')->user();
 
+        // Validate request query parameters.
+
+        $schemaPath = resource_path('js/schemas/pharmacy/inventories.json');
+
+        Schema::validate($this->jsonValidator, $schemaPath, $request->query());
+
         $this->validate($request, [
             'store_id' => [
                 'required',
@@ -45,6 +65,10 @@ class InventoryController extends Controller
         ]);
 
         $query = Inventory::where('store_id', $request->store_id);
+
+        // Apply constraints to query.
+
+        $query = Decorator::decorate($query, (array) $request->query('filters'));
 
         $limit = $request->input('limit', 10);
 
