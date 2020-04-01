@@ -39,6 +39,7 @@ class InventoryController extends Controller
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Illuminate\Validation\ValidationException
+     * @throws \Bmatovu\QueryDecorator\Exceptions\InvalidJsonException
      *
      * @return \Illuminate\Http\Response
      */
@@ -47,12 +48,6 @@ class InventoryController extends Controller
         $this->authorize('viewAny', [Inventory::class]);
 
         $user = Auth::guard('api')->user();
-
-        // Validate request query parameters.
-
-        $schemaPath = resource_path('js/schemas/pharmacy/inventories.json');
-
-        Schema::validate($this->jsonValidator, $schemaPath, $request->query());
 
         $this->validate($request, [
             'store_id' => [
@@ -64,15 +59,51 @@ class InventoryController extends Controller
             ],
         ]);
 
-        $query = Inventory::where('store_id', $request->store_id);
+        // Validate request query parameters.
+
+        $schemaPath = resource_path('js/schemas/pharmacy/inventories.json');
+
+        $constraints = (array) $request->query('filters');
+
+        Schema::validate($this->jsonValidator, $schemaPath, $constraints);
+
+        // ...
+
+        $isRelated = false;
+
+        $query = Inventory::where('pharm_inventories.store_id', $request->store_id);
+
+        if (isset($constraints['select'])) {
+            $relations = Decorator::getRelations($constraints['select']);
+
+            $isRelated = (bool) count($relations);
+
+            if (in_array('store', $relations)) {
+                $query->leftJoin('pharm_stores', 'pharm_stores.id', '=', 'pharm_inventories.store_id');
+            }
+
+            if (in_array('product', $relations)) {
+                $query->leftJoin('pharm_products', 'pharm_products.id', '=', 'pharm_inventories.product_id');
+            }
+        }
+
+        $tableModelMap = [
+            'pharm_inventories' => null,
+            'pharm_stores' => 'store',
+            'pharm_products' => 'product',
+        ];
 
         // Apply constraints to query.
 
-        $query = Decorator::decorate($query, (array) $request->query('filters'));
+        $query = Decorator::decorate($query, $constraints, $tableModelMap, $isRelated);
 
-        $limit = $request->input('limit', 10);
+        // return response($query->toSql());
 
-        return response($query->paginate($limit));
+        $results = $query->jsonPaginate()->toArray();
+
+        $results['data'] = Decorator::resultsByModel($results['data'], $tableModelMap);
+
+        return response($results);
     }
 
     /**
