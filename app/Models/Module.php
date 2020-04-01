@@ -55,7 +55,7 @@ class Module extends Model
      * @var array
      */
     protected $fillable = [
-        'name',
+        'name', 'description',
     ];
 
     /**

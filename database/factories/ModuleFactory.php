@@ -8,7 +8,7 @@ use Faker\Generator as Faker;
  */
 $factory->define(Module::class, function (Faker $faker) {
     return [
-        'name' => $faker->word,
+        'name' => $faker->firstName,
         'description' => $faker->sentence(3),
     ];
 });

@@ -6,7 +6,7 @@ use App\Models\Pharmacy\Batch;
 use App\Models\Pharmacy\Product;
 use App\Models\Pharmacy\Store;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 /**
@@ -14,7 +14,7 @@ use Tests\TestCase;
  */
 class BatchControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     public function test_can_get_batches()
     {
@@ -150,8 +150,6 @@ class BatchControllerTest extends TestCase
         $response->assertStatus(403);
 
         // ...
-
-        $this->withoutExceptionHandling();
 
         $user = $this->getAuthorizedUser('create', 'pharm-batches');
 

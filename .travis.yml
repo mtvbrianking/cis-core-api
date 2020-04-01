@@ -6,10 +6,6 @@ os:
   - linux
 dist: xenial
 
-# https://docs.travis-ci.com/user/database-setup/#postgresql
-# services:
-#   - postgresql
-
 # https://docs.travis-ci.com/user/notifications
 notifications:
   email:
@@ -21,13 +17,17 @@ jobs:
 
     - stage: test
       php: '7.2'
+      # https://docs.travis-ci.com/user/database-setup/#postgresql
+      services:
+        - postgresql
       cache:
         directories:
           - "$HOME/.composer/cache/files"
       before_script:
-        # - psql -c 'create database travis_ci_test;' -U postgres
+        - psql -c 'create database travis_pgsql_test_db;' -U postgres
         - travis_retry composer self-update
         - travis_retry composer update --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
+        - php artisan migrate:fresh --database=travis_ci --force
         - vendor/bin/phpunit --dump-xdebug-filter build/xdebug-filter.php
       script:
         - vendor/bin/phpunit --prepend build/xdebug-filter.php --coverage-text --coverage-clover=coverage.clover

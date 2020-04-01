@@ -5,7 +5,7 @@ namespace Tests\Unit\Pharmacy;
 use App\Models\Pharmacy\Inventory;
 use App\Models\Pharmacy\Store;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 /**
@@ -13,7 +13,7 @@ use Tests\TestCase;
  */
 class InventoryControllerTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     public function test_can_get_inventories()
     {
