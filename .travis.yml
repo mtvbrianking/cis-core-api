@@ -10,10 +10,30 @@ dist: xenial
 notifications:
   email:
     on_success: never
-    on_failure: never
+    on_failure: always
 
 jobs:
   include:
+
+    - stage: test
+      php: '7.2'
+      # https://docs.travis-ci.com/user/database-setup/#postgresql
+      services:
+        - postgresql
+      cache:
+        directories:
+          - "$HOME/.composer/cache/files"
+      before_script:
+        - psql -c 'create database travis_pgsql_test_db;' -U postgres
+        - travis_retry composer self-update
+        - travis_retry composer update --prefer-dist --no-ansi --no-interaction --no-progress --no-scripts
+        - php artisan migrate:fresh --database=travis_ci --force
+        - vendor/bin/phpunit --dump-xdebug-filter build/xdebug-filter.php
+      script:
+        - vendor/bin/phpunit --prepend build/xdebug-filter.php --coverage-text --coverage-clover=coverage.clover
+      after_script:
+        - wget https://scrutinizer-ci.com/ocular.phar
+        - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
 
     # https://docs.travis-ci.com/user/deployment/pages
     - stage: deploy
@@ -26,8 +46,9 @@ jobs:
       - php sami.phar update .sami
       deploy:
       - provider: pages
+        # strategy: git
         local_dir: docs
         on:
           branch: master
-        skip-cleanup: true
+        cleanup: true
         token: "$GITHUB_TOKEN"
