@@ -32,8 +32,8 @@
         <server name="APP_KEY" value="base64:NJWzkcD0taLlJA1OZXKSXAml0MTQAPff9C2NL226X84=" />
         <server name="APP_URL" value="http://localhost" />
 
-        <server name="DB_CONNECTION" value="tests"/>
-        <server name="DB_DATABASE" value="cis-core-api-tests"/>
+        <server name="DB_CONNECTION" value="travis_ci"/>
+        <server name="DB_DATABASE" value="travis_pgsql_test_db"/>
 
         <!--
         <server name="DB_CONNECTION" value="sqlite"/>
