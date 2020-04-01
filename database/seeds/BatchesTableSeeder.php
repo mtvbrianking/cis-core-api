@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Pharmacy\Batch;
 use App\Models\Facility;
+use App\Models\Pharmacy\Batch;
 use App\Models\Pharmacy\Product;
 use App\Models\Pharmacy\Store;
 use Illuminate\Database\Seeder;
