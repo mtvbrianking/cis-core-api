@@ -33,7 +33,7 @@ abstract class TestCase extends BaseTestCase
      */
     protected function tearDown(): void
     {
-        parent::setUp();
+        parent::tearDown();
 
         // ...
     }
@@ -57,6 +57,8 @@ abstract class TestCase extends BaseTestCase
 
         $facility->modules()->attach($module);
 
+        $facility->save();
+
         $permission = factory(Permission::class)->create([
             'name' => $permissionName,
             'module_name' => $module->name,
@@ -68,6 +70,8 @@ abstract class TestCase extends BaseTestCase
         ]);
 
         $role->permissions()->attach($permission);
+
+        $role->save();
 
         return factory(User::class)->create([
             'facility_id' => $facility->id,
