@@ -20,6 +20,6 @@ class ProductTableSeeder extends Seeder
         // $product->facility()->associate($facility);
         // $product->save();
 
-        factory(Product::class, 5)->create();
+        factory(Product::class, 5)->create(['facility_id' => $facility->id]);
     }
 }
