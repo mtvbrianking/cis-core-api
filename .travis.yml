@@ -46,9 +46,8 @@ jobs:
       - php sami.phar update .sami
       deploy:
       - provider: pages
-        # strategy: git
         local_dir: docs
         on:
           branch: master
-        cleanup: true
+        skip-cleanup: true
         token: "$GITHUB_TOKEN"
