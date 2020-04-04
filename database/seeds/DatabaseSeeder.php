@@ -22,5 +22,7 @@ class DatabaseSeeder extends Seeder
         $this->call(StoresTableSeeder::class);
         $this->call(BatchesTableSeeder::class);
         $this->call(InventoryTableSeeder::class);
+
+        $this->call(PharmacyModuleSeeder::class);
     }
 }

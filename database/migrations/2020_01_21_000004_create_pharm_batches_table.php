@@ -18,7 +18,7 @@ class CreatePharmBatchesTable extends Migration
             $table->string('store_id', 11);
             $table->string('product_id', 11);
             $table->integer('quantity');
-            $table->float('unit_price');
+            $table->float('unit_price')->comment('Cost price');
             $table->string('mfr_batch_no', 255)->nullable();
             $table->date('mfd_at')->nullable();
             $table->date('expires_at')->nullable();
