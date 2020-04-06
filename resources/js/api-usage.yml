@@ -3094,7 +3094,7 @@ paths:
     put:
       tags:
       - pharmacy_store
-      summary: Update pahrmacy store
+      summary: Update pharmacy store
       description: Requires `update` permission on `pharm-stores` module.
       operationId: updatePharmacyStore
       parameters:
@@ -3397,7 +3397,7 @@ paths:
     put:
       tags:
       - pharmacy_product
-      summary: Update pahrmacy product
+      summary: Update pharmacy product
       description: Requires `update` permission on `pharm-products` module.
       operationId: updatePharmacyProduct
       parameters:
@@ -3794,6 +3794,61 @@ paths:
            -H 'Accept: application/json' \
            -H 'Authorization: Bearer {access-token}' \
            -d 'store_id: e68b75bdf25'
+    put:
+      tags:
+      - pharmacy_inventory
+      summary: Debit pharmacy inventories
+      description: Requires `debit` permission on `pharm-inventories` module.
+      operationId: debitPharmacyInventories
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - inventories
+              properties:
+                inventories:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - id
+                      - quantity
+                    properties:
+                      id:
+                        type: string
+                        description: <a href="#operation/getPharmacyInventories">Inventory ID</a>
+                        example: e68b75bdf25
+                      quantity:
+                        type: integer
+                        minimum: 1
+                        example: 1
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Debited inventory items.
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X PUT \
+           http://sandbox-api.example.com/v1/pharmacy/inventories/debit \
+           -H 'Accept: application/json' \
+           -H 'Authorization: Bearer {access-token}' \
+           -H 'Content-Type: application/json' \
+           -d '{
+            "inventories": [
+              {
+                "id": "e6d16606ef2",
+                "quantity": 1
+              }
+            ]
+          }'
   /pharmacy/inventories/{inventory}:
     delete:
       tags:

@@ -181,7 +181,7 @@ Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'phar
         Route::get('/', 'InventoryController@index');
         Route::get('/datatables', 'InventoryController@datatables');
         // Route::put('/credit', 'InventoryController@credit'); -> Stocking
-        // Route::put('/debit', 'InventoryController@debit'); -> Selling
+        Route::put('/debit', 'InventoryController@debit');
         Route::delete('/{item}', 'InventoryController@destroy');
         Route::put('/{item}/restore', 'InventoryController@restore');
         Route::put('/{item}/revoke', 'InventoryController@revoke');

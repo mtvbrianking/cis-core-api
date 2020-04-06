@@ -9,7 +9,10 @@ use Bmatovu\QueryDecorator\Query\Decorator;
 use Bmatovu\QueryDecorator\Support\Datatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use JsonSchema\Validator as JsonValidator;
 
 class InventoryController extends Controller
@@ -188,6 +191,83 @@ class InventoryController extends Controller
             'recordsFiltered' => isset($constraints['filter']) ? $matchedRecords->count() : $availableRecords,
             'data' => $data,
         ]);
+    }
+
+    /**
+     * Debit inventory in storage.
+     *
+     * @param \Illuminate\Http\Request $request
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function debit(Request $request)
+    {
+        $this->authorize('debit', [Inventory::class]);
+
+        $user = Auth::guard('api')->user();
+
+        $this->validate($request, [
+            'inventories' => 'required|array',
+            'inventories.*.id' => 'required|string|size:11',
+            'inventories.*.quantity' => 'required|integer|min:1',
+        ]);
+
+        $requested_inventory_ids = array_column($request->inventories, 'id');
+
+        $valid_inventories = Inventory::query()
+            ->join('pharm_store_user', 'pharm_store_user.store_id', '=', 'pharm_inventories.store_id')
+            ->select(['pharm_inventories.id', 'pharm_inventories.quantity'])
+            ->whereIn('pharm_inventories.id', $requested_inventory_ids)
+            ->where('pharm_store_user.user_id', $user->id)
+            ->get();
+
+        DB::beginTransaction();
+
+        try {
+            $errors = $debited = [];
+
+            foreach ($request->inventories as $idx => $reqInventory) {
+                $inventory = $valid_inventories->where('id', $reqInventory['id'])->first();
+
+                if (! $inventory) {
+                    $errors["inventories.{$idx}.id"][] = 'Unknown item';
+
+                    continue;
+                }
+
+                if ($inventory->quantity < $reqInventory['quantity']) {
+                    $errors["inventories.{$idx}.quantity"][] = "Only {$inventory->quantity} in stock.";
+
+                    continue;
+                }
+
+                DB::table('pharm_inventories')
+                    ->where('id', $inventory['id'])
+                    ->decrement('quantity', $inventory['quantity']);
+            }
+
+            if ($errors) {
+                $validator = Validator::make([], []);
+                $validator->errors()->merge($errors);
+
+                throw new ValidationException($validator);
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            throw $e;
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            throw $e;
+        }
+
+        return response(['message' => 'Debited inventory items']);
     }
 
     /**

@@ -83,6 +83,90 @@ class InventoryControllerTest extends TestCase
         ]);
     }
 
+    public function test_can_debit_inventory()
+    {
+        $user = factory(User::class)->create();
+
+        $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/pharmacy/inventories/debit');
+
+        $response->assertStatus(403);
+
+        // ...
+
+        $user = $this->getAuthorizedUser('debit', 'pharm-inventories');
+
+        $random_inventory_id = base_convert(microtime(true), 10, 16);
+
+        $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/pharmacy/inventories/debit', [
+            'inventories' => [
+                [
+                    'id' => $random_inventory_id,
+                    'quantity' => 10,
+                ],
+            ],
+        ]);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'inventories.0.id',
+            ],
+        ]);
+
+        // ...
+
+        $inventory = factory(Inventory::class)->create([
+            'quantity' => 5,
+        ]);
+
+        $user->pharm_stores()->sync([
+            $inventory->store_id,
+        ], true);
+        $inventory->save();
+
+        $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/pharmacy/inventories/debit', [
+            'inventories' => [
+                [
+                    'id' => $inventory->id,
+                    'quantity' => 10,
+                ],
+            ],
+        ]);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'inventories.0.quantity',
+            ],
+        ]);
+
+        // ...
+
+        $response = $this->actingAs($user, 'api')->json('PUT', 'api/v1/pharmacy/inventories/debit', [
+            'inventories' => [
+                [
+                    'id' => $inventory->id,
+                    'quantity' => 5,
+                ],
+            ],
+        ]);
+
+        $response->assertStatus(200);
+
+        $response->assertJsonStructure([
+            'message',
+        ]);
+
+        $this->assertDatabaseHas('pharm_inventories', [
+            'id' => $inventory->id,
+            'quantity' => 0,
+        ]);
+    }
+
     public function test_can_revoke_an_inventory()
     {
         $inventory = factory(Inventory::class)->create([

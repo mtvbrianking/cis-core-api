@@ -267,6 +267,10 @@ class PermissionsTableSeeder extends Seeder
             ],
             [
                 'module_name' => 'pharm-inventories',
+                'name' => 'debit',
+            ],
+            [
+                'module_name' => 'pharm-inventories',
                 'name' => 'soft-delete',
             ],
             [
