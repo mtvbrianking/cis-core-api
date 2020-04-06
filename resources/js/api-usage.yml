@@ -3794,6 +3794,7 @@ paths:
            -H 'Accept: application/json' \
            -H 'Authorization: Bearer {access-token}' \
            -d 'store_id: e68b75bdf25'
+  /pharmacy/inventories/debit:
     put:
       tags:
       - pharmacy_inventory
