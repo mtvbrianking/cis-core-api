@@ -22,6 +22,18 @@ class InventoryPolicy
     }
 
     /**
+     * Determine whether the user can debit the inventory.
+     *
+     * @param \App\Models\User $user
+     *
+     * @return bool
+     */
+    public function debit(User $user)
+    {
+        return $user->hasPermissionTo('debit', 'pharm-inventories');
+    }
+
+    /**
      * Determine whether the user can delete the inventory.
      *
      * @param \App\Models\User $user
