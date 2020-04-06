@@ -312,41 +312,7 @@ paths:
         content:
           application/json:
             schema:
-              required:
-                - address
-                - email
-                - name
-              type: object
-              properties:
-                name:
-                  maxLength: 100
-                  type: string
-                  example: Mulago Hospital
-                description:
-                  maxLength: 100
-                  type: string
-                  example: National Referral Hospital
-                address:
-                  maxLength: 100
-                  type: string
-                  example: Mulago Hill, Kampala
-                email:
-                  maxLength: 50
-                  type: string
-                  format: email
-                  example: cis@mulago.Hospital
-                website:
-                  maxLength: 50
-                  type: string
-                  format: url
-                  example: https://mulago.Hospital
-                phone:
-                  maxLength: 25
-                  pattern: ^\+(?:[0-9] ?){9,16}[0-9]$
-                  type: string
-                  format: tel
-                  example: '+256392741586'
-        required: false
+              $ref: '#/components/schemas/FacilityModel'
       responses:
         201:
           description: Created
@@ -451,41 +417,7 @@ paths:
         content:
           application/json:
             schema:
-              required:
-                - address
-                - email
-                - name
-              type: object
-              properties:
-                name:
-                  maxLength: 100
-                  type: string
-                  example: Mulago Hospital
-                description:
-                  maxLength: 100
-                  type: string
-                  example: National Referral Hospital
-                address:
-                  maxLength: 100
-                  type: string
-                  example: Mulago Hill, Kampala
-                email:
-                  maxLength: 50
-                  type: string
-                  format: email
-                  example: cis@mulago.Hospital
-                website:
-                  maxLength: 50
-                  type: string
-                  format: url
-                  example: https://mulago.Hospital
-                phone:
-                  maxLength: 25
-                  pattern: ^\+(?:[0-9] ?){9,16}[0-9]$
-                  type: string
-                  format: tel
-                  example: '+256392741586'
-        required: false
+              $ref: '#/components/schemas/FacilityModel'
       responses:
         200:
           description: OK
@@ -919,23 +851,7 @@ paths:
         content:
           application/json:
             schema:
-              required:
-               - name
-              type: object
-              properties:
-                name:
-                  maxLength: 25
-                  type: string
-                  example: users
-                category:
-                  type: string
-                  enum:
-                    - uncategorized
-                description:
-                  maxLength: 100
-                  type: string
-                  example: Users module
-        required: false
+              $ref: '#/components/schemas/ModuleModel'
       responses:
         201:
           description: Created
@@ -1031,19 +947,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                category:
-                  type: string
-                  example: administration
-                  enum:
-                    - uncategorized
-                    - administration
-                description:
-                  maxLength: 100
-                  type: string
-                  example: User accounts' management module
-        required: false
+              $ref: '#/components/schemas/ModuleModel'
       responses:
         200:
           description: OK
@@ -1301,24 +1205,7 @@ paths:
         content:
           application/json:
             schema:
-              required:
-                - module_name
-                - name
-              type: object
-              properties:
-                module_name:
-                  type: string
-                  description: <a href="#operation/getModules">Module name</a>
-                  example: users
-                name:
-                  maxLength: 25
-                  type: string
-                  example: view-any
-                description:
-                  maxLength: 100
-                  type: string
-                  example: View any user
-        required: false
+              $ref: '#/components/schemas/PermissionModel'
       responses:
         201:
           description: Created
@@ -1423,21 +1310,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                module_name:
-                  type: string
-                  description: <a href="#operation/getModules">Module name</a>
-                  example: users
-                name:
-                  maxLength: 25
-                  type: string
-                  example: view-any
-                description:
-                  maxLength: 100
-                  type: string
-                  example: View any user
-        required: false
+              $ref: '#/components/schemas/PermissionModel'
       responses:
         200:
           description: OK
@@ -1590,19 +1463,7 @@ paths:
         content:
           application/json:
             schema:
-              required:
-                - name
-              type: object
-              properties:
-                name:
-                  maxLength: 50
-                  type: string
-                  example: Sys Admin
-                description:
-                  maxLength: 100
-                  type: string
-                  example: System Administrator
-        required: false
+              $ref: '#/components/schemas/RoleModel'
       responses:
         201:
           description: Created
@@ -1710,19 +1571,7 @@ paths:
         content:
           application/json:
             schema:
-              required:
-                - name
-              type: object
-              properties:
-                name:
-                  maxLength: 50
-                  type: string
-                  example: Sys Admin
-                description:
-                  maxLength: 100
-                  type: string
-                  example: System Administrator
-        required: false
+              $ref: '#/components/schemas/RoleModel'
       responses:
         200:
           description: OK
@@ -2132,36 +1981,7 @@ paths:
         content:
           application/json:
             schema:
-              required:
-                - alias
-                - email
-                - name
-                - role_id
-              type: object
-              properties:
-                name:
-                  maxLength: 50
-                  type: string
-                  description: Full name
-                  example: John Doe
-                alias:
-                  maxLength: 50
-                  type: string
-                  description: Preferred display name
-                  example: jdoe
-                email:
-                  maxLength: 100
-                  type: string
-                  description: Email address. Must be unique. See <a href='#operation/validateEmail">validate
-                    email.</a>
-                  format: email
-                  example: jdoe@example.com
-                role_id:
-                  type: string
-                  description: <a href="#operation/getRoles">Role ID</a>
-                  format: uuid
-                  example: 1bc27b9c-a963-4fda-b79b-91b125ba0ed1
-        required: false
+              $ref: '#/components/schemas/UserModel'
       responses:
         201:
           description: Created
@@ -2598,33 +2418,18 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  maxLength: 50
-                  type: string
-                  description: Full name
-                  example: John Doe
-                alias:
-                  maxLength: 50
-                  type: string
-                  description: Preferred display name
-                  example: jdoe
-                email:
-                  maxLength: 100
-                  type: string
-                  description: |-
-                    Email address.\
-                    If changed, user must verify new email address.
-                    See <a href='#operation/confirmEmailVerification'>confirm email verification.</a>
-                  format: email
-                  example: jdoe@example.com
-                role_id:
-                  type: string
-                  description: <a href="#operation/getRoles">Role ID</a>
-                  format: uuid
-                  example: 1bc27b9c-a963-4fda-b79b-91b125ba0ed1
-        required: false
+              allOf:
+                - $ref: '#/components/schemas/UserModel'
+                - properties:
+                    email:
+                      maxLength: 100
+                      type: string
+                      description: |-
+                        Email address.\
+                        If changed, user must verify new email address.
+                        See <a href='#operation/confirmEmailVerification'>confirm email verification.</a>
+                      format: email
+                      example: jdoe@example.com
       responses:
         200:
           description: OK
@@ -2979,15 +2784,7 @@ paths:
         content:
           application/json:
             schema:
-              required:
-              - name
-              type: object
-              properties:
-                name:
-                  type: string
-                  maxLength: 50
-                  example: OPD Pharmacy
-        required: false
+              $ref: '#/components/schemas/PharmacyStoreModel'
       responses:
         201:
           description: Created
@@ -3064,14 +2861,7 @@ paths:
         content:
           application/json:
             schema:
-              required:
-                - name
-              type: object
-              properties:
-                name:
-                  type: string
-                  maxLength: 100
-                  example: OPD Pharmacy
+              $ref: '#/components/schemas/PharmacyStoreModel'
       responses:
         200:
           description: OK
@@ -3271,7 +3061,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PharmacyProductModel'
-        required: false
       responses:
         201:
           description: Created
@@ -3551,7 +3340,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/PharmacyBatchModel'
-        required: false
       responses:
         201:
           description: Created
@@ -3877,29 +3665,38 @@ components:
     UserModel:
       title: User
       type: object
+      required:
+        - id
+        - facility_id
+        - role_id
+        - alias
+        - name
+        - email
       properties:
         id:
+          readOnly: true
           type: string
           format: uuid
           example: 0ac99f1b-482c-4af1-be28-ddace07eff20
         facility_id:
+          # readOnly: true
           type: string
-          description: <a href="#operation/getFacilities">Facility ID</a>
+          description: <a href="#tag/facility_model">Facility</a>
           format: uuid
           example: 90cae4ff-6f86-4ba3-8651-134b48fd7a2a
         role_id:
           type: string
-          description: <a href="#operation/getRoles">Role ID</a>
+          description: <a href="#tag/role_model">Role</a>
           format: uuid
           example: f0f95c23-6ba1-4348-b1d9-bfb5e4bb1e3f
         alias:
-          maxLength: 25
           type: string
+          maxLength: 25
           description: Display name - unique.
           example: jdoe
         name:
-          maxLength: 25
           type: string
+          maxLength: 25
           description: Full name
           example: John Doe
         email:
@@ -3912,14 +3709,17 @@ components:
           format: date-time
           nullable: true
         created_at:
+          readOnly: true
           type: string
           format: date-time
           nullable: true
         updated_at:
+          readOnly: true
           type: string
           format: date-time
           nullable: true
         deleted_at:
+          readOnly: true
           type: string
           format: date-time
           example: null
@@ -3927,14 +3727,20 @@ components:
     RoleModel:
       title: Role
       type: object
+      required:
+        - id
+        - facility_id
+        - name
       properties:
         id:
+          readOnly: true
           type: string
           format: uuid
           example: f0f95c23-6ba1-4348-b1d9-bfb5e4bb1e3f
         facility_id:
+          # readOnly: true
           type: string
-          description: <a href="#operation/getFacilities">Facility ID</a>
+          description: <a href="#tag/facility_model">Facility</a>
           format: uuid
           example: 0ac99f1b-482c-4af1-be28-ddace07eff20
         name:
@@ -3947,14 +3753,17 @@ components:
           nullable: true
           example: System Administrator
         created_at:
+          readOnly: true
           type: string
           format: date-time
           nullable: true
         updated_at:
+          readOnly: true
           type: string
           format: date-time
           nullable: true
         deleted_at:
+          readOnly: true
           type: string
           format: date-time
           example: null
@@ -3962,8 +3771,14 @@ components:
     FacilityModel:
       title: Facility
       type: object
+      required:
+        - id
+        - address
+        - email
+        - name
       properties:
         id:
+          readOnly: true
           type: string
           format: uuid
           example: 90cae4ff-6f86-4ba3-8651-134b48fd7a2a
@@ -3999,14 +3814,17 @@ components:
           nullable: true
           example: '+256392741586'
         created_at:
+          readOnly: true
           type: string
           format: date-time
           nullable: true
         updated_at:
+          readOnly: true
           type: string
           format: date-time
           nullable: true
         deleted_at:
+          readOnly: true
           type: string
           format: date-time
           example: null
@@ -4014,6 +3832,9 @@ components:
     ModuleModel:
       title: Module
       type: object
+      required:
+        - name
+        - category
       properties:
         name:
           maxLength: 25
@@ -4023,20 +3844,24 @@ components:
           type: string
           enum:
             - uncategorized
+          default: uncategorized
         description:
           maxLength: 50
           type: string
           nullable: true
           example: Users module
         created_at:
+          readOnly: true
           type: string
           format: date-time
           nullable: true
         updated_at:
+          readOnly: true
           type: string
           format: date-time
           nullable: true
         deleted_at:
+          readOnly: true
           type: string
           format: date-time
           example: null
@@ -4044,11 +3869,17 @@ components:
     PermissionModel:
       title: Permission
       type: object
+      required:
+        - id
+        - module_name
+        - name
       properties:
         id:
+          readOnly: true
           type: integer
           example: 1
         module_name:
+          description: <a href="#tag/module_model">Module</a>
           type: string
           maxLength: 25
           example: users
@@ -4062,24 +3893,32 @@ components:
           nullable: true
           example: View any user
         created_at:
+          readOnly: true
           type: string
           format: date-time
           nullable: true
         updated_at:
+          readOnly: true
           type: string
           format: date-time
           nullable: true
     PharmacyStoreModel:
       title: Pharmacy Store
       type: object
+      required:
+        - id
+        - facility_id
+        - name
       properties:
         id:
+          readOnly: true
           type: string
           pattern: '^[0-9a-fA-F]{11}$'
           example: e68b75bdf25
         facility_id:
+          readOnly: true
           type: string
-          description: <a href="#operation/getFacilities">Facility ID</a>
+          description: <a href="#tag/facility_model">Facility</a>
           format: uuid
           example: '0ac99f1b-482c-4af1-be28-ddace07eff20'
         name:
@@ -4087,14 +3926,17 @@ components:
           maxLength: 100
           example: OPD Pharmacy
         created_at:
+          readOnly: true
           type: string
           format: date-time
           nullable: true
         updated_at:
+          readOnly: true
           type: string
           format: date-time
           nullable: true
         deleted_at:
+          readOnly: true
           type: string
           format: date-time
           example: null
@@ -4117,7 +3959,7 @@ components:
         facility_id:
           readOnly: true
           type: string
-          description: <a href="#operation/getFacilities">Facility ID</a>
+          description: <a href="#tag/facility_model">Facility</a>
           format: uuid
           example: '0ac99f1b-482c-4af1-be28-ddace07eff20'
         name:
@@ -4183,11 +4025,11 @@ components:
           example: e68b75bdf25
         store_id:
           type: string
-          description: <a href="#operation/getPharmacyStores">Store ID</a>
+          description: <a href="#tag/pharmacy_store_model">Store</a>
           example: 'e6b272e1448'
         product_id:
           type: string
-          description: <a href="#operation/getPharmacyProducts">Product ID</a>
+          description: <a href="#tag/pharmacy_product_model">Product</a>
           example: '1711d84a7a5'
         quantity:
           type: integer
@@ -4235,11 +4077,11 @@ components:
           example: e68b75bdf25
         store_id:
           type: string
-          description: <a href="#operation/getPharmacyStores">Store ID</a>
+          description: <a href="#tag/pharmacy_store_model">Store</a>
           example: 'e6b272e1448'
         product_id:
           type: string
-          description: <a href="#operation/getPharmacyProducts">Product ID</a>
+          description: <a href="#tag/pharmacy_product_model">Product</a>
           example: '1711d84a7a5'
         quantity:
           type: integer
@@ -4259,6 +4101,7 @@ components:
           format: date-time
           nullable: true
         deleted_at:
+          readOnly: true
           type: string
           format: date-time
           example: null
@@ -4266,6 +4109,10 @@ components:
     TokenModel:
       title: Token
       type: object
+      required:
+        - token_type
+        - expires_in
+        - access_token
       properties:
         token_type:
           type: string
