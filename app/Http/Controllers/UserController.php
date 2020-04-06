@@ -88,7 +88,7 @@ class UserController extends Controller
         $limit = $request->input('limit', 10);
 
         if ($request->input('paginate', true)) {
-            return response($query->paginate($limit));
+            return response($query->paginate($limit), 206);
         }
 
         $users = $query->take($limit)->get();
@@ -165,7 +165,7 @@ class UserController extends Controller
             'recordsTotal' => $availableRecords,
             'recordsFiltered' => isset($constraints['filter']) ? $matchedRecords->count() : $availableRecords,
             'data' => $data,
-        ]);
+        ], 206);
     }
 
     /**

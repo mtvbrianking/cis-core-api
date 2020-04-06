@@ -48,7 +48,7 @@ class BatchController extends Controller
 
         $limit = $request->input('limit', 10);
 
-        return response($query->paginate($limit));
+        return response($query->paginate($limit), 206);
     }
 
     /**

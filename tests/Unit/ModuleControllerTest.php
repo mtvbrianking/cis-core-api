@@ -31,7 +31,7 @@ class ModuleControllerTest extends TestCase
 
         $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/modules');
 
-        $response->assertStatus(200);
+        $response->assertStatus(206);
 
         $response->assertJsonStructure([
             'current_page',
@@ -146,7 +146,7 @@ class ModuleControllerTest extends TestCase
 
         $response = $this->actingAs($user, 'api')->json('GET', "api/v1/modules/datatables?{$query}");
 
-        $response->assertStatus(200);
+        $response->assertStatus(206);
 
         $response->assertJsonStructure([
             'draw',

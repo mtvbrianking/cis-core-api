@@ -66,7 +66,7 @@ class PermissionController extends Controller
         $limit = $request->input('limit', 10);
 
         if ($request->input('paginate', true)) {
-            return response($query->paginate($limit));
+            return response($query->paginate($limit), 206);
         }
 
         $permissions = $query->take($limit)->get();
@@ -117,7 +117,7 @@ class PermissionController extends Controller
             'recordsTotal' => $availableRecords,
             'recordsFiltered' => isset($constraints['filter']) ? $matchedRecords->count() : $availableRecords,
             'data' => $matchedRecords,
-        ]);
+        ], 206);
     }
 
     /**

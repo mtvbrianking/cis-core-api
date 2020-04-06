@@ -34,7 +34,7 @@ class UserControllerTest extends TestCase
 
         $response = $this->actingAs($consumer, 'api')->json('GET', 'api/v1/users');
 
-        $response->assertStatus(200);
+        $response->assertStatus(206);
 
         $response->assertJsonStructure([
             'current_page',
@@ -197,7 +197,7 @@ class UserControllerTest extends TestCase
 
         $response = $this->actingAs($user, 'api')->json('GET', "api/v1/users/datatables?{$query}");
 
-        $response->assertStatus(200);
+        $response->assertStatus(206);
 
         $response->assertJsonStructure([
             'draw',

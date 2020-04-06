@@ -30,7 +30,7 @@ class FacilityControllerTest extends TestCase
 
         $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/facilities');
 
-        $response->assertStatus(200);
+        $response->assertStatus(206);
 
         $response->assertJsonStructure([
             'current_page',
@@ -173,7 +173,7 @@ class FacilityControllerTest extends TestCase
 
         $response = $this->actingAs($user, 'api')->json('GET', "api/v1/facilities/datatables?{$query}");
 
-        $response->assertStatus(200);
+        $response->assertStatus(206);
 
         $response->assertJsonStructure([
             'draw',

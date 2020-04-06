@@ -37,7 +37,7 @@ class StoreController extends Controller
         $limit = $request->input('limit', 10);
 
         if ($request->input('paginate', true)) {
-            return response($query->paginate($limit));
+            return response($query->paginate($limit), 206);
         }
 
         $stores = $query->take($limit)->get();

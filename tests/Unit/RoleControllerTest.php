@@ -32,7 +32,7 @@ class RoleControllerTest extends TestCase
 
         $response = $this->actingAs($user, 'api')->json('GET', 'api/v1/roles');
 
-        $response->assertStatus(200);
+        $response->assertStatus(206);
 
         $response->assertJsonStructure([
             'current_page',
@@ -159,7 +159,7 @@ class RoleControllerTest extends TestCase
 
         $response = $this->actingAs($user, 'api')->json('GET', "api/v1/roles/datatables?{$query}");
 
-        $response->assertStatus(200);
+        $response->assertStatus(206);
 
         $response->assertJsonStructure([
             'draw',

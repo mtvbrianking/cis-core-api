@@ -54,7 +54,7 @@ class InventoryControllerTest extends TestCase
 
         $response = $this->actingAs($user, 'api')->json('GET', "api/v1/pharmacy/inventories?{$query}");
 
-        $response->assertStatus(200);
+        $response->assertStatus(206);
 
         $response->assertJsonStructure([
             'current_page',

@@ -107,7 +107,7 @@ class InventoryController extends Controller
 
         $results['data'] = Decorator::resultsByModel($results['data'], $tableModelMap);
 
-        return response($results);
+        return response($results, 206);
     }
 
     /**
@@ -190,7 +190,7 @@ class InventoryController extends Controller
             'recordsTotal' => $availableRecords,
             'recordsFiltered' => isset($constraints['filter']) ? $matchedRecords->count() : $availableRecords,
             'data' => $data,
-        ]);
+        ], 206);
     }
 
     /**
