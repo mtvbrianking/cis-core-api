@@ -28,14 +28,14 @@ class BatchesTableSeeder extends Seeder
             $batch->quantity = rand(1, 20);
             $batch->save();
 
-            $batch = new Batch();
-            $batch->mfd_at = '2010-03-01';
-            $batch->expires_at = '2020-09-01';
-            $batch->product()->associate($product);
-            $batch->store()->associate($store);
-            $batch->unit_price = '3000';
-            $batch->quantity = rand(1, 20);
-            $batch->save();
+            // $batch = new Batch();
+            // $batch->mfd_at = '2010-03-01';
+            // $batch->expires_at = '2020-09-01';
+            // $batch->product()->associate($product);
+            // $batch->store()->associate($store);
+            // $batch->unit_price = '3000';
+            // $batch->quantity = rand(1, 20);
+            // $batch->save();
 
             // factory(Batch::class, 2)->create([
             //     'facility_id' => $facility->id,
