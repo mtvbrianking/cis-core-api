@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Pharmacy;
 
 use App\Http\Controllers\Controller;
 use App\Models\Pharmacy\Inventory;
+use App\Models\Pharmacy\Sale;
 use Bmatovu\QueryDecorator\Json\Schema;
 use Bmatovu\QueryDecorator\Query\Decorator;
 use Bmatovu\QueryDecorator\Support\Datatable;
@@ -219,7 +220,7 @@ class InventoryController extends Controller
 
         $valid_inventories = Inventory::query()
             ->join('pharm_store_user', 'pharm_store_user.store_id', '=', 'pharm_store_product.store_id')
-            ->select(['pharm_store_product.id', 'pharm_store_product.quantity'])
+            ->select(['pharm_store_product.*'])
             ->whereIn('pharm_store_product.id', $requested_inventory_ids)
             ->where('pharm_store_user.user_id', $user->id)
             ->get();
@@ -227,7 +228,11 @@ class InventoryController extends Controller
         DB::beginTransaction();
 
         try {
-            $errors = $debited = [];
+            $errors = $debited = $products = [];
+
+            $inventory = null;
+
+            $total = 0;
 
             foreach ($request->inventories as $idx => $reqInventory) {
                 $inventory = $valid_inventories->where('id', $reqInventory['id'])->first();
@@ -245,8 +250,15 @@ class InventoryController extends Controller
                 }
 
                 DB::table('pharm_store_product')
-                    ->where('id', $inventory['id'])
-                    ->decrement('quantity', $inventory['quantity']);
+                    ->where('id', $inventory->id)
+                    ->decrement('quantity', $reqInventory['quantity']);
+
+                $products[$inventory->product_id] = [
+                    'quantity' => $reqInventory['quantity'],
+                    'price' => $inventory->unit_price,
+                ];
+
+                $total += $inventory->unit_price;
             }
 
             if ($errors) {
@@ -255,6 +267,14 @@ class InventoryController extends Controller
 
                 throw new ValidationException($validator);
             }
+
+            $sale = new Sale();
+            $sale->store_id = $inventory->store_id;
+            $sale->tax_rate = 0.0;
+            $sale->total = $total;
+            $sale->save();
+
+            $sale->products()->attach($products);
 
             DB::commit();
         } catch (\Exception $e) {
@@ -267,7 +287,9 @@ class InventoryController extends Controller
             throw $e;
         }
 
-        return response(['message' => 'Debited inventory items']);
+        $sale = $sale->fresh(['products']);
+
+        return response($sale);
     }
 
     /**

@@ -122,7 +122,7 @@ class Role extends Model
      */
     public function permissions()
     {
-        return $this->BelongsToMany(Permission::class, 'role_permission', 'role_id', 'permission_id', 'id');
+        return $this->belongsToMany(Permission::class, 'role_permission', 'role_id', 'permission_id', 'id');
     }
 
     // Scopes

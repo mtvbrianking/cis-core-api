@@ -52,6 +52,20 @@ class Product extends Model
         return $this->hasMany(Inventory::class, 'product_id', 'id');
     }
 
+    /**
+     * Users assigned this store.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function sales()
+    {
+        return $this->belongsToMany(Sale::class, 'pharm_sale_product', 'product_id', 'sale_id', 'id')
+            ->withPivot([
+                'quantity',
+                'price',
+            ]);
+    }
+
     // Scopes
 
     /**

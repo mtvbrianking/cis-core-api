@@ -119,6 +119,7 @@ class InventoryControllerTest extends TestCase
 
         $inventory = factory(Inventory::class)->create([
             'quantity' => 5,
+            'unit_price' => 100.00,
         ]);
 
         $user->pharm_stores()->sync([
@@ -158,7 +159,35 @@ class InventoryControllerTest extends TestCase
         $response->assertStatus(200);
 
         $response->assertJsonStructure([
-            'message',
+            'id',
+            'store_id',
+            'patient_id',
+            'tax_rate',
+            'total',
+            'created_at',
+            'updated_at',
+            'products' => [
+                '*' => [
+                    'id',
+                    'facility_id',
+                    'name',
+                    'brand',
+                    'manufacturer',
+                    'category',
+                    'concentration',
+                    'package',
+                    'description',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at',
+                    'pivot' => [
+                        'sale_id',
+                        'product_id',
+                        'quantity',
+                        'price',
+                    ],
+                ],
+            ],
         ]);
 
         $this->assertDatabaseHas('pharm_store_product', [

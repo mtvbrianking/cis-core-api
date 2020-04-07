@@ -107,6 +107,16 @@ class Store extends Model
         return $this->hasMany(Inventory::class, 'store_id', 'id');
     }
 
+    /**
+     * Sales for to this store.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function sales()
+    {
+        return $this->hasMany(Sale::class, 'store_id', 'id');
+    }
+
     // Scopes
 
     /**

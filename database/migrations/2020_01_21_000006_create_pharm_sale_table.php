@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePharmStoreSalesTable extends Migration
+class CreatePharmSaleTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,12 @@ class CreatePharmStoreSalesTable extends Migration
      */
     public function up()
     {
-        Schema::create('pharm_store_sales', function (Blueprint $table) {
+        Schema::create('pharm_sales', function (Blueprint $table) {
             $table->string('id', 11);
             $table->string('store_id', 11);
             $table->uuid('patient_id', 11)->nullable();
-            $table->float('tax_rate');
-            $table->float('total');
+            $table->decimal('tax_rate', 5, 2);
+            $table->decimal('total', 10, 2);
             $table->timestamps();
 
             $table->primary('id');
@@ -38,11 +38,11 @@ class CreatePharmStoreSalesTable extends Migration
      */
     public function down()
     {
-        Schema::table('pharm_store_sales', function (Blueprint $table) {
+        Schema::table('pharm_sales', function (Blueprint $table) {
             $table->dropForeign(['store_id']);
             // $table->dropForeign(['patient_id']);
         });
 
-        Schema::dropIfExists('pharm_store_sales');
+        Schema::dropIfExists('pharm_sales');
     }
 }

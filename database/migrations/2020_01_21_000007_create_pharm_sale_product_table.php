@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePharmStoreSaleItemsTable extends Migration
+class CreatePharmSaleProductTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +13,15 @@ class CreatePharmStoreSaleItemsTable extends Migration
      */
     public function up()
     {
-        Schema::create('pharm_store_sale_items', function (Blueprint $table) {
-            $table->string('id', 11);
+        Schema::create('pharm_sale_product', function (Blueprint $table) {
             $table->string('sale_id', 11);
             $table->string('product_id', 11);
             $table->integer('quantity');
-            $table->float('price');
-            $table->timestamps();
+            $table->decimal('price', 10, 2);
 
-            $table->primary('id');
+            $table->unique(['sale_id', 'product_id']);
 
-            $table->foreign('sale_id')->references('id')->on('pharm_store_sales')
+            $table->foreign('sale_id')->references('id')->on('pharm_sales')
                 ->onUpdate('restrict')->onDelete('restrict');
 
             $table->foreign('product_id')->references('id')->on('pharm_products')
@@ -38,11 +36,11 @@ class CreatePharmStoreSaleItemsTable extends Migration
      */
     public function down()
     {
-        Schema::table('pharm_store_sale_items', function (Blueprint $table) {
+        Schema::table('pharm_sale_product', function (Blueprint $table) {
             $table->dropForeign(['sale_id']);
             $table->dropForeign(['product_id']);
         });
 
-        Schema::dropIfExists('pharm_store_sale_items');
+        Schema::dropIfExists('pharm_sale_product');
     }
 }
