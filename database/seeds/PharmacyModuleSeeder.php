@@ -23,6 +23,7 @@ class PharmacyModuleSeeder extends Seeder
 
         $store = factory(Store::class)->create([
             'facility_id' => $facility->id,
+            'name' => 'Back Office Store',
         ]);
 
         $store->users()->attach($user);
