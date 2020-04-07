@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePharmInventoriesTable extends Migration
+class CreatePharmStorePurchasesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,16 @@ class CreatePharmInventoriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('pharm_inventories', function (Blueprint $table) {
+        Schema::create('pharm_store_purchases', function (Blueprint $table) {
             $table->string('id', 11);
             $table->string('store_id', 11);
             $table->string('product_id', 11);
             $table->integer('quantity');
-            $table->float('unit_price');
+            $table->float('unit_price')->comment('Cost price');
+            $table->string('mfr_batch_no', 255)->nullable();
+            $table->date('mfd_at')->nullable();
+            $table->date('expires_at')->nullable();
             $table->timestamps();
-            $table->softDeletes();
 
             $table->primary('id');
 
@@ -39,11 +41,11 @@ class CreatePharmInventoriesTable extends Migration
      */
     public function down()
     {
-        Schema::table('pharm_inventories', function (Blueprint $table) {
+        Schema::table('pharm_store_purchases', function (Blueprint $table) {
             $table->dropForeign(['store_id']);
             $table->dropForeign(['product_id']);
         });
 
-        Schema::dropIfExists('pharm_inventories');
+        Schema::dropIfExists('pharm_store_purchases');
     }
 }

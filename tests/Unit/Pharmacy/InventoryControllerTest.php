@@ -161,7 +161,7 @@ class InventoryControllerTest extends TestCase
             'message',
         ]);
 
-        $this->assertDatabaseHas('pharm_inventories', [
+        $this->assertDatabaseHas('pharm_store_product', [
             'id' => $inventory->id,
             'quantity' => 0,
         ]);
@@ -219,7 +219,7 @@ class InventoryControllerTest extends TestCase
             'product',
         ]);
 
-        $this->assertSoftDeleted('pharm_inventories', [
+        $this->assertSoftDeleted('pharm_store_product', [
             'id' => $inventory->id,
         ]);
     }
@@ -276,7 +276,7 @@ class InventoryControllerTest extends TestCase
             'product',
         ]);
 
-        $this->assertDatabaseHas('pharm_inventories', [
+        $this->assertDatabaseHas('pharm_store_product', [
             'deleted_at' => null,
         ]);
     }
@@ -322,7 +322,7 @@ class InventoryControllerTest extends TestCase
 
         $this->assertEquals('', $response->getContent());
 
-        $this->assertDatabaseMissing('pharm_inventories', [
+        $this->assertDatabaseMissing('pharm_store_product', [
             'id' => $inventory->id,
         ]);
     }

@@ -14,7 +14,7 @@ class Batch extends Model
      *
      * @var string
      */
-    protected $table = 'pharm_batches';
+    protected $table = 'pharm_store_purchases';
 
     // Relationships
 

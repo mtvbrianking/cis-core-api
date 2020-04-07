@@ -231,7 +231,7 @@ class BatchControllerTest extends TestCase
 
         $this->assertEquals('', $response->getContent());
 
-        $this->assertDatabaseMissing('pharm_batches', [
+        $this->assertDatabaseMissing('pharm_store_purchases', [
             'id' => $batch->id,
         ]);
     }

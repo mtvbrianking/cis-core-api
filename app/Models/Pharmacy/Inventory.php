@@ -15,7 +15,7 @@ class Inventory extends Model
      *
      * @var string
      */
-    protected $table = 'pharm_inventories';
+    protected $table = 'pharm_store_product';
 
     /**
      * The primary key for the model.

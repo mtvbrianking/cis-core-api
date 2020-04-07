@@ -75,7 +75,7 @@ class InventoryController extends Controller
 
         $isRelated = false;
 
-        $query = Inventory::where('pharm_inventories.store_id', $request->store_id);
+        $query = Inventory::where('pharm_store_product.store_id', $request->store_id);
 
         if (isset($constraints['select'])) {
             $relations = Decorator::getRelations($constraints['select']);
@@ -83,16 +83,16 @@ class InventoryController extends Controller
             $isRelated = (bool) count($relations);
 
             if (in_array('store', $relations)) {
-                $query->leftJoin('pharm_stores', 'pharm_stores.id', '=', 'pharm_inventories.store_id');
+                $query->leftJoin('pharm_stores', 'pharm_stores.id', '=', 'pharm_store_product.store_id');
             }
 
             if (in_array('product', $relations)) {
-                $query->leftJoin('pharm_products', 'pharm_products.id', '=', 'pharm_inventories.product_id');
+                $query->leftJoin('pharm_products', 'pharm_products.id', '=', 'pharm_store_product.product_id');
             }
         }
 
         $tableModelMap = [
-            'pharm_inventories' => null,
+            'pharm_store_product' => null,
             'pharm_stores' => 'store',
             'pharm_products' => 'product',
         ];
@@ -151,7 +151,7 @@ class InventoryController extends Controller
 
         $isRelated = false;
 
-        $query = Inventory::where('pharm_inventories.store_id', $request->store_id);
+        $query = Inventory::where('pharm_store_product.store_id', $request->store_id);
 
         if (isset($constraints['select'])) {
             $relations = Decorator::getRelations($constraints['select']);
@@ -159,18 +159,18 @@ class InventoryController extends Controller
             $isRelated = (bool) count($relations);
 
             if (in_array('store', $relations)) {
-                $query->leftJoin('pharm_stores', 'pharm_stores.id', '=', 'pharm_inventories.store_id');
+                $query->leftJoin('pharm_stores', 'pharm_stores.id', '=', 'pharm_store_product.store_id');
             }
 
             if (in_array('product', $relations)) {
-                $query->leftJoin('pharm_products', 'pharm_products.id', '=', 'pharm_inventories.product_id');
+                $query->leftJoin('pharm_products', 'pharm_products.id', '=', 'pharm_store_product.product_id');
             }
         }
 
         $availableRecords = $query->count();
 
         $tableModelMap = [
-            'pharm_inventories' => null,
+            'pharm_store_product' => null,
             'pharm_stores' => 'store',
             'pharm_products' => 'product',
         ];
@@ -218,9 +218,9 @@ class InventoryController extends Controller
         $requested_inventory_ids = array_column($request->inventories, 'id');
 
         $valid_inventories = Inventory::query()
-            ->join('pharm_store_user', 'pharm_store_user.store_id', '=', 'pharm_inventories.store_id')
-            ->select(['pharm_inventories.id', 'pharm_inventories.quantity'])
-            ->whereIn('pharm_inventories.id', $requested_inventory_ids)
+            ->join('pharm_store_user', 'pharm_store_user.store_id', '=', 'pharm_store_product.store_id')
+            ->select(['pharm_store_product.id', 'pharm_store_product.quantity'])
+            ->whereIn('pharm_store_product.id', $requested_inventory_ids)
             ->where('pharm_store_user.user_id', $user->id)
             ->get();
 
@@ -244,7 +244,7 @@ class InventoryController extends Controller
                     continue;
                 }
 
-                DB::table('pharm_inventories')
+                DB::table('pharm_store_product')
                     ->where('id', $inventory['id'])
                     ->decrement('quantity', $inventory['quantity']);
             }
@@ -286,8 +286,8 @@ class InventoryController extends Controller
         $user = Auth::guard('api')->user();
 
         $inventory = Inventory::query()
-            ->join('pharm_store_user', 'pharm_store_user.store_id', '=', 'pharm_inventories.store_id')
-            ->where('pharm_inventories.id', $inventoryId)
+            ->join('pharm_store_user', 'pharm_store_user.store_id', '=', 'pharm_store_product.store_id')
+            ->where('pharm_store_product.id', $inventoryId)
             ->where('pharm_store_user.user_id', $user->id)
             ->with(['store', 'product'])
             ->firstOrFail();
@@ -315,8 +315,8 @@ class InventoryController extends Controller
         $user = Auth::guard('api')->user();
 
         $inventory = Inventory::query()
-            ->join('pharm_store_user', 'pharm_store_user.store_id', '=', 'pharm_inventories.store_id')
-            ->where('pharm_inventories.id', $inventoryId)
+            ->join('pharm_store_user', 'pharm_store_user.store_id', '=', 'pharm_store_product.store_id')
+            ->where('pharm_store_product.id', $inventoryId)
             ->where('pharm_store_user.user_id', $user->id)
             ->onlyTrashed()
             ->with(['store', 'product'])
@@ -345,8 +345,8 @@ class InventoryController extends Controller
         $user = Auth::guard('api')->user();
 
         $inventory = Inventory::query()
-            ->join('pharm_store_user', 'pharm_store_user.store_id', '=', 'pharm_inventories.store_id')
-            ->where('pharm_inventories.id', $inventoryId)
+            ->join('pharm_store_user', 'pharm_store_user.store_id', '=', 'pharm_store_product.store_id')
+            ->where('pharm_store_product.id', $inventoryId)
             ->where('pharm_store_user.user_id', $user->id)
             ->onlyTrashed()
             ->firstOrFail();
