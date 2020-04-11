@@ -1,9 +1,9 @@
 <?php
 
 use App\Models\Facility;
-use App\Models\Pharmacy\Batch;
-use App\Models\Pharmacy\Inventory;
 use App\Models\Pharmacy\Product;
+use App\Models\Pharmacy\Purchase;
+use App\Models\Pharmacy\Sale;
 use App\Models\Pharmacy\Store;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -21,29 +21,63 @@ class PharmacyModuleSeeder extends Seeder
 
         $user = User::first();
 
+        // store
+
         $store = factory(Store::class)->create([
             'facility_id' => $facility->id,
         ]);
 
+        // store-user
+
         $store->users()->attach($user);
         $store->save();
+
+        // Stock-product
 
         $product = factory(Product::class)->create([
             'facility_id' => $facility->id,
         ]);
 
-        // factory(Batch::class)->create([
-        //     'store_id' => $store->id,
-        //     'product_id' => $product->id,
-        //     'quantity' => 10,
-        //     'unit_price' => 100.00,
-        // ]);
+        $store->products()->attach([
+            $product->id => [
+                'quantity' => 40,
+                'unit_price' => 1200,
+            ],
+        ]);
 
-        // factory(Inventory::class)->create([
-        //     'store_id' => $store->id,
-        //     'product_id' => $product->id,
-        //     'quantity' => 10,
-        //     'unit_price' => 120.00,
-        // ]);
+        // purchase
+
+        $purchase = factory(Purchase::class)->create([
+            'store_id' => $store->id,
+            'user_id' => $user->id,
+            'total' => 50000,
+        ]);
+
+        // purchase-product
+
+        $purchase->products()->attach([
+            $product->id => [
+                'quantity' => 50,
+                'unit_price' => 1000,
+            ],
+        ]);
+
+        // sale
+
+        $sale = factory(Sale::class)->create([
+            'store_id' => $store->id,
+            'user_id' => $user->id,
+            'tax_rate' => 0,
+            'total' => 12000,
+        ]);
+
+        // sale-product
+
+        $sale->products()->attach([
+            $product->id => [
+                'quantity' => 10,
+                'price' => 1200,
+            ],
+        ]);
     }
 }
