@@ -148,8 +148,6 @@ Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'phar
     });
 
     Route::pattern('store', '^[0-9a-f]{11}$');
-    Route::pattern('sale', '^[0-9a-f]{11}$');
-    Route::pattern('purchase', '^[0-9a-f]{11}$');
 
     Route::group(['prefix' => 'stores'], function () {
         Route::get('/', 'StoreController@index');
@@ -159,17 +157,24 @@ Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'phar
         Route::delete('/{store}', 'StoreController@destroy');
         Route::put('/{store}/restore', 'StoreController@restore');
         Route::put('/{store}/revoke', 'StoreController@revoke');
-        Route::get('/{store}/users', 'StoreController@users');
 
         Route::get('/{store}/products', 'StoreProductController@index');
         Route::get('/{store}/products/datatables', 'StoreProductController@datatables');
+    });
 
-        Route::get('/{store}/sales', 'SaleController@index');
-        Route::post('/{store}/sales', 'SaleController@store');
-        Route::get('/{store}/sales/{sale}', 'SaleController@show');
+    Route::pattern('sale', '^[0-9a-f]{11}$');
 
-        Route::get('/{store}/purchases', 'PurchaseController@index');
-        Route::post('/{store}/purchases', 'PurchaseController@store');
-        Route::get('/{store}/purchases/{purchase}', 'PurchaseController@show');
+    Route::group(['prefix' => 'sales'], function () {
+        Route::get('/', 'SaleController@index');
+        Route::post('/', 'SaleController@store');
+        Route::get('/{sale}', 'SaleController@show');
+    });
+
+    Route::pattern('purchase', '^[0-9a-f]{11}$');
+
+    Route::group(['prefix' => 'purchases'], function () {
+        Route::get('/', 'PurchaseController@index');
+        Route::post('/', 'PurchaseController@store');
+        Route::get('/{purchase}', 'PurchaseController@show');
     });
 });

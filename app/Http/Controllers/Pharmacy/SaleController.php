@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Pharmacy\Sale;
 use App\Models\Pharmacy\Store;
 use App\Models\Pharmacy\StoreProduct;
-use App\Models\Pharmacy\StoreUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class SaleController extends Controller
@@ -26,21 +26,29 @@ class SaleController extends Controller
     /**
      * Sales belonging to a store.
      *
-     * @param string $storeId
+     * @param \Illuminate\Htpp\Request $request
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Validation\ValidationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($storeId)
+    public function index(Request $request)
     {
         $this->authorize('viewAny', [Sale::class]);
 
         $user = Auth::guard('api')->user();
 
-        $store = Store::onlyRelated($user)->findOrFail($storeId);
+        $this->validate($request, [
+            'store_id' => [
+                'required',
+                Rule::exists('pharm_stores', 'id')->where(function ($query) use ($user) {
+                    $query->where('facility_id', $user->facility_id);
+                }),
+            ],
+        ]);
 
-        $query = Sale::where('store_id', $store->id);
+        $query = Sale::where('store_id', $request->store_id);
 
         return response($query->paginate(), 206);
     }
@@ -48,22 +56,26 @@ class SaleController extends Controller
     /**
      * Sale with store and products details.
      *
-     * @param string $storeId
      * @param string $saleId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
-    public function show($storeId, $saleId)
+    public function show($saleId)
     {
         $this->authorize('view', [Sale::class]);
 
         $user = Auth::guard('api')->user();
 
-        $store = Store::onlyRelated($user)->findOrFail($storeId);
-
-        $sale = Sale::with(['store', 'user', 'products'])->where('store_id', $storeId)->findOrFail($saleId);
+        $sale = Sale::with([
+            'store' => function ($query) use ($user) {
+                $query->where('facility_id', $user->facility_id);
+            },
+            'user',
+            'products',
+        ])->findOrFail($saleId);
 
         return response($sale);
     }
@@ -72,22 +84,25 @@ class SaleController extends Controller
      * Create a sale.
      *
      * @param \Illuminate\Http\Request $request
-     * @param string                   $storeId
      *
      * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, $storeId)
+    public function store(Request $request)
     {
         $this->authorize('create', [Sale::class]);
 
         $user = Auth::guard('api')->user();
 
-        StoreUser::where('store_id', $storeId)->where('user_id', $user->id)->firstOrFail();
-
         $this->validate($request, [
+            'store_id' => [
+                'required',
+                Rule::exists('pharm_store_user', 'store_id')->where(function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                }),
+            ],
             'products' => 'required|array',
             'products.*.id' => 'required|string|size:11',
             'products.*.quantity' => 'required|integer|min:1',
@@ -96,7 +111,7 @@ class SaleController extends Controller
         $requested_product_ids = array_column($request->products, 'id');
 
         $validStoreProducts = StoreProduct::query()
-            ->where('store_id', $storeId)
+            ->where('store_id', $request->store_id)
             ->whereIn('product_id', $requested_product_ids)
             ->get();
 
@@ -147,7 +162,7 @@ class SaleController extends Controller
             }
 
             $sale = new Sale();
-            $sale->store_id = $storeId;
+            $sale->store_id = $request->store_id;
             $sale->user_id = $user->id;
             $sale->tax_rate = 0.0;
             $sale->total = $total;

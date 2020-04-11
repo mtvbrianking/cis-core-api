@@ -24,7 +24,7 @@ class PurchaseControllerTest extends TestCase
             'facility_id' => $user->facility_id,
         ]);
 
-        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/pharmacy/stores/{$store->id}/purchases");
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/pharmacy/purchases?store_id={$store->id}");
 
         $response->assertStatus(403);
     }
@@ -35,9 +35,16 @@ class PurchaseControllerTest extends TestCase
 
         $store = factory(Store::class)->create();
 
-        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/pharmacy/stores/{$store->id}/purchases");
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/pharmacy/purchases?store_id={$store->id}");
 
-        $response->assertStatus(404);
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'store_id',
+            ],
+        ]);
     }
 
     public function test_can_get_purchases()
@@ -53,7 +60,7 @@ class PurchaseControllerTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/pharmacy/stores/{$store->id}/purchases");
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/pharmacy/purchases?store_id={$store->id}");
 
         $response->assertStatus(206);
 
@@ -110,7 +117,7 @@ class PurchaseControllerTest extends TestCase
             ],
         ]);
 
-        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/pharmacy/stores/{$store->id}/purchases/{$purchase->id}");
+        $response = $this->actingAs($user, 'api')->json('GET', "api/v1/pharmacy/purchases/{$purchase->id}");
 
         $response->assertStatus(200);
 
@@ -155,7 +162,7 @@ class PurchaseControllerTest extends TestCase
 
         $random_inventory_id = base_convert(microtime(true), 10, 16);
 
-        $response = $this->actingAs($user, 'api')->json('POST', "api/v1/pharmacy/stores/{$store->id}/purchases", [
+        $response = $this->actingAs($user, 'api')->json('POST', "api/v1/pharmacy/purchases?store_id={$store->id}", [
             'products' => [
                 [
                     'id' => $random_inventory_id,
@@ -206,7 +213,7 @@ class PurchaseControllerTest extends TestCase
 
         // ...
 
-        $response = $this->actingAs($user, 'api')->json('POST', "api/v1/pharmacy/stores/{$store->id}/purchases", [
+        $response = $this->actingAs($user, 'api')->json('POST', "api/v1/pharmacy/purchases?store_id={$store->id}", [
             'products' => [
                 [
                     'id' => $productA->id,

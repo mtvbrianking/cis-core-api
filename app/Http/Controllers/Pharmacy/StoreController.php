@@ -81,6 +81,7 @@ class StoreController extends Controller
      * @param string $storeId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -103,6 +104,7 @@ class StoreController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -132,6 +134,7 @@ class StoreController extends Controller
      * @param string $storeId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -154,6 +157,7 @@ class StoreController extends Controller
      * @param string $storeId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -176,6 +180,7 @@ class StoreController extends Controller
      * @param string $storeId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -186,25 +191,5 @@ class StoreController extends Controller
         Store::onlyTrashed()->findOrFail($storeId)->forceDelete();
 
         return response(null, 204);
-    }
-
-    /**
-     * Stores attached to this user.
-     *
-     * @param string $storeId
-     *
-     * @throws \Illuminate\Auth\Access\AuthorizationException
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function users($storeId)
-    {
-        $this->authorize('viewAny', [User::class]);
-
-        $user = Auth::guard('api')->user();
-
-        $store = Store::onlyRelated($user)->with('users')->findOrFail($storeId);
-
-        return response($store);
     }
 }

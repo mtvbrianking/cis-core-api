@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Pharmacy\Product;
 use App\Models\Pharmacy\Purchase;
 use App\Models\Pharmacy\Store;
-use App\Models\Pharmacy\StoreUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class PurchaseController extends Controller
@@ -27,22 +27,28 @@ class PurchaseController extends Controller
      * Purchases.
      *
      * @param \Illuminate\Http\Request $request
-     * @param string                   $storeId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      * @throws \Illuminate\Validation\ValidationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request, $storeId)
+    public function index(Request $request)
     {
         $this->authorize('viewAny', [Purchase::class]);
 
         $user = Auth::guard('api')->user();
 
-        $store = Store::onlyRelated($user)->findOrFail($storeId);
+        $this->validate($request, [
+            'store_id' => [
+                'required',
+                Rule::exists('pharm_stores', 'id')->where(function ($query) use ($user) {
+                    $query->where('facility_id', $user->facility_id);
+                }),
+            ],
+        ]);
 
-        $query = Purchase::where('store_id', $store->id);
+        $query = Purchase::where('store_id', $request->store_id);
 
         return response($query->paginate(), 206);
     }
@@ -50,22 +56,26 @@ class PurchaseController extends Controller
     /**
      * Purchase with store and products details.
      *
-     * @param string $storeId
      * @param string $purchaseId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
-    public function show($storeId, $purchaseId)
+    public function show($purchaseId)
     {
         $this->authorize('view', [Purchase::class]);
 
         $user = Auth::guard('api')->user();
 
-        $store = Store::onlyRelated($user)->findOrFail($storeId);
-
-        $purchase = Purchase::with(['store', 'user', 'products'])->where('store_id', $store->id)->findOrFail($purchaseId);
+        $purchase = Purchase::with([
+            'store' => function ($query) use ($user) {
+                $query->where('facility_id', $user->facility_id);
+            },
+            'user',
+            'products',
+        ])->findOrFail($purchaseId);
 
         return response($purchase);
     }
@@ -74,23 +84,25 @@ class PurchaseController extends Controller
      * Create a purchase.
      *
      * @param \Illuminate\Http\Request $request
-     * @param string                   $purchaseId
-     * @param mixed                    $storeId
      *
      * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request, $storeId)
+    public function store(Request $request)
     {
         $this->authorize('create', [Purchase::class]);
 
         $user = Auth::guard('api')->user();
 
-        StoreUser::where('store_id', $storeId)->where('user_id', $user->id)->firstOrFail();
-
         $this->validate($request, [
+            'store_id' => [
+                'required',
+                Rule::exists('pharm_store_user', 'store_id')->where(function ($query) use ($user) {
+                    $query->where('user_id', $user->id);
+                }),
+            ],
             'products' => 'required|array',
             'products.*.id' => 'required|string|size:11',
             'products.*.quantity' => 'required|integer|min:1',
@@ -134,13 +146,13 @@ class PurchaseController extends Controller
 
             foreach ($request->products as $product) {
                 $storeProduct = DB::table('pharm_store_product')
-                    ->where('store_id', $storeId)
+                    ->where('store_id', $request->store_id)
                     ->where('product_id', $product['id'])
                     ->first();
 
                 if ($storeProduct) {
                     DB::table('pharm_store_product')
-                        ->where('store_id', $storeId)
+                        ->where('store_id', $request->store_id)
                         ->where('product_id', $product['id'])
                         ->update([
                             'quantity' => $storeProduct->quantity + $product['quantity'],
@@ -149,7 +161,7 @@ class PurchaseController extends Controller
                 } else {
                     DB::table('pharm_store_product')
                         ->insert([
-                            'store_id' => $storeId,
+                            'store_id' => $request->store_id,
                             'product_id' => $product['id'],
                             'quantity' => $product['quantity'],
                             'unit_price' => $product['unit_retail_price'],
@@ -165,7 +177,7 @@ class PurchaseController extends Controller
             }
 
             $purchase = new Purchase();
-            $purchase->store_id = $storeId;
+            $purchase->store_id = $request->store_id;
             $purchase->user_id = $user->id;
             $purchase->total = $total;
             $purchase->save();

@@ -34,7 +34,7 @@ class SalePolicy
     }
 
     /**
-     * Determine whether the user can debit the inventory.
+     * Determine whether the user can debit store products.
      *
      * @param \App\Models\User $user
      *
