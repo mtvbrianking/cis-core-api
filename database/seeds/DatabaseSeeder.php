@@ -18,11 +18,6 @@ class DatabaseSeeder extends Seeder
         $this->call(UsersTableSeeder::class);
         $this->call(OauthClientsTableSeeder::class);
 
-        $this->call(ProductTableSeeder::class);
-        $this->call(StoresTableSeeder::class);
-        $this->call(BatchesTableSeeder::class);
-        $this->call(InventoryTableSeeder::class);
-
         $this->call(PharmacyModuleSeeder::class);
     }
 }

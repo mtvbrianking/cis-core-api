@@ -174,6 +174,7 @@ class UserController extends Controller
      * @param string $userId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -245,6 +246,7 @@ class UserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -296,6 +298,7 @@ class UserController extends Controller
      * @param string $userId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -320,6 +323,7 @@ class UserController extends Controller
      * @param string $userId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -344,6 +348,7 @@ class UserController extends Controller
      * @param string $userId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -505,6 +510,7 @@ class UserController extends Controller
      * @param string $userId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */

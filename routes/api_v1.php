@@ -2,7 +2,7 @@
 
 $int = '^\d+$';
 $slug = '^[a-z\d]+(?:-[a-z\d]+)*$';
-$uuid = '^[a-fA-F\d]{8}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{4}-[a-fA-F\d]{12}$';
+$uuid = '^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$';
 
 /*
 |--------------------------------------------------------------------------
@@ -135,22 +135,7 @@ Route::group(['prefix' => 'users'], function () {
 });
 
 Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'pharmacy'], function () {
-    Route::pattern('store', '^[0-9a-fA-F]{11}$');
-
-    Route::group(['prefix' => 'stores'], function () {
-        Route::get('/', 'StoreController@index');
-        Route::post('/', 'StoreController@store');
-        Route::get('/{store}', 'StoreController@show');
-        Route::put('/{store}', 'StoreController@update');
-        Route::delete('/{store}', 'StoreController@destroy');
-        Route::put('/{store}/restore', 'StoreController@restore');
-        Route::put('/{store}/revoke', 'StoreController@revoke');
-        Route::get('/{store}/users', 'StoreController@users');
-    });
-});
-
-Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'pharmacy'], function () {
-    Route::pattern('product', '^[0-9a-fA-F]{11}$');
+    Route::pattern('product', '^[0-9a-f]{11}$');
 
     Route::group(['prefix' => 'products'], function () {
         Route::get('/', 'ProductController@index');
@@ -161,29 +146,35 @@ Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'phar
         Route::put('/{product}/restore', 'ProductController@restore');
         Route::put('/{product}/revoke', 'ProductController@revoke');
     });
-});
 
-Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'pharmacy'], function () {
-    Route::pattern('batch', '^[0-9a-fA-F]{11}$');
+    Route::pattern('store', '^[0-9a-f]{11}$');
 
-    Route::group(['prefix' => 'batches'], function () {
-        Route::get('/', 'BatchController@index');
-        Route::post('/', 'BatchController@store');
-        Route::get('/{batch}', 'BatchController@show');
-        Route::delete('/{batch}', 'BatchController@destroy');
+    Route::group(['prefix' => 'stores'], function () {
+        Route::get('/', 'StoreController@index');
+        Route::post('/', 'StoreController@store');
+        Route::get('/{store}', 'StoreController@show');
+        Route::put('/{store}', 'StoreController@update');
+        Route::delete('/{store}', 'StoreController@destroy');
+        Route::put('/{store}/restore', 'StoreController@restore');
+        Route::put('/{store}/revoke', 'StoreController@revoke');
+
+        Route::get('/{store}/products', 'StoreProductController@index');
+        Route::get('/{store}/products/datatables', 'StoreProductController@datatables');
     });
-});
 
-Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'pharmacy'], function () {
-    Route::pattern('item', '^[0-9a-fA-F]{11}$');
+    Route::pattern('sale', '^[0-9a-f]{11}$');
 
-    Route::group(['prefix' => 'inventories'], function () {
-        Route::get('/', 'InventoryController@index');
-        Route::get('/datatables', 'InventoryController@datatables');
-        // Route::put('/credit', 'InventoryController@credit'); -> Stocking
-        Route::put('/debit', 'InventoryController@debit');
-        Route::delete('/{item}', 'InventoryController@destroy');
-        Route::put('/{item}/restore', 'InventoryController@restore');
-        Route::put('/{item}/revoke', 'InventoryController@revoke');
+    Route::group(['prefix' => 'sales'], function () {
+        Route::get('/', 'SaleController@index');
+        Route::post('/', 'SaleController@store');
+        Route::get('/{sale}', 'SaleController@show');
+    });
+
+    Route::pattern('purchase', '^[0-9a-f]{11}$');
+
+    Route::group(['prefix' => 'purchases'], function () {
+        Route::get('/', 'PurchaseController@index');
+        Route::post('/', 'PurchaseController@store');
+        Route::get('/{purchase}', 'PurchaseController@show');
     });
 });

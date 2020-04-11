@@ -170,6 +170,7 @@ class FacilityController extends Controller
      * @param string $facilityId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -190,6 +191,7 @@ class FacilityController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -226,7 +228,7 @@ class FacilityController extends Controller
      * @param string $facilityId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Exception
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -249,6 +251,7 @@ class FacilityController extends Controller
      * @param string $facilityId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -271,6 +274,7 @@ class FacilityController extends Controller
      * @param string $facilityId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -305,6 +309,7 @@ class FacilityController extends Controller
      * @param string $facilityId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -323,6 +328,7 @@ class FacilityController extends Controller
      * @param string $facilityId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -341,6 +347,7 @@ class FacilityController extends Controller
      * @param string $facilityId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -359,6 +366,7 @@ class FacilityController extends Controller
      * @param string $facilityId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -412,6 +420,7 @@ class FacilityController extends Controller
      * @param string $facilityId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -434,6 +443,7 @@ class FacilityController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */

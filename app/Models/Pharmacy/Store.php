@@ -84,27 +84,41 @@ class Store extends Model
      */
     public function users()
     {
-        return $this->belongsToMany(User::class, 'pharm_store_user', 'store_id', 'user_id');
+        return $this->belongsToMany(User::class, 'pharm_store_user', 'store_id', 'user_id', 'id');
     }
 
     /**
-     * Batches belonging to this store.
+     * Products belonging to this store.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function batches()
+    public function products()
     {
-        return $this->hasMany(Batch::class, 'store_id', 'id');
+        return $this->belongsToMany(Product::class, 'pharm_store_product', 'store_id', 'product_id', 'id')
+            ->withPivot([
+                'quantity',
+                'unit_price',
+            ]);
     }
 
     /**
-     * Inventories belonging to this store.
+     * Sales for to this store.
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function inventories()
+    public function sales()
     {
-        return $this->hasMany(Inventory::class, 'store_id', 'id');
+        return $this->hasMany(Sale::class, 'store_id', 'id');
+    }
+
+    /**
+     * Purchases for to this store.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function purchases()
+    {
+        return $this->hasMany(Purchase::class, 'purchase_id', 'id');
     }
 
     // Scopes

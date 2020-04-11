@@ -31,8 +31,11 @@ tags:
   - name: user
   - name: pharmacy_store
   - name: pharmacy_product
-  - name: pharmacy_batch
-  - name: pharmacy_inventory
+  - name: pharmacy_store_product
+  - name: pharmacy_purchase
+  # - name: pharmacy_purchase_product
+  - name: pharmacy_sale
+  # - name: pharmacy_sale_product
 
   - name: token_model
     x-displayName: Token
@@ -66,14 +69,26 @@ tags:
     x-displayName: Pharmacy Product
     description: |
       <SchemaDefinition schemaRef="#/components/schemas/PharmacyProductModel"/>
-  - name: pharmacy_batch_model
-    x-displayName: Pharmacy Batch
+  - name: pharmacy_store_product_model
+    x-displayName: Pharmacy Store Product
     description: |
-      <SchemaDefinition schemaRef="#/components/schemas/PharmacyBatchModel"/>
-  - name: pharmacy_inventory_model
-    x-displayName: Pharmacy Inventory
+      <SchemaDefinition schemaRef="#/components/schemas/PharmacyStoreProductModel"/>
+  - name: pharmacy_purchase_model
+    x-displayName: Pharmacy Purchase
     description: |
-      <SchemaDefinition schemaRef="#/components/schemas/PharmacyInventoryModel"/>
+      <SchemaDefinition schemaRef="#/components/schemas/PharmacyPurchaseModel"/>
+  - name: pharmacy_purchase_product_model
+    x-displayName: Pharmacy Purchase Product
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/PharmacyPurchaseProductModel"/>
+  - name: pharmacy_sale_model
+    x-displayName: Pharmacy Sale
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/PharmacySaleModel"/>
+  - name: pharmacy_sale_product_model
+    x-displayName: Pharmacy Sale Product
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/PharmacySaleProductModel"/>
 
   - name: 206_datatables_response
     x-displayName: 206 Datatables Response
@@ -128,8 +143,11 @@ x-tagGroups:
     tags:
       - pharmacy_store
       - pharmacy_product
-      - pharmacy_batch
-      - pharmacy_inventory
+      - pharmacy_store_product
+      - pharmacy_purchase
+      - pharmacy_purchase_product
+      - pharmacy_sale
+      - pharmacy_sale_product
   - name: Models
     tags:
       - token_model
@@ -140,8 +158,11 @@ x-tagGroups:
       - user_model
       - pharmacy_store_model
       - pharmacy_product_model
-      - pharmacy_batch_model
-      - pharmacy_inventory_model
+      - pharmacy_store_product_model
+      - pharmacy_purchase_model
+      - pharmacy_purchase_product_model
+      - pharmacy_sale_model
+      - pharmacy_sale_product_model
   - name: Responses
     tags:
       - 206_datatables_response
@@ -2718,6 +2739,7 @@ paths:
                   "e68b75bdf25"
                 ]
               }'
+
   /pharmacy/stores:
     get:
       tags:
@@ -2991,6 +3013,87 @@ paths:
           source: |-
             curl -X PUT \
               'http://sandbox-api.example.com/v1/pharmacy/stores/{store}/restore' \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}'
+  /pharmacy/stores/{store}/products:
+    get:
+      tags:
+        - pharmacy_store_product
+      summary: Get products at this store
+      description: Requires `view-products` permission on `pharm-stores` module.
+      operationId: getPharmacyStoreProducts
+      parameters:
+        - name: store
+          in: path
+          description: <a href="#operation/getPharmacyStores">Store ID</a>
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-fA-F]{11}$'
+            example: e68b75bdf25
+      responses:
+        206:
+          description: Partial Content
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/206PaginationResponse'
+                  - properties:
+                      data:
+                        type: array
+                        description: Pharmacy Store Products
+                        items:
+                          $ref: '#/components/schemas/PharmacyStoreProductModel'
+                      first_page_url:
+                        example: http://sandbox-api.example.com/v1/pharmacy/stores/e68b75bdf25/products?page=1
+                      path:
+                        example: http://sandbox-api.example.com/v1/pharmacy/stores/e68b75bdf25/products
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+              http://sandbox-api.example.com/v1/pharmacy/stores/e68b75bdf25/products \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}'
+  /pharmacy/stores/{store}/products/datatables:
+    get:
+      tags:
+        - pharmacy_store_product
+      summary: Get products at this store (datatables)
+      description: |-
+        Requires `view-products` permission on `pharm-stores` module.
+
+        Get store products formatted for jQuery datatables.
+      operationId: getPharmacyStoreProductsDatatables
+      parameters:
+        - name: store
+          in: path
+          description: <a href="#operation/getPharmacyStores">Store ID</a>
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-fA-F]{11}$'
+            example: e68b75bdf25
+      responses:
+        206:
+          description: Partial Content
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/206DatatablesResponse'
+                  - properties:
+                      data:
+                        type: array
+                        description: Pharmacy Store Products
+                        items:
+                          $ref: '#/components/schemas/PharmacyStoreProductModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+              http://sandbox-api.example.com/v1/pharmacy/stores/e68b75bdf25/products/datatables \
               -H 'Accept: application/json' \
               -H 'Authorization: Bearer {access-token}'
 
@@ -3280,13 +3383,13 @@ paths:
               -H 'Accept: application/json' \
               -H 'Authorization: Bearer {access-token}'
 
-  /pharmacy/batches:
+  /pharmacy/purchases:
     get:
       tags:
-        - pharmacy_batch
-      summary: Get pharmacy batches
-      description: Requires `view-any` permission on `pharm-batches` module.
-      operationId: getPharmacyBatches
+        - pharmacy_purchase
+      summary: Get pharmacy purchases
+      description: Requires `view-any` permission on `pharm-purchases` module.
+      operationId: getPharmacyPurchases
       parameters:
         - name: store
           in: query
@@ -3314,279 +3417,290 @@ paths:
                   - properties:
                       data:
                         type: array
-                        description: Pharmacy Batches
+                        description: Pharmacy Purchases
                         items:
-                          $ref: '#/components/schemas/PharmacyBatchModel'
+                          $ref: '#/components/schemas/PharmacyPurchaseModel'
                       first_page_url:
-                        example: http://sandbox-api.example.com/v1/pharmacy/batches?page=1
+                        example: http://sandbox-api.example.com/v1/pharmacy/purchases?page=1
                       path:
-                        example: http://sandbox-api.example.com/v1/pharmacy/batches
+                        example: http://sandbox-api.example.com/v1/pharmacy/purchases
       x-code-samples:
         - lang: CURL
           source: |-
             curl -X GET -G \
-              http://sandbox-api.example.com/v1/pharmacy/batches \
+              http://sandbox-api.example.com/v1/pharmacy/purchases \
               -H 'Accept: application/json' \
               -H 'Authorization: Bearer {access-token}' \
               -d 'store_id: e68b75bdf25'
     post:
       tags:
-        - pharmacy_batch
-      summary: Register pharmacy batch
-      description: Requires `create` permission on `pharm-batches` module.
-      operationId: registerPharmacyBatch
+        - pharmacy_purchase
+      summary: Register pharmacy purchase
+      description: Requires `create` permission on `pharm-purchases` module.
+      operationId: registerPharmacyPurchase
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PharmacyBatchModel'
-      responses:
-        201:
-          description: Created
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/PharmacyBatchModel'
-                  - properties:
-                      store:
-                        $ref: '#/components/schemas/PharmacyStoreModel'
-                      product:
-                        $ref: '#/components/schemas/PharmacyProductModel'
-      x-code-samples:
-        - lang: CURL
-          source: |-
-            curl -X POST \
-              http://sandbox-api.example.com/v1/pharmacy/batches \
-              -H 'Accept: application/json' \
-              -H 'Authorization: Bearer {access-token}' \
-              -H 'Content-Type: application/json' \
-              -d '{
-                "store_id": "e6b272e1448",
-                "product_id": "1711d84a7a5",
-                "quantity": 10,
-                "unit_price": 2500.00
-              }'
-  /pharmacy/batches/{batch}:
-    get:
-      tags:
-        - pharmacy_batch
-      summary: Get pharmacy batch
-      description: |-
-        Requires `view` permission on `pharm-batches` module.
-      operationId: getPharmacyBatch
-      parameters:
-        - name: batch
-          in: path
-          description: <a href="#operation/getPharmacyBatches">Batch ID</a>
-          required: true
-          schema:
-            type: string
-            pattern: '^[0-9a-fA-F]{11}$'
-            example: e68b75bdf25
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/PharmacyBatchModel'
-                  - properties:
-                      store:
-                        $ref: '#/components/schemas/PharmacyStoreModel'
-                      product:
-                        $ref: '#/components/schemas/PharmacyProductModel'
-      x-code-samples:
-      - lang: CURL
-        source: |-
-          curl -X GET \
-            http://sandbox-api.example.com/v1/pharmacy/batches/{batch} \
-            -H 'Accept: application/json' \
-            -H 'Authorization: Bearer {access-token}'
-    delete:
-      tags:
-        - pharmacy_batch
-      summary: Delete pharmacy batch
-      description: |-
-        <strong>Permanently</strong> remove a batch from the database.
-
-        Requires `delete` permission on `pharm-batches` module.
-
-        A user may only delete a batch at any of their stores.
-      operationId: deletePharmacyBatch
-      parameters:
-        - name: batch
-          in: path
-          description: <a href="#operation/getPharmacyBatches">Batch ID</a>
-          required: true
-          schema:
-            type: string
-            pattern: '^[0-9a-fA-F]{11}$'
-            example: e68b75bdf25
-      responses:
-        204:
-          description: No Content
-          content: {}
-      x-code-samples:
-      - lang: CURL
-        source: |-
-          curl -X DELETE \
-            http://sandbox-api.example.com/v1/pharmacy/batches/{batch} \
-            -H 'Accept: application/json' \
-            -H 'Authorization: Bearer {access-token}'
-
-  /pharmacy/inventories:
-    get:
-      tags:
-        - pharmacy_inventory
-      summary: Get pharmacy inventories
-      description: Requires `view-any` permission on `pharm-inventories` module.
-      operationId: getPharmacyInventories
-      parameters:
-        - name: store
-          in: query
-          description: <a href="#operation/getPharmacyStores">Store ID</a>
-          required: true
-          schema:
-            type: string
-            pattern: '^[0-9a-fA-F]{11}$'
-            example: e68b75bdf25
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 100
-            default: 10
-      responses:
-        206:
-          description: Partial Content
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/206PaginationResponse'
-                  - properties:
-                      data:
-                        type: array
-                        description: Pharmacy Inventories
-                        items:
-                          $ref: '#/components/schemas/PharmacyInventoryModel'
-                      first_page_url:
-                        example: http://sandbox-api.example.com/v1/pharmacy/inventories?page=1
-                      path:
-                        example: http://sandbox-api.example.com/v1/pharmacy/inventories
-      x-code-samples:
-      - lang: CURL
-        source: |-
-          curl -X GET -G \
-            http://sandbox-api.example.com/v1/pharmacy/inventories \
-            -H 'Accept: application/json' \
-            -H 'Authorization: Bearer {access-token}' \
-            -d 'store_id: e68b75bdf25'
-  /pharmacy/inventories/debit:
-    put:
-      tags:
-        - pharmacy_inventory
-      summary: Debit pharmacy inventories
-      description: Requires `debit` permission on `pharm-inventories` module.
-      operationId: debitPharmacyInventories
-      requestBody:
-        content:
-          application/json:
-            schema:
-              required:
-                - inventories
               properties:
-                inventories:
+                store_id:
+                  type: string
+                  description: <a href="#tag/pharmacy_store_model">Store</a>
+                  example: 'e6b272e1448'
+                products:
                   type: array
                   items:
                     type: object
                     required:
                       - id
                       - quantity
+                      - cost_price
+                      - unit_retail_price
                     properties:
                       id:
                         type: string
-                        description: <a href="#operation/getPharmacyInventories">Inventory ID</a>
+                        description: <a href="#operation/getPharmacyProducts">Product</a>
                         example: e68b75bdf25
                       quantity:
                         type: integer
                         minimum: 1
-                        example: 1
+                        example: 5
+                      cost_price:
+                        type: integer
+                        format: float
+                        example: '100.00'
+                      unit_retail_price:
+                        type: integer
+                        format: float
+                        example: '25.00'
+      responses:
+        201:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PharmacyPurchaseModel'
+                  - properties:
+                      user:
+                        $ref: '#/components/schemas/UserModel'
+                      store:
+                        $ref: '#/components/schemas/PharmacyStoreModel'
+                      products:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/PharmacyProductModel'
+                            - properties:
+                                pivot:
+                                  $ref: '#/components/schemas/PharmacyPurchaseProductModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+              http://sandbox-api.example.com/v1/pharmacy/purchases \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}' \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "store_id": "e6b272e1448",
+                "products": [
+                  {
+                    "id": "1711d84a7a5",
+                    "quantity": 10,
+                    "cost_price": 100.00,
+                    "unit_retail_price": 25.00
+                  }
+                ]
+              }'
+  /pharmacy/purchases/{purchase}:
+    get:
+      tags:
+        - pharmacy_purchase
+      summary: Get pharmacy purchase
+      description: |-
+        Requires `view` permission on `pharm-purchases` module.
+      operationId: getPharmacyPurchase
+      parameters:
+        - name: purchase
+          in: path
+          description: <a href="#operation/getPharmacyPurchases">Purchase ID</a>
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-fA-F]{11}$'
+            example: e68b75bdf25
       responses:
         200:
           description: OK
           content:
             application/json:
               schema:
-                properties:
-                  message:
-                    type: string
-                    example: Debited inventory items.
+                allOf:
+                  - $ref: '#/components/schemas/PharmacyPurchaseModel'
+                  - properties:
+                      user:
+                        $ref: '#/components/schemas/UserModel'
+                      store:
+                        $ref: '#/components/schemas/PharmacyStoreModel'
+                      products:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/PharmacyProductModel'
+                            - properties:
+                                pivot:
+                                  $ref: '#/components/schemas/PharmacyPurchaseProductModel'
       x-code-samples:
       - lang: CURL
         source: |-
-          curl -X PUT \
-            http://sandbox-api.example.com/v1/pharmacy/inventories/debit \
+          curl -X GET \
+            http://sandbox-api.example.com/v1/pharmacy/purchases/{purchase} \
+            -H 'Accept: application/json' \
+            -H 'Authorization: Bearer {access-token}'
+
+  /pharmacy/sales:
+    get:
+      tags:
+        - pharmacy_sale
+      summary: Get pharmacy sales
+      description: Requires `view-any` permission on `pharm-sales` module.
+      operationId: getPharmacySales
+      parameters:
+        - name: store
+          in: query
+          description: <a href="#operation/getPharmacyStores">Store ID</a>
+          required: true
+          schema:
+            type: string
+            pattern: '^[0-9a-fA-F]{11}$'
+            example: e68b75bdf25
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 10
+      responses:
+        206:
+          description: Partial Content
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/206PaginationResponse'
+                  - properties:
+                      data:
+                        type: array
+                        description: Pharmacy Sales
+                        items:
+                          $ref: '#/components/schemas/PharmacySaleModel'
+                      first_page_url:
+                        example: http://sandbox-api.example.com/v1/pharmacy/sales?page=1
+                      path:
+                        example: http://sandbox-api.example.com/v1/pharmacy/sales
+      x-code-samples:
+      - lang: CURL
+        source: |-
+          curl -X GET -G \
+            http://sandbox-api.example.com/v1/pharmacy/sales \
             -H 'Accept: application/json' \
             -H 'Authorization: Bearer {access-token}' \
-            -H 'Content-Type: application/json' \
-            -d '{
-            "inventories": [
-              {
-                "id": "e6d16606ef2",
-                "quantity": 1
-              }
-            ]
-          }'
-  /pharmacy/inventories/{inventory}:
-    delete:
+            -d 'store_id: e68b75bdf25'
+    post:
       tags:
-        - pharmacy_inventory
-      summary: Delete pharmacy inventory
-      description: |-
-        <strong>Permanently</strong> remove inventory from database.
-
-        Requires `force-delete` permission on `pharm-inventories` module.
-
-        The inventory must be <a href='#operation/revokePharmacyInventory'>revoked</a> before it be deleted.
-      operationId: deletePharmacyInventory
-      parameters:
-        - name: inventory
-          in: path
-          description: <a href="#operation/getPharmacyInventories">Inventory ID</a>
-          required: true
-          schema:
-            type: string
-            pattern: '^[0-9a-fA-F]{11}$'
-            example: e68b75bdf25
+        - pharmacy_sale
+      summary: Register pharmacy sale
+      description: Requires `create` permission on `pharm-sales` module.
+      operationId: registerPharmacySale
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - store_id
+                - products
+              properties:
+                store_id:
+                  type: string
+                  description: <a href="#tag/pharmacy_store_model">Store</a>
+                  example: 'e6b272e1448'
+                patient_id:
+                  type: string
+                  format: uuid
+                  example: null
+                  nullable: true
+                products:
+                  type: array
+                  items:
+                    type: object
+                    required:
+                      - id
+                      - quantity
+                      - cost_price
+                      - unit_retail_price
+                    properties:
+                      id:
+                        type: string
+                        description: <a href="#operation/getPharmacyProducts">Product</a>
+                        example: e68b75bdf25
+                      quantity:
+                        type: integer
+                        minimum: 1
+                        example: 10
       responses:
-        204:
-          description: No Content
-          content: {}
+        201:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PharmacyPurchaseModel'
+                  - properties:
+                      user:
+                        $ref: '#/components/schemas/UserModel'
+                      store:
+                        $ref: '#/components/schemas/PharmacyStoreModel'
+                      products:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/PharmacyProductModel'
+                            - properties:
+                                pivot:
+                                  $ref: '#/components/schemas/PharmacySaleProductModel'
       x-code-samples:
-      - lang: CURL
-        source: |-
-          curl -X DELETE \
-            http://sandbox-api.example.com/v1/pharmacy/inventories/{inventory} \
-            -H 'Accept: application/json' \
-            -H 'Authorization: Bearer {access-token}'
-  /pharmacy/inventories/{inventory}/revoke:
-    put:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+              http://sandbox-api.example.com/v1/pharmacy/purchases \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}' \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "store_id": "e6b272e1448",
+                "products": [
+                  {
+                    "id": "1711d84a7a5",
+                    "quantity": 10,
+                    "cost_price": 100.00,
+                    "unit_retail_price": 25.00
+                  }
+                ]
+              }'
+  /pharmacy/sales/{sale}:
+    get:
       tags:
-        - pharmacy_inventory
-      summary: Revoke pharmacy inventory
+        - pharmacy_sale
+      summary: Get pharmacy sale
       description: |-
-        Requires `soft-delete` permission on `pharm-inventories` module.
-
-        Different from <a href='#operation/deletePharmacyInventory'>delete inventory</a>.
-      operationId: revokePharmacyInventory
+        Requires `view` permission on `pharm-sales` module.
+      operationId: getPharmacySale
       parameters:
-        - name: inventory
+        - name: purchase
           in: path
-          description: <a href="#operation/getPharmacyInventories">Inventory ID</a>
+          description: <a href="#operation/getPharmacyPurchases">Sale ID</a>
           required: true
           schema:
             type: string
@@ -3599,60 +3713,25 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/PharmacyInventoryModel'
+                  - $ref: '#/components/schemas/PharmacySaleModel'
                   - properties:
-                      deleted_at:
-                        example: '2018-10-05 22:48:06'
+                      user:
+                        $ref: '#/components/schemas/UserModel'
                       store:
                         $ref: '#/components/schemas/PharmacyStoreModel'
-                      product:
-                        $ref: '#/components/schemas/PharmacyProductModel'
+                      products:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/PharmacyProductModel'
+                            - properties:
+                                pivot:
+                                  $ref: '#/components/schemas/PharmacySaleProductModel'
       x-code-samples:
       - lang: CURL
         source: |-
-          curl -X PUT \
-            'http://sandbox-api.example.com/v1/pharmacy/inventories/{inventory}/revoke' \
-            -H 'Accept: application/json' \
-            -H 'Authorization: Bearer {access-token}'
-  /pharmacy/inventories/{inventory}/restore:
-    put:
-      tags:
-        - pharmacy_inventory
-      summary: Restore pharmacy inventory
-      description: |-
-        <strong>Reinstate</strong> previously <strike>revoked</strike> inventory.
-
-        Requires `restore` permission on `pharm-inventories` module.
-
-        See <a href='#operation/revokePharmacyInventory'>revoke inventory</a>.
-      operationId: restorePharmacyInventory
-      parameters:
-        - name: inventory
-          in: path
-          description: <a href="#operation/getPharmacyInventories">Inventory ID</a>
-          required: true
-          schema:
-            type: string
-            pattern: '^[0-9a-fA-F]{11}$'
-            example: e68b75bdf25
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/PharmacyInventoryModel'
-                  - properties:
-                      store:
-                        $ref: '#/components/schemas/PharmacyStoreModel'
-                      product:
-                        $ref: '#/components/schemas/PharmacyProductModel'
-      x-code-samples:
-      - lang: CURL
-        source: |-
-          curl -X PUT \
-            'http://sandbox-api.example.com/v1/pharmacy/inventories/{inventory}/restore' \
+          curl -X GET \
+            http://sandbox-api.example.com/v1/pharmacy/sales/{sale} \
             -H 'Accept: application/json' \
             -H 'Authorization: Bearer {access-token}'
 
@@ -4008,15 +4087,54 @@ components:
           format: date-time
           example: null
           nullable: true
-    PharmacyBatchModel:
-      title: Pharmacy Batch
+    PharmacyStoreProductModel:
+      title: Pharmacy Store Product
       type: object
       required:
-        - id
         - store_id
         - product_id
         - quantity
         - unit_price
+      properties:
+        store_id:
+          type: string
+          description: <a href="#tag/pharmacy_store_model">Store</a>
+          example: 'e6b272e1448'
+        product_id:
+          type: string
+          description: <a href="#tag/pharmacy_product_model">Product</a>
+          example: '1711d84a7a5'
+        quantity:
+          type: integer
+          example: 10
+        unit_price:
+          type: integer
+          format: float
+          example: '2500.00'
+        created_at:
+          readOnly: true
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          readOnly: true
+          type: string
+          format: date-time
+          nullable: true
+        # deleted_at:
+        #   readOnly: true
+        #   type: string
+        #   format: date-time
+        #   example: null
+        #   nullable: true
+    PharmacyPurchaseModel:
+      title: Pharmacy Purchase
+      type: object
+      required:
+        - id
+        - store_id
+        - user_id
+        - total
       properties:
         id:
           readOnly: true
@@ -4027,10 +4145,47 @@ components:
           type: string
           description: <a href="#tag/pharmacy_store_model">Store</a>
           example: 'e6b272e1448'
+        user_id:
+          type: string
+          description: <a href="#tag/user_model">User</a>
+          format: uuid
+          example: 0ac99f1b-482c-4af1-be28-ddace07eff20
+        total:
+          type: integer
+          format: float
+          example: '2500.00'
+        created_at:
+          readOnly: true
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          readOnly: true
+          type: string
+          format: date-time
+          nullable: true
+    PharmacyPurchaseProductModel:
+      title: Pharmacy Purchase Product
+      type: object
+      required:
+        - purchase_id
+        - product_id
+        - quantity
+        - unit_price
+      properties:
+        purchase_id:
+          type: string
+          description: <a href="#tag/pharmacy_purchase_model">Purchase</a>
+          example: 'e68b75bdf25'
         product_id:
           type: string
           description: <a href="#tag/pharmacy_product_model">Product</a>
           example: '1711d84a7a5'
+        supplier_id:
+          type: string
+          format: uuid
+          example: null
+          nullable: true
         quantity:
           type: integer
           example: 10
@@ -4050,25 +4205,15 @@ components:
           type: string
           format: date
           nullable: true
-        created_at:
-          readOnly: true
-          type: string
-          format: date-time
-          nullable: true
-        updated_at:
-          readOnly: true
-          type: string
-          format: date-time
-          nullable: true
-    PharmacyInventoryModel:
-      title: Pharmacy Inventory
+    PharmacySaleModel:
+      title: Pharmacy Sale
       type: object
       required:
         - id
         - store_id
-        - product_id
-        - quantity
-        - unit_price
+        - user_id
+        - tax_rate
+        - total
       properties:
         id:
           readOnly: true
@@ -4079,14 +4224,16 @@ components:
           type: string
           description: <a href="#tag/pharmacy_store_model">Store</a>
           example: 'e6b272e1448'
-        product_id:
+        patient_id:
           type: string
-          description: <a href="#tag/pharmacy_product_model">Product</a>
-          example: '1711d84a7a5'
-        quantity:
+          format: uuid
+          example: null
+          nullable: true
+        tax_rate:
           type: integer
-          example: 10
-        unit_price:
+          format: float
+          example: '0.00'
+        total:
           type: integer
           format: float
           example: '2500.00'
@@ -4100,12 +4247,30 @@ components:
           type: string
           format: date-time
           nullable: true
-        deleted_at:
-          readOnly: true
+    PharmacySaleProductModel:
+      title: Pharmacy Sale Product
+      type: object
+      required:
+        - purchase_id
+        - product_id
+        - quantity
+        - price
+      properties:
+        purchase_id:
           type: string
-          format: date-time
-          example: null
-          nullable: true
+          description: <a href="#tag/pharmacy_sale_model">Sale</a>
+          example: e68b75bdf25
+        product_id:
+          type: string
+          description: <a href="#tag/pharmacy_product_model">Product</a>
+          example: 1711d84a7a5
+        quantity:
+          type: integer
+          example: 10
+        price:
+          type: integer
+          format: float
+          example: '100.00'
     TokenModel:
       title: Token
       type: object

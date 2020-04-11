@@ -208,6 +208,10 @@ class PermissionsTableSeeder extends Seeder
                 'module_name' => 'pharm-stores',
                 'name' => 'sync-store-users',
             ],
+            [
+                'module_name' => 'pharm-stores',
+                'name' => 'view-products',
+            ],
         ]);
 
         Permission::insert([
@@ -243,43 +247,31 @@ class PermissionsTableSeeder extends Seeder
 
         Permission::insert([
             [
-                'module_name' => 'pharm-batches',
+                'module_name' => 'pharm-sales',
                 'name' => 'view-any',
             ],
             [
-                'module_name' => 'pharm-batches',
+                'module_name' => 'pharm-sales',
                 'name' => 'view',
             ],
             [
-                'module_name' => 'pharm-batches',
+                'module_name' => 'pharm-sales',
                 'name' => 'create',
-            ],
-            [
-                'module_name' => 'pharm-batches',
-                'name' => 'delete',
             ],
         ]);
 
         Permission::insert([
             [
-                'module_name' => 'pharm-inventories',
+                'module_name' => 'pharm-purchases',
                 'name' => 'view-any',
             ],
             [
-                'module_name' => 'pharm-inventories',
-                'name' => 'debit',
+                'module_name' => 'pharm-purchases',
+                'name' => 'view',
             ],
             [
-                'module_name' => 'pharm-inventories',
-                'name' => 'soft-delete',
-            ],
-            [
-                'module_name' => 'pharm-inventories',
-                'name' => 'restore',
-            ],
-            [
-                'module_name' => 'pharm-inventories',
-                'name' => 'force-delete',
+                'module_name' => 'pharm-purchases',
+                'name' => 'create',
             ],
         ]);
     }

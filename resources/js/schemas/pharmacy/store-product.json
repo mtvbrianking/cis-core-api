@@ -1,7 +1,7 @@
 {
-    "$id": "#/schema/pharm-inventory",
+    "$id": "#/schema/pharm-store-product",
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "description": "pharmacy inventory model schema",
+    "description": "Pharmacy store product model schema",
     "type": "object",
     "properties": {
         "select": {
@@ -83,14 +83,12 @@
             "$id": "#/definitions/column",
             "type": "string",
             "enum": [
-                "id",
                 "store_id",
                 "product_id",
                 "quantity",
                 "unit_price",
                 "created_at",
                 "updated_at",
-                "deleted_at",
 
                 "store.id",
                 "store.facility_id",

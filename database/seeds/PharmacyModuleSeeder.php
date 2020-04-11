@@ -33,18 +33,18 @@ class PharmacyModuleSeeder extends Seeder
             'facility_id' => $facility->id,
         ]);
 
-        factory(Batch::class)->create([
-            'store_id' => $store->id,
-            'product_id' => $product->id,
-            'quantity' => 10,
-            'unit_price' => 100.00,
-        ]);
+        // factory(Batch::class)->create([
+        //     'store_id' => $store->id,
+        //     'product_id' => $product->id,
+        //     'quantity' => 10,
+        //     'unit_price' => 100.00,
+        // ]);
 
-        factory(Inventory::class)->create([
-            'store_id' => $store->id,
-            'product_id' => $product->id,
-            'quantity' => 10,
-            'unit_price' => 120.00,
-        ]);
+        // factory(Inventory::class)->create([
+        //     'store_id' => $store->id,
+        //     'product_id' => $product->id,
+        //     'quantity' => 10,
+        //     'unit_price' => 120.00,
+        // ]);
     }
 }

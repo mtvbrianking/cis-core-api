@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePharmInventoriesTable extends Migration
+class CreatePharmSalesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,22 +13,25 @@ class CreatePharmInventoriesTable extends Migration
      */
     public function up()
     {
-        Schema::create('pharm_inventories', function (Blueprint $table) {
+        Schema::create('pharm_sales', function (Blueprint $table) {
             $table->string('id', 11);
             $table->string('store_id', 11);
-            $table->string('product_id', 11);
-            $table->integer('quantity');
-            $table->float('unit_price');
+            $table->uuid('user_id');
+            $table->uuid('patient_id')->nullable();
+            $table->decimal('tax_rate', 5, 2)->default(0);
+            $table->decimal('total', 10, 2);
             $table->timestamps();
-            $table->softDeletes();
 
             $table->primary('id');
 
             $table->foreign('store_id')->references('id')->on('pharm_stores')
                 ->onUpdate('restrict')->onDelete('restrict');
 
-            $table->foreign('product_id')->references('id')->on('pharm_products')
+            $table->foreign('user_id')->references('id')->on('users')
                 ->onUpdate('restrict')->onDelete('restrict');
+
+            // $table->foreign('patient_id')->references('id')->on('patients')
+            //     ->onUpdate('restrict')->onDelete('restrict');
         });
     }
 
@@ -39,11 +42,12 @@ class CreatePharmInventoriesTable extends Migration
      */
     public function down()
     {
-        Schema::table('pharm_inventories', function (Blueprint $table) {
+        Schema::table('pharm_sales', function (Blueprint $table) {
             $table->dropForeign(['store_id']);
-            $table->dropForeign(['product_id']);
+            $table->dropForeign(['user_id']);
+            // $table->dropForeign(['patient_id']);
         });
 
-        Schema::dropIfExists('pharm_inventories');
+        Schema::dropIfExists('pharm_sales');
     }
 }

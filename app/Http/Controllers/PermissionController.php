@@ -171,6 +171,7 @@ class PermissionController extends Controller
      * @param int $permissionId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -191,6 +192,7 @@ class PermissionController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -237,8 +239,9 @@ class PermissionController extends Controller
      *
      * @param int $permissionId
      *
-     * @throws \Exception
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
+     * @throws \Exception
      *
      * @return \Illuminate\Http\Response
      */
@@ -259,6 +262,7 @@ class PermissionController extends Controller
      * @param string $permissionId
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */

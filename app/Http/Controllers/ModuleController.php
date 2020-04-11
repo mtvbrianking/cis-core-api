@@ -173,6 +173,7 @@ class ModuleController extends Controller
      * @param string $moduleName
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -191,6 +192,7 @@ class ModuleController extends Controller
      * @param string $moduleName
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -209,6 +211,7 @@ class ModuleController extends Controller
      * @param string $moduleName
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -229,6 +232,7 @@ class ModuleController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -258,7 +262,7 @@ class ModuleController extends Controller
      * @param string $moduleName
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
-     * @throws \Exception
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -281,6 +285,7 @@ class ModuleController extends Controller
      * @param string $moduleName
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
@@ -303,6 +308,7 @@ class ModuleController extends Controller
      * @param string $moduleName
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
      *
      * @return \Illuminate\Http\Response
      */
