@@ -16,17 +16,8 @@ class CreatePharmPurchasesTable extends Migration
         Schema::create('pharm_purchases', function (Blueprint $table) {
             $table->string('id', 11);
             $table->string('store_id', 11);
-<<<<<<< HEAD:database/migrations/2020_01_21_000005_create_pharm_purchases_table.php
             $table->uuid('user_id');
             $table->decimal('total', 10, 2);
-=======
-            $table->string('product_id', 11);
-            $table->integer('quantity');
-            $table->float('unit_price')->comment('Cost price');
-            $table->string('mfr_batch_no', 255)->nullable();
-            $table->date('mfd_at')->nullable();
-            $table->date('expires_at')->nullable();
->>>>>>> patients:database/migrations/2020_01_21_000004_create_pharm_batches_table.php
             $table->timestamps();
 
             $table->primary('id');

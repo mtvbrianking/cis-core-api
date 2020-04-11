@@ -170,25 +170,11 @@ Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'phar
         Route::get('/{sale}', 'SaleController@show');
     });
 
-<<<<<<< HEAD
     Route::pattern('purchase', '^[0-9a-f]{11}$');
 
     Route::group(['prefix' => 'purchases'], function () {
         Route::get('/', 'PurchaseController@index');
         Route::post('/', 'PurchaseController@store');
         Route::get('/{purchase}', 'PurchaseController@show');
-=======
-Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'pharmacy'], function () {
-    Route::pattern('item', '^[0-9a-fA-F]{11}$');
-
-    Route::group(['prefix' => 'inventories'], function () {
-        Route::get('/', 'InventoryController@index');
-        Route::get('/datatables', 'InventoryController@datatables');
-        // Route::put('/credit', 'InventoryController@credit'); -> Stocking
-        // Route::put('/debit', 'InventoryController@debit'); -> Selling
-        Route::delete('/{item}', 'InventoryController@destroy');
-        Route::put('/{item}/restore', 'InventoryController@restore');
-        Route::put('/{item}/revoke', 'InventoryController@revoke');
->>>>>>> patients
     });
 });
