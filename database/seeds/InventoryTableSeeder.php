@@ -14,15 +14,15 @@ class InventoryTableSeeder extends Seeder
      */
     public function run()
     {
-        $store = Store::first();
+        // $store = Store::first();
 
-        Batch::all()->each(function ($batch) use ($store) {
-            $inventory = new Inventory();
-            $inventory->store_id = $store->id;
-            $inventory->product_id = $batch->product->id;
-            $inventory->quantity = rand(1, 20);
-            $inventory->unit_price = 2000;
-            $inventory->save();
-        });
+        // Batch::all()->each(function ($batch) use ($store) {
+        //     $inventory = new Inventory();
+        //     $inventory->store_id = $store->id;
+        //     $inventory->product_id = $batch->product->id;
+        //     $inventory->quantity = rand(1, 20);
+        //     $inventory->unit_price = 2000;
+        //     $inventory->save();
+        // });
     }
 }

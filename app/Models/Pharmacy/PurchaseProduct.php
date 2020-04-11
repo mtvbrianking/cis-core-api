@@ -4,14 +4,14 @@ namespace App\Models\Pharmacy;
 
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class SaleProduct extends Pivot
+class PurchaseProduct extends Pivot
 {
     /**
      * The database table used by the model.
      *
      * @var string
      */
-    protected $table = 'pharm_sale_product';
+    protected $table = 'pharm_purchase_product';
 
     /**
      * The attributes that should be cast.
@@ -19,20 +19,19 @@ class SaleProduct extends Pivot
      * @var array
      */
     protected $casts = [
-        'quantity' => 'decimal',
-        'price' => 'decimal',
+        'unit_price' => 'double',
     ];
 
     // Relationships
 
     /**
-     * Sale.
+     * Purchase.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function sale()
+    public function purchase()
     {
-        return $this->belongsTo(Sale::class, 'sale_id', 'id');
+        return $this->belongsTo(Purchase::class, 'purchase_id', 'id');
     }
 
     /**

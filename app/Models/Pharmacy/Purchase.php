@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Traits\HasHashedKey;
 use Illuminate\Database\Eloquent\Model;
 
-class Sale extends Model
+class Purchase extends Model
 {
     use HasHashedKey;
 
@@ -15,7 +15,7 @@ class Sale extends Model
      *
      * @var string
      */
-    protected $table = 'pharm_sales';
+    protected $table = 'pharm_purchases';
 
     /**
      * The primary key for the model.
@@ -38,16 +38,6 @@ class Sale extends Model
      */
     public $incrementing = false;
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'tax_rate' => 'double',
-        'total' => 'double',
-    ];
-
     // Relationships
 
     /**
@@ -61,7 +51,7 @@ class Sale extends Model
     }
 
     /**
-     * User that made this sale.
+     * User that made this purchase.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -77,10 +67,14 @@ class Sale extends Model
      */
     public function products()
     {
-        return $this->belongsToMany(Product::class, 'pharm_sale_product', 'sale_id', 'product_id', 'id')
+        return $this->belongsToMany(Product::class, 'pharm_purchase_product', 'purchase_id', 'product_id', 'id')
             ->withPivot([
+                'supplier_id',
                 'quantity',
-                'price',
+                'unit_price',
+                'mfr_batch_no',
+                'mfd_at',
+                'expires_at',
             ]);
     }
 }

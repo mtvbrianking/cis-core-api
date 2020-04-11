@@ -109,4 +109,16 @@ class StorePolicy
     {
         return $user->hasPermissionTo('sync-store-users', 'pharm-stores');
     }
+
+    /**
+     * Determine whether the user can view products belonging to this stores.
+     *
+     * @param \App\Models\User $user
+     *
+     * @return bool
+     */
+    public function viewProducts(User $user)
+    {
+        return $user->hasPermissionTo('view-products', 'pharm-stores');
+    }
 }

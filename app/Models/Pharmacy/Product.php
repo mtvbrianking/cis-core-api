@@ -33,27 +33,39 @@ class Product extends Model
     }
 
     /**
-     * Batches for this product.
+     * Stores having this product.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function batches()
+    public function stores()
     {
-        return $this->hasMany(Batch::class, 'product_id', 'id');
+        return $this->belongsToMany(Store::class, 'pharm_store_product', 'product_id', 'store_id', 'id')
+            ->withPivot([
+                'quantity',
+                'unit_price',
+            ]);
     }
 
     /**
-     * Inventories for this product.
+     * Purchases having this product.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
-    public function inventories()
+    public function purchases()
     {
-        return $this->hasMany(Inventory::class, 'product_id', 'id');
+        return $this->belongsToMany(Purchase::class, 'pharm_purchase_product', 'product_id', 'purchase_id', 'id')
+            ->withPivot([
+                'supplier_id',
+                'quantity',
+                'unit_price',
+                'mfr_batch_no',
+                'mfd_at',
+                'expires_at',
+            ]);
     }
 
     /**
-     * Users assigned this store.
+     * Purchases having this product.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */

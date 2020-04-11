@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePharmStoreProductTable extends Migration
+class CreatePharmPurchasesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,19 +13,19 @@ class CreatePharmStoreProductTable extends Migration
      */
     public function up()
     {
-        Schema::create('pharm_store_product', function (Blueprint $table) {
+        Schema::create('pharm_purchases', function (Blueprint $table) {
+            $table->string('id', 11);
             $table->string('store_id', 11);
-            $table->string('product_id', 11);
-            $table->integer('quantity');
-            $table->decimal('unit_price', 10, 2);
+            $table->uuid('user_id');
+            $table->decimal('total', 10, 2);
             $table->timestamps();
 
-            $table->unique(['store_id', 'product_id']);
+            $table->primary('id');
 
             $table->foreign('store_id')->references('id')->on('pharm_stores')
                 ->onUpdate('restrict')->onDelete('restrict');
 
-            $table->foreign('product_id')->references('id')->on('pharm_products')
+            $table->foreign('user_id')->references('id')->on('users')
                 ->onUpdate('restrict')->onDelete('restrict');
         });
     }
@@ -37,11 +37,11 @@ class CreatePharmStoreProductTable extends Migration
      */
     public function down()
     {
-        Schema::table('pharm_store_product', function (Blueprint $table) {
+        Schema::table('pharm_purchases', function (Blueprint $table) {
             $table->dropForeign(['store_id']);
-            $table->dropForeign(['product_id']);
+            $table->dropForeign(['user_id']);
         });
 
-        Schema::dropIfExists('pharm_store_product');
+        Schema::dropIfExists('pharm_purchases');
     }
 }
