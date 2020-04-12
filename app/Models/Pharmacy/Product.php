@@ -4,14 +4,14 @@ namespace App\Models\Pharmacy;
 
 use App\Models\Facility;
 use App\Models\User;
-use App\Traits\HasHashedKey;
+use Bmatovu\Uuid\Traits\HasUuidKey;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasHashedKey, SoftDeletes;
+    use HasUuidKey, SoftDeletes;
 
     /**
      * The database table used by the model.

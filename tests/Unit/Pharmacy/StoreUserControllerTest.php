@@ -160,7 +160,7 @@ class StoreUserControllerTest extends TestCase
         $response = $this->actingAs($user, 'api')->json('PUT', "api/v1/users/{$user->id}/pharmacy-stores/available", [
             'stores' => [
                 $non_granted_pharm->id,
-                'e68881ae98c',
+                '0ac99f1b-482c-4af1-be28-ddace07eff20',
             ],
         ]);
 
@@ -177,7 +177,7 @@ class StoreUserControllerTest extends TestCase
             'message' => 'The given data was invalid.',
             'errors' => [
                 'stores' => [
-                    'Unknown stores: e68881ae98c',
+                    'Unknown stores: 0ac99f1b-482c-4af1-be28-ddace07eff20',
                 ],
             ],
         ]);

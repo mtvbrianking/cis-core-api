@@ -270,7 +270,7 @@ class PurchaseControllerTest extends TestCase
             ],
         ]);
 
-        $response->assertJson([
+        $response->assertJson(\Illuminate\Support\Arr::sortRecursive([
             'total' => '1100.00',
             'products' => [
                 [
@@ -288,7 +288,7 @@ class PurchaseControllerTest extends TestCase
                     ],
                 ],
             ],
-        ]);
+        ]));
 
         $this->assertDatabaseHas('pharm_store_product', [
             'store_id' => $store->id,

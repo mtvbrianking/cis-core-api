@@ -95,7 +95,7 @@ class StoreUserController extends Controller
 
         $this->validate($request, [
             'stores' => 'required|array',
-            'stores.*' => 'required|regex:/^[0-9a-fA-F]{11}$/',
+            'stores.*' => 'required|uuid',
         ]);
 
         // Available stores

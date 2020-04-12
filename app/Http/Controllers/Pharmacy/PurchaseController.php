@@ -104,7 +104,7 @@ class PurchaseController extends Controller
                 }),
             ],
             'products' => 'required|array',
-            'products.*.id' => 'required|string|size:11',
+            'products.*.id' => 'required|uuid',
             'products.*.quantity' => 'required|integer|min:1',
             'products.*.cost_price' => 'required|numeric',
             'products.*.unit_retail_price' => 'required|numeric',

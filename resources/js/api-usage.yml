@@ -2476,7 +2476,7 @@ paths:
                 "name":"John Doe",
                 "alias":"jdoe",
                 "email":"jdoe@example.com",
-                "role_id":"{role}"
+                "role_id":"cca2b519-e07b-4225-a284-22254f5154dc"
               }'
     delete:
       tags:
@@ -2657,8 +2657,7 @@ paths:
                           properties:
                             id:
                               type: string
-                              maxLength: 11
-                              example: e68b75bdf25
+                              example: 8060a978-0352-4094-a156-aabe532bc66d
                             name:
                               type: string
                               example: OPD Pharmacy
@@ -2702,7 +2701,7 @@ paths:
                   description: <a href="#operation/getPharmacyStores">Pharmacy Store ID</a>
                   items:
                     type: string
-                    example: e68b75bdf25
+                    example: 8060a978-0352-4094-a156-aabe532bc66d
         required: false
       responses:
         200:
@@ -2720,7 +2719,7 @@ paths:
                           properties:
                             id:
                               type: string
-                              example: e68b75bdf25
+                              example: 8060a978-0352-4094-a156-aabe532bc66d
                             name:
                               type: string
                               example: OPD Pharmacy
@@ -2736,7 +2735,7 @@ paths:
               -H 'Authorization: Bearer {access-token}' \
               -d '{
                 "stores": [
-                  "e68b75bdf25"
+                  "8060a978-0352-4094-a156-aabe532bc66d"
                 ]
               }'
 
@@ -2846,8 +2845,8 @@ paths:
           required: true
           schema:
             type: string
-            pattern: '^[0-9a-fA-F]{11}$'
-            example: e68b75bdf25
+            format: uuid
+            example: 8060a978-0352-4094-a156-aabe532bc66d
       responses:
         200:
           description: OK
@@ -2924,8 +2923,8 @@ paths:
           required: true
           schema:
             type: string
-            pattern: '^[0-9a-fA-F]{11}$'
-            example: e68b75bdf25
+            format: uuid
+            example: 8060a978-0352-4094-a156-aabe532bc66d
       responses:
         204:
           description: No Content
@@ -2954,8 +2953,8 @@ paths:
           required: true
           schema:
             type: string
-            pattern: '^[0-9a-fA-F]{11}$'
-            example: e68b75bdf25
+            format: uuid
+            example: 8060a978-0352-4094-a156-aabe532bc66d
       responses:
         200:
           description: OK
@@ -2995,8 +2994,8 @@ paths:
           required: true
           schema:
             type: string
-            pattern: '^[0-9a-fA-F]{11}$'
-            example: e68b75bdf25
+            format: uuid
+            example: 8060a978-0352-4094-a156-aabe532bc66d
       responses:
         200:
           description: OK
@@ -3029,8 +3028,8 @@ paths:
           required: true
           schema:
             type: string
-            pattern: '^[0-9a-fA-F]{11}$'
-            example: e68b75bdf25
+            format: uuid
+            example: 8060a978-0352-4094-a156-aabe532bc66d
       responses:
         206:
           description: Partial Content
@@ -3046,14 +3045,14 @@ paths:
                         items:
                           $ref: '#/components/schemas/PharmacyStoreProductModel'
                       first_page_url:
-                        example: http://sandbox-api.example.com/v1/pharmacy/stores/e68b75bdf25/products?page=1
+                        example: http://sandbox-api.example.com/v1/pharmacy/stores/8060a978-0352-4094-a156-aabe532bc66d/products?page=1
                       path:
-                        example: http://sandbox-api.example.com/v1/pharmacy/stores/e68b75bdf25/products
+                        example: http://sandbox-api.example.com/v1/pharmacy/stores/8060a978-0352-4094-a156-aabe532bc66d/products
       x-code-samples:
         - lang: CURL
           source: |-
             curl -X GET \
-              http://sandbox-api.example.com/v1/pharmacy/stores/e68b75bdf25/products \
+              http://sandbox-api.example.com/v1/pharmacy/stores/8060a978-0352-4094-a156-aabe532bc66d/products \
               -H 'Accept: application/json' \
               -H 'Authorization: Bearer {access-token}'
   /pharmacy/stores/{store}/products/datatables:
@@ -3073,8 +3072,8 @@ paths:
           required: true
           schema:
             type: string
-            pattern: '^[0-9a-fA-F]{11}$'
-            example: e68b75bdf25
+            format: uuid
+            example: 8060a978-0352-4094-a156-aabe532bc66d
       responses:
         206:
           description: Partial Content
@@ -3093,7 +3092,7 @@ paths:
         - lang: CURL
           source: |-
             curl -X GET \
-              http://sandbox-api.example.com/v1/pharmacy/stores/e68b75bdf25/products/datatables \
+              http://sandbox-api.example.com/v1/pharmacy/stores/8060a978-0352-4094-a156-aabe532bc66d/products/datatables \
               -H 'Accept: application/json' \
               -H 'Authorization: Bearer {access-token}'
 
@@ -3207,8 +3206,8 @@ paths:
           required: true
           schema:
             type: string
-            pattern: '^[0-9a-fA-F]{11}$'
-            example: e68b75bdf25
+            format: uuid
+            example: 8060a978-0352-4094-a156-aabe532bc66d
       responses:
         200:
           description: OK
@@ -3291,8 +3290,8 @@ paths:
           required: true
           schema:
             type: string
-            pattern: '^[0-9a-fA-F]{11}$'
-            example: e68b75bdf25
+            format: uuid
+            example: 8060a978-0352-4094-a156-aabe532bc66d
       responses:
         204:
           description: No Content
@@ -3321,8 +3320,8 @@ paths:
           required: true
           schema:
             type: string
-            pattern: '^[0-9a-fA-F]{11}$'
-            example: e68b75bdf25
+            format: uuid
+            example: 8060a978-0352-4094-a156-aabe532bc66d
       responses:
         200:
           description: OK
@@ -3362,8 +3361,8 @@ paths:
           required: true
           schema:
             type: string
-            pattern: '^[0-9a-fA-F]{11}$'
-            example: e68b75bdf25
+            format: uuid
+            example: 8060a978-0352-4094-a156-aabe532bc66d
       responses:
         200:
           description: OK
@@ -3397,8 +3396,8 @@ paths:
           required: true
           schema:
             type: string
-            pattern: '^[0-9a-fA-F]{11}$'
-            example: e68b75bdf25
+            format: uuid
+            example: 8060a978-0352-4094-a156-aabe532bc66d
         - name: limit
           in: query
           schema:
@@ -3431,7 +3430,7 @@ paths:
               http://sandbox-api.example.com/v1/pharmacy/purchases \
               -H 'Accept: application/json' \
               -H 'Authorization: Bearer {access-token}' \
-              -d 'store_id: e68b75bdf25'
+              -d 'store_id: 8060a978-0352-4094-a156-aabe532bc66d'
     post:
       tags:
         - pharmacy_purchase
@@ -3446,7 +3445,7 @@ paths:
                 store_id:
                   type: string
                   description: <a href="#tag/pharmacy_store_model">Store</a>
-                  example: 'e6b272e1448'
+                  example: '783125fc-b061-4f04-ae46-64d2dac93fb8'
                 products:
                   type: array
                   items:
@@ -3460,7 +3459,7 @@ paths:
                       id:
                         type: string
                         description: <a href="#operation/getPharmacyProducts">Product</a>
-                        example: e68b75bdf25
+                        example: 8060a978-0352-4094-a156-aabe532bc66d
                       quantity:
                         type: integer
                         minimum: 1
@@ -3503,10 +3502,10 @@ paths:
               -H 'Authorization: Bearer {access-token}' \
               -H 'Content-Type: application/json' \
               -d '{
-                "store_id": "e6b272e1448",
+                "store_id": "783125fc-b061-4f04-ae46-64d2dac93fb8",
                 "products": [
                   {
-                    "id": "1711d84a7a5",
+                    "id": "783125fc-b061-4f04-ae46-64d2dac93fb8",
                     "quantity": 10,
                     "cost_price": 100.00,
                     "unit_retail_price": 25.00
@@ -3528,8 +3527,8 @@ paths:
           required: true
           schema:
             type: string
-            pattern: '^[0-9a-fA-F]{11}$'
-            example: e68b75bdf25
+            format: uuid
+            example: 8060a978-0352-4094-a156-aabe532bc66d
       responses:
         200:
           description: OK
@@ -3573,8 +3572,8 @@ paths:
           required: true
           schema:
             type: string
-            pattern: '^[0-9a-fA-F]{11}$'
-            example: e68b75bdf25
+            format: uuid
+            example: 8060a978-0352-4094-a156-aabe532bc66d
         - name: limit
           in: query
           schema:
@@ -3607,7 +3606,7 @@ paths:
             http://sandbox-api.example.com/v1/pharmacy/sales \
             -H 'Accept: application/json' \
             -H 'Authorization: Bearer {access-token}' \
-            -d 'store_id: e68b75bdf25'
+            -d 'store_id: 8060a978-0352-4094-a156-aabe532bc66d'
     post:
       tags:
         - pharmacy_sale
@@ -3625,7 +3624,7 @@ paths:
                 store_id:
                   type: string
                   description: <a href="#tag/pharmacy_store_model">Store</a>
-                  example: 'e6b272e1448'
+                  example: '783125fc-b061-4f04-ae46-64d2dac93fb8'
                 patient_id:
                   type: string
                   format: uuid
@@ -3644,7 +3643,7 @@ paths:
                       id:
                         type: string
                         description: <a href="#operation/getPharmacyProducts">Product</a>
-                        example: e68b75bdf25
+                        example: 8060a978-0352-4094-a156-aabe532bc66d
                       quantity:
                         type: integer
                         minimum: 1
@@ -3679,10 +3678,10 @@ paths:
               -H 'Authorization: Bearer {access-token}' \
               -H 'Content-Type: application/json' \
               -d '{
-                "store_id": "e6b272e1448",
+                "store_id": "783125fc-b061-4f04-ae46-64d2dac93fb8",
                 "products": [
                   {
-                    "id": "1711d84a7a5",
+                    "id": "783125fc-b061-4f04-ae46-64d2dac93fb8",
                     "quantity": 10,
                     "cost_price": 100.00,
                     "unit_retail_price": 25.00
@@ -3704,8 +3703,8 @@ paths:
           required: true
           schema:
             type: string
-            pattern: '^[0-9a-fA-F]{11}$'
-            example: e68b75bdf25
+            format: uuid
+            example: 8060a978-0352-4094-a156-aabe532bc66d
       responses:
         200:
           description: OK
@@ -3992,8 +3991,8 @@ components:
         id:
           readOnly: true
           type: string
-          pattern: '^[0-9a-fA-F]{11}$'
-          example: e68b75bdf25
+          format: uuid
+          example: 8060a978-0352-4094-a156-aabe532bc66d
         facility_id:
           readOnly: true
           type: string
@@ -4033,8 +4032,8 @@ components:
         id:
           readOnly: true
           type: string
-          pattern: '^[0-9a-fA-F]{11}$'
-          example: e68b75bdf25
+          format: uuid
+          example: 8060a978-0352-4094-a156-aabe532bc66d
         facility_id:
           readOnly: true
           type: string
@@ -4099,11 +4098,11 @@ components:
         store_id:
           type: string
           description: <a href="#tag/pharmacy_store_model">Store</a>
-          example: 'e6b272e1448'
+          example: '783125fc-b061-4f04-ae46-64d2dac93fb8'
         product_id:
           type: string
           description: <a href="#tag/pharmacy_product_model">Product</a>
-          example: '1711d84a7a5'
+          example: '783125fc-b061-4f04-ae46-64d2dac93fb8'
         quantity:
           type: integer
           example: 10
@@ -4139,12 +4138,12 @@ components:
         id:
           readOnly: true
           type: string
-          pattern: '^[0-9a-fA-F]{11}$'
-          example: e68b75bdf25
+          format: uuid
+          example: 8060a978-0352-4094-a156-aabe532bc66d
         store_id:
           type: string
           description: <a href="#tag/pharmacy_store_model">Store</a>
-          example: 'e6b272e1448'
+          example: '783125fc-b061-4f04-ae46-64d2dac93fb8'
         user_id:
           type: string
           description: <a href="#tag/user_model">User</a>
@@ -4176,11 +4175,11 @@ components:
         purchase_id:
           type: string
           description: <a href="#tag/pharmacy_purchase_model">Purchase</a>
-          example: 'e68b75bdf25'
+          example: '8060a978-0352-4094-a156-aabe532bc66d'
         product_id:
           type: string
           description: <a href="#tag/pharmacy_product_model">Product</a>
-          example: '1711d84a7a5'
+          example: '783125fc-b061-4f04-ae46-64d2dac93fb8'
         supplier_id:
           type: string
           format: uuid
@@ -4218,12 +4217,12 @@ components:
         id:
           readOnly: true
           type: string
-          pattern: '^[0-9a-fA-F]{11}$'
-          example: e68b75bdf25
+          format: uuid
+          example: 8060a978-0352-4094-a156-aabe532bc66d
         store_id:
           type: string
           description: <a href="#tag/pharmacy_store_model">Store</a>
-          example: 'e6b272e1448'
+          example: '783125fc-b061-4f04-ae46-64d2dac93fb8'
         patient_id:
           type: string
           format: uuid
@@ -4259,11 +4258,11 @@ components:
         purchase_id:
           type: string
           description: <a href="#tag/pharmacy_sale_model">Sale</a>
-          example: e68b75bdf25
+          example: 8060a978-0352-4094-a156-aabe532bc66d
         product_id:
           type: string
           description: <a href="#tag/pharmacy_product_model">Product</a>
-          example: 1711d84a7a5
+          example: 783125fc-b061-4f04-ae46-64d2dac93fb8
         quantity:
           type: integer
           example: 10

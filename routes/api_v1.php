@@ -134,8 +134,8 @@ Route::group(['prefix' => 'users'], function () {
     Route::put('/{user}/pharmacy-stores/available', 'Pharmacy\StoreUserController@syncPharmacyStores');
 });
 
-Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'pharmacy'], function () {
-    Route::pattern('product', '^[0-9a-f]{11}$');
+Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'pharmacy'], function () use ($uuid) {
+    Route::pattern('product', $uuid);
 
     Route::group(['prefix' => 'products'], function () {
         Route::get('/', 'ProductController@index');
@@ -147,7 +147,7 @@ Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'phar
         Route::put('/{product}/revoke', 'ProductController@revoke');
     });
 
-    Route::pattern('store', '^[0-9a-f]{11}$');
+    Route::pattern('store', $uuid);
 
     Route::group(['prefix' => 'stores'], function () {
         Route::get('/', 'StoreController@index');
@@ -162,7 +162,7 @@ Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'phar
         Route::get('/{store}/products/datatables', 'StoreProductController@datatables');
     });
 
-    Route::pattern('sale', '^[0-9a-f]{11}$');
+    Route::pattern('sale', $uuid);
 
     Route::group(['prefix' => 'sales'], function () {
         Route::get('/', 'SaleController@index');
@@ -170,7 +170,7 @@ Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'phar
         Route::get('/{sale}', 'SaleController@show');
     });
 
-    Route::pattern('purchase', '^[0-9a-f]{11}$');
+    Route::pattern('purchase', $uuid);
 
     Route::group(['prefix' => 'purchases'], function () {
         Route::get('/', 'PurchaseController@index');

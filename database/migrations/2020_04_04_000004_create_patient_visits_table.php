@@ -14,22 +14,17 @@ class CreatePatientVisitsTable extends Migration
     public function up()
     {
         Schema::create('patient_visits', function (Blueprint $table) {
-            $table->string('id', 11);
-            $table->string('patient_id', 11);
-            $table->string('station_id', 11);
-            $table->boolean('is_active')->default(true)->comment('Active when the patient is at premises');
-            $table->timestamp('created_at');
-            $table->timestamp('scheduled_for');
-            $table->timestamp('accepted_at')->nullable();
-            $table->timestamp('concluded_at')->nullable();
-            $table->timestamp('canceled_at')->nullable();
+            $table->uuid('id');
+            $table->uuid('patient_id');
+            $table->uuid('user_id');
+            $table->timestamps();
 
             $table->primary('id');
 
             $table->foreign('patient_id')->references('id')->on('patients')
                 ->onUpdate('restrict')->onDelete('restrict');
 
-            $table->foreign('station_id')->references('id')->on('stations')
+            $table->foreign('user_id')->references('id')->on('users')
                 ->onUpdate('restrict')->onDelete('restrict');
         });
     }

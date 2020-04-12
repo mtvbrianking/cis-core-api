@@ -14,8 +14,8 @@ class CreatePharmPurchaseProductTable extends Migration
     public function up()
     {
         Schema::create('pharm_purchase_product', function (Blueprint $table) {
-            $table->string('purchase_id', 11);
-            $table->string('product_id', 11);
+            $table->uuid('purchase_id');
+            $table->uuid('product_id');
             $table->uuid('supplier_id')->nullable();
             $table->integer('quantity');
             $table->float('unit_price')->comment('Cost price');

@@ -14,11 +14,10 @@ class CreatePatientMetaLogsTable extends Migration
     public function up()
     {
         Schema::create('patient_meta_logs', function (Blueprint $table) {
-            $table->string('id', 11);
-            $table->string('patient_id', 11);
-            $table->string('patient_meta_id', 11);
+            $table->uuid('id');
+            $table->uuid('patient_id');
+            $table->uuid('patient_meta_id');
             $table->string('value', 255);
-
             $table->timestamps();
 
             $table->primary('id');

@@ -14,8 +14,8 @@ class CreatePharmPurchasesTable extends Migration
     public function up()
     {
         Schema::create('pharm_purchases', function (Blueprint $table) {
-            $table->string('id', 11);
-            $table->string('store_id', 11);
+            $table->uuid('id');
+            $table->uuid('store_id');
             $table->uuid('user_id');
             $table->decimal('total', 10, 2);
             $table->timestamps();

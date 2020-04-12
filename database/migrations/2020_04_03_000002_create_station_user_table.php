@@ -14,7 +14,7 @@ class CreateStationUserTable extends Migration
     public function up()
     {
         Schema::create('station_user', function (Blueprint $table) {
-            $table->string('station_id', 11);
+            $table->uuid('station_id');
             $table->uuid('user_id');
 
             $table->primary(['station_id', 'user_id']);

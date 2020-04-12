@@ -14,8 +14,8 @@ class CreatePharmStoreProductTable extends Migration
     public function up()
     {
         Schema::create('pharm_store_product', function (Blueprint $table) {
-            $table->string('store_id', 11);
-            $table->string('product_id', 11);
+            $table->uuid('store_id');
+            $table->uuid('product_id');
             $table->integer('quantity');
             $table->decimal('unit_price', 10, 2);
             $table->timestamps();

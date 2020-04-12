@@ -104,7 +104,7 @@ class SaleController extends Controller
                 }),
             ],
             'products' => 'required|array',
-            'products.*.id' => 'required|string|size:11',
+            'products.*.id' => 'required|uuid',
             'products.*.quantity' => 'required|integer|min:1',
         ]);
 
@@ -136,8 +136,6 @@ class SaleController extends Controller
 
                     continue;
                 }
-
-                $storeProduct->save();
 
                 DB::table('pharm_store_product')
                     ->where('store_id', $storeProduct->store_id)

@@ -14,7 +14,7 @@ class CreatePharmStoreUserTable extends Migration
     public function up()
     {
         Schema::create('pharm_store_user', function (Blueprint $table) {
-            $table->string('store_id', 11);
+            $table->uuid('store_id');
             $table->uuid('user_id');
 
             $table->primary(['store_id', 'user_id']);

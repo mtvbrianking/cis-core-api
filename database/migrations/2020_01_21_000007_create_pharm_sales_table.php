@@ -14,8 +14,8 @@ class CreatePharmSalesTable extends Migration
     public function up()
     {
         Schema::create('pharm_sales', function (Blueprint $table) {
-            $table->string('id', 11);
-            $table->string('store_id', 11);
+            $table->uuid('id');
+            $table->uuid('store_id');
             $table->uuid('user_id');
             $table->uuid('patient_id')->nullable();
             $table->decimal('tax_rate', 5, 2)->default(0);

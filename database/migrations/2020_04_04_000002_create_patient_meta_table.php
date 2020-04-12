@@ -14,7 +14,7 @@ class CreatePatientMetaTable extends Migration
     public function up()
     {
         Schema::create('patient_meta', function (Blueprint $table) {
-            $table->string('id', 11);
+            $table->uuid('id');
             $table->uuid('facility_id');
             $table->string('name', 50);
             $table->string('description', 255);

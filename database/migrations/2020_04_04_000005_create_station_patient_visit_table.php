@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePatientVisitLogsTable extends Migration
+class CreateStationPatientVisitTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,14 +13,17 @@ class CreatePatientVisitLogsTable extends Migration
      */
     public function up()
     {
-        Schema::create('patient_visit_logs', function (Blueprint $table) {
-            $table->string('id', 11);
-            $table->string('visit_id', 11);
-            $table->string('station_id', 11);
+        Schema::create('station_patient_visit', function (Blueprint $table) {
+            $table->uuid('visit_id');
+            $table->uuid('station_id');
             $table->uuid('user_id');
-            $table->timestamp('created_at');
+            $table->text('instructions');
+            $table->timestamps();
+            $table->timestamp('accepted_at')->nullable();
+            $table->timestamp('concluded_at')->nullable();
+            $table->timestamp('canceled_at')->nullable();
 
-            $table->primary('id');
+            $table->unique(['visit_id', 'station_id']);
 
             $table->foreign('visit_id')->references('id')->on('patient_visits')
                 ->onUpdate('restrict')->onDelete('restrict');
@@ -40,12 +43,12 @@ class CreatePatientVisitLogsTable extends Migration
      */
     public function down()
     {
-        Schema::table('patient_visits', function (Blueprint $table) {
+        Schema::table('station_patient_visit', function (Blueprint $table) {
             $table->dropForeign(['visit_id']);
             $table->dropForeign(['station_id']);
             $table->dropForeign(['user_id']);
         });
 
-        Schema::dropIfExists('patient_visit_logs');
+        Schema::dropIfExists('station_patient_visit');
     }
 }

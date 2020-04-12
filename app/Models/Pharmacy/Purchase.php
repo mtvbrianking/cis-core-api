@@ -3,12 +3,12 @@
 namespace App\Models\Pharmacy;
 
 use App\Models\User;
-use App\Traits\HasHashedKey;
+use Bmatovu\Uuid\Traits\HasUuidKey;
 use Illuminate\Database\Eloquent\Model;
 
 class Purchase extends Model
 {
-    use HasHashedKey;
+    use HasUuidKey;
 
     /**
      * The database table used by the model.
