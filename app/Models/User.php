@@ -112,6 +112,16 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Stations this user is assigned to.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function stations()
+    {
+        return $this->belongsToMany(Station::class, 'station_user', 'user_id', 'station_id', 'id');
+    }
+
+    /**
      * Stores assigned to this user.
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
@@ -139,6 +149,16 @@ class User extends Authenticatable implements MustVerifyEmail
     public function pharm_purchases()
     {
         return $this->hasMany(Pharmacy\Purchase::class, 'user_id', 'id');
+    }
+
+    /**
+     * Patient visits created.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function visits()
+    {
+        return $this->hasMany(Visit::class, 'user_id', 'id');
     }
 
     // Scopes

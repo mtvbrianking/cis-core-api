@@ -22,26 +22,4 @@ class StoreProduct extends Pivot
     protected $casts = [
         'price' => 'double',
     ];
-
-    // Relationships
-
-    /**
-     * Store.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function store()
-    {
-        return $this->belongsTo(Store::class, 'store_id', 'id');
-    }
-
-    /**
-     * Product.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
-     */
-    public function product()
-    {
-        return $this->belongsTo(Product::class, 'product_id', 'id');
-    }
 }

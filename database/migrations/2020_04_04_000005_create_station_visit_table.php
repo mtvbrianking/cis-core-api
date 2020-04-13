@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateStationPatientVisitTable extends Migration
+class CreateStationVisitTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,19 +13,21 @@ class CreateStationPatientVisitTable extends Migration
      */
     public function up()
     {
-        Schema::create('station_patient_visit', function (Blueprint $table) {
+        Schema::create('station_visit', function (Blueprint $table) {
             $table->uuid('visit_id');
             $table->uuid('station_id');
             $table->uuid('user_id');
+            $table->enum('status', ['scheduled', 'available', 'accepted', 'concluded', 'canceled'])->default('scheduled');
             $table->text('instructions');
             $table->timestamps();
+            $table->timestamp('starts_at');
             $table->timestamp('accepted_at')->nullable();
             $table->timestamp('concluded_at')->nullable();
             $table->timestamp('canceled_at')->nullable();
 
             $table->unique(['visit_id', 'station_id']);
 
-            $table->foreign('visit_id')->references('id')->on('patient_visits')
+            $table->foreign('visit_id')->references('id')->on('visits')
                 ->onUpdate('restrict')->onDelete('restrict');
 
             $table->foreign('station_id')->references('id')->on('stations')
@@ -43,12 +45,12 @@ class CreateStationPatientVisitTable extends Migration
      */
     public function down()
     {
-        Schema::table('station_patient_visit', function (Blueprint $table) {
+        Schema::table('station_visit', function (Blueprint $table) {
             $table->dropForeign(['visit_id']);
             $table->dropForeign(['station_id']);
             $table->dropForeign(['user_id']);
         });
 
-        Schema::dropIfExists('station_patient_visit');
+        Schema::dropIfExists('station_visit');
     }
 }

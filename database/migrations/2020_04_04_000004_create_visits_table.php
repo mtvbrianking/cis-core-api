@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePatientVisitsTable extends Migration
+class CreateVisitsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,14 @@ class CreatePatientVisitsTable extends Migration
      */
     public function up()
     {
-        Schema::create('patient_visits', function (Blueprint $table) {
+        Schema::create('visits', function (Blueprint $table) {
             $table->uuid('id');
             $table->uuid('patient_id');
             $table->uuid('user_id');
+            // $table->enum('status', ['pending', 'started', 'concluded']);
+            // $table->boolean('is_active')->default(false);
+            // $table->timestamp('scheduled_for')->nullable();
+            // $table->timestamp('started_at')->nullable();
             $table->timestamps();
 
             $table->primary('id');
@@ -36,11 +40,11 @@ class CreatePatientVisitsTable extends Migration
      */
     public function down()
     {
-        Schema::table('patient_visits', function (Blueprint $table) {
+        Schema::table('visits', function (Blueprint $table) {
             $table->dropForeign(['patient_id']);
             $table->dropForeign(['user_id']);
         });
 
-        Schema::dropIfExists('patient_visits');
+        Schema::dropIfExists('visits');
     }
 }

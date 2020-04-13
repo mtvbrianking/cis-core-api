@@ -30,7 +30,7 @@ class CreatePatientsTable extends Migration
             $table->string('existing_conditions', 255)->nullable()->comment('Like; Hypertension, Diabetes, Pregancy,...');
             $table->string('allergies', 255)->nullable();
             $table->text('notes')->nullable()->comment('Patient disclosed notes.');
-            $table->string('next_of_kin', 2555)->nullable()->comment('No. Name Relation Contact');
+            $table->string('next_of_kin', 255)->nullable()->comment('No. Name Relation Contact');
             $table->timestamps();
             $table->softDeletes();
 

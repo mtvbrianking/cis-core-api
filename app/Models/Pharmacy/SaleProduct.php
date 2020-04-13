@@ -22,26 +22,4 @@ class SaleProduct extends Pivot
         'quantity' => 'decimal',
         'price' => 'decimal',
     ];
-
-    // Relationships
-
-    /**
-     * Sale.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function sale()
-    {
-        return $this->belongsTo(Sale::class, 'sale_id', 'id');
-    }
-
-    /**
-     * Product.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function product()
-    {
-        return $this->belongsTo(Product::class, 'product_id', 'id');
-    }
 }
