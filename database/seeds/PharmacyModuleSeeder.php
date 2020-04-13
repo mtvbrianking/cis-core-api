@@ -25,6 +25,7 @@ class PharmacyModuleSeeder extends Seeder
 
         $store = factory(Store::class)->create([
             'facility_id' => $facility->id,
+            'name' => 'Back Office',
         ]);
 
         // store-user
@@ -34,18 +35,29 @@ class PharmacyModuleSeeder extends Seeder
 
         // Stock-product
 
-        $product = factory(Product::class)->create([
-            'facility_id' => $facility->id,
-        ]);
+        $productNames = ['Panadol', 'Paracetamol', 'Sodium Chloride', 'Ethanol', 'Magnesium'];
 
-        $store->products()->attach([
-            $product->id => [
-                'quantity' => 40,
-                'unit_price' => 1200,
-            ],
-        ]);
+        foreach ($productNames as $key => $productName) {
+            factory(Product::class)->create([
+                'facility_id' => $facility->id,
+                'name' => $productName,
+            ]);
+        }
+
+        $products = Product::all();
+
+        foreach ($products as $key => $product) {
+            $store->products()->attach([
+                $product->id => [
+                    'quantity' => 40,
+                    'unit_price' => 1200,
+                ],
+            ]);
+        }
 
         // purchase
+
+        $products = Product::first();
 
         $purchase = factory(Purchase::class)->create([
             'store_id' => $store->id,
