@@ -30,6 +30,7 @@ tags:
   - name: role
   - name: user
   - name: patient
+  - name: station
   - name: pharmacy_store
   - name: pharmacy_product
   - name: pharmacy_store_product
@@ -66,6 +67,10 @@ tags:
     x-displayName: Patient
     description: |
       <SchemaDefinition schemaRef="#/components/schemas/PatientModel"/>
+  - name: station_model
+    x-displayName: Station
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/StationModel"/>
   - name: pharmacy_store_model
     x-displayName: Pharmacy Store
     description: |
@@ -145,6 +150,7 @@ x-tagGroups:
       - role
       - user
       - patient
+      - station
   - name: Pharmacy
     tags:
       - pharmacy_store
@@ -163,6 +169,7 @@ x-tagGroups:
       - role_model
       - user_model
       - patient_model
+      - station_model
       - pharmacy_store_model
       - pharmacy_product_model
       - pharmacy_store_product_model
@@ -2966,6 +2973,331 @@ paths:
               -H 'Accept: application/json' \
               -H 'Authorization: Bearer {access-token}'
 
+  /stations:
+    get:
+      tags:
+        - station
+      summary: Get stations
+      description: Requires `view-any` permission on `stations` module.
+      operationId: getStations
+      responses:
+        206:
+          description: Partial Content
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/206PaginationResponse'
+                  - properties:
+                      data:
+                        type: array
+                        description: Stations
+                        items:
+                          $ref: '#/components/schemas/StationModel'
+                      first_page_url:
+                        example: http://sandbox-api.example.com/v1/stations?page=1
+                      path:
+                        example: http://sandbox-api.example.com/v1/stations
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+              http://sandbox-api.example.com/v1/stations \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}'
+    post:
+      tags:
+        - station
+      summary: Register station
+      description: Requires `create` permission on `stations` module.
+      operationId: registerStation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StationModel'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/StationModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+              http://sandbox-api.example.com/v1/stations \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}' \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "first_name": "John",
+                "last_name": "Doe",
+                "date_of_birth": "1970-01-01",
+                "gender": "male"
+              }'
+  /stations/{station}:
+    get:
+      tags:
+        - station
+      summary: Get station
+      description: |-
+        Requires `view` permission on `stations` module to view other user's stations.
+      operationId: getStation
+      parameters:
+        - name: station
+          in: path
+          description: <a href="#operation/getStations">Station ID</a>
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/StationModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+              http://sandbox-api.example.com/v1/stations/{station} \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}'
+    put:
+      tags:
+        - station
+      summary: Update station
+      description: Requires `update` permission on `stations` module.
+      operationId: updateStation
+      parameters:
+        - name: station
+          in: path
+          description: <a href="#operation/getStations">Station ID</a>
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StationModel'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/StationModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+              http://sandbox-api.example.com/v1/stations/{station} \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}' \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "first_name": "John",
+                "last_name": "Doe",
+                "date_of_birth": "1970-01-01",
+                "gender": "male"
+              }'
+  /stations/{station}/revoke:
+    put:
+      tags:
+        - station
+      summary: Revoke station
+      description: |-
+        Requires `soft-delete` permission on `stations` module.
+      operationId: revokeStation
+      parameters:
+        - name: station
+          in: path
+          description: <a href="#operation/getStations">Station ID</a>
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/StationModel'
+                  - properties:
+                      deleted_at:
+                        example: '2018-10-05 22:48:06'
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+              'http://sandbox-api.example.com/v1/stations/{station}/revoke' \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}'
+  /stations/{station}/restore:
+    put:
+      tags:
+        - station
+      summary: Restore station
+      description: |-
+        <strong>Reinstate</strong> previously <strike>revoked</strike> station.
+
+        Requires `restore` permission on `stations` module.
+
+        See <a href='#operation/revokeUser'>revoke station</a>.
+      operationId: restoreStation
+      parameters:
+        - name: station
+          in: path
+          description: <a href="#operation/getStations">Station ID</a>
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/StationModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+              'http://sandbox-api.example.com/v1/stations/{station}/restore' \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}'
+
+  /stations/{station}/users/available:
+    get:
+      tags:
+        - station
+      summary: Get available users
+      description: |-
+        Get all users available to this station; granted or not.
+
+        Requires `sync-station-users` permission on `stations` module.
+      operationId: getStationUsersAvailable
+      parameters:
+        - name: station
+          in: path
+          description: <a href="#operation/getStations">Station ID</a>
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/StationModel'
+                  - properties:
+                      users:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/UserModel'
+                            - properties:
+                                granted:
+                                  type: boolean
+                                  example: false
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+              http://sandbox-api.example.com/v1/stations/{station}/users/available \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}'
+    put:
+      tags:
+        - station
+      summary: Sync available users
+      description: |-
+        Dettach, re-attach users to a station.
+
+        Requires `sync-station-users` permission on `stations` module.
+      operationId: syncStationUsersAvailable
+      parameters:
+        - name: station
+          in: path
+          description: <a href="#operation/getStations">Station ID</a>
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+              - stores
+              type: object
+              properties:
+                users:
+                  type: array
+                  description: <a href="#operation/getUsers">User ID</a>
+                  items:
+                    type: string
+                    example: '0ac99f1b-482c-4af1-be28-ddace07eff20'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/StationModel'
+                  - properties:
+                      users:
+                        type: array
+                        items:
+                          allOf:
+                            - $ref: '#/components/schemas/UserModel'
+                            - properties:
+                                granted:
+                                  type: boolean
+                                  example: true
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+              http://sandbox-api.example.com/v1/stations/{station}/users/available \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}' \
+              -d '{
+                "users": [
+                  "0ac99f1b-482c-4af1-be28-ddace07eff20"
+                ]
+              }'
+
   /pharmacy/stores:
     get:
       tags:
@@ -4318,6 +4650,39 @@ components:
           format: date-time
           example: null
           nullable: true
+    StationModel:
+      title: Station
+      type: object
+      required:
+        - id
+        - facility_id
+        - code
+        - name
+      properties:
+        id:
+          readOnly: true
+          type: string
+          format: uuid
+          example: 'f0f95c23-6ba1-4348-b1d9-bfb5e4bb1e3f'
+        facility_id:
+          readOnly: true
+          type: string
+          description: <a href="#tag/facility_model">Facility</a>
+          format: uuid
+          example: '0ac99f1b-482c-4af1-be28-ddace07eff20'
+        code:
+          type: string
+          maxLength: 10
+          example: GP
+        name:
+          type: string
+          maxLength: 100
+          example: General Practitioner
+        description:
+          type: string
+          maxLength: 255
+          nullable: true
+
     PharmacyStoreModel:
       title: Pharmacy Store
       type: object

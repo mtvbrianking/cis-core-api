@@ -29,7 +29,7 @@ class PatientControllerTest extends TestCase
 
     public function test_can_get_patients()
     {
-        $user = $this->getAuthorizedUser('view-any', 'patient');
+        $user = $this->getAuthorizedUser('view-any', 'patients');
 
         $patient = factory(Patient::class)->create([
             'facility_id' => $user->facility_id,
@@ -166,8 +166,6 @@ class PatientControllerTest extends TestCase
 
     public function test_can_update_patient_info()
     {
-        $this->withoutExceptionHandling();
-
         $user = $this->getAuthorizedUser('create', 'patients');
 
         $patient = factory(Patient::class)->create([

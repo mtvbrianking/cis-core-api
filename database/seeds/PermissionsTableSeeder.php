@@ -301,5 +301,36 @@ class PermissionsTableSeeder extends Seeder
                 'name' => 'restore',
             ],
         ]);
+
+        Permission::insert([
+            [
+                'module_name' => 'stations',
+                'name' => 'view-any',
+            ],
+            [
+                'module_name' => 'stations',
+                'name' => 'view',
+            ],
+            [
+                'module_name' => 'stations',
+                'name' => 'create',
+            ],
+            [
+                'module_name' => 'stations',
+                'name' => 'update',
+            ],
+            [
+                'module_name' => 'stations',
+                'name' => 'soft-delete',
+            ],
+            [
+                'module_name' => 'stations',
+                'name' => 'restore',
+            ],
+            [
+                'module_name' => 'stations',
+                'name' => 'sync-station-users',
+            ],
+        ]);
     }
 }
