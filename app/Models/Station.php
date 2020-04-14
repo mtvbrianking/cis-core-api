@@ -114,6 +114,6 @@ class Station extends Model
      */
     public function scopeOnlyRelated(Builder $query, User $user)
     {
-        return $query->where('patients.facility_id', $user->facility_id);
+        return $query->where('stations.facility_id', $user->facility_id);
     }
 }

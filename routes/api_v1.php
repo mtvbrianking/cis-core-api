@@ -189,3 +189,14 @@ Route::group(['prefix' => 'patients'], function () {
     Route::put('/{patient}/restore', 'PatientController@restore');
     Route::put('/{patient}/revoke', 'PatientController@revoke');
 });
+
+Route::pattern('station', $uuid);
+
+Route::group(['prefix' => 'stations'], function () {
+    Route::get('/', 'StationController@index');
+    Route::get('/{station}', 'StationController@show');
+    Route::post('/', 'StationController@create');
+    Route::put('/{station}', 'StationController@update');
+    Route::put('/{station}/restore', 'StationController@restore');
+    Route::put('/{station}/revoke', 'StationController@revoke');
+});
