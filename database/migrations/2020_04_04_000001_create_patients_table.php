@@ -16,8 +16,8 @@ class CreatePatientsTable extends Migration
         Schema::create('patients', function (Blueprint $table) {
             $table->uuid('id');
             $table->uuid('facility_id');
-            $table->string('first_name')->comment('Given name');
-            $table->string('last_name')->comment('Surname name');
+            $table->string('first_name', 25)->comment('Given name');
+            $table->string('last_name', 25)->comment('Surname name');
             $table->date('date_of_birth');
             $table->enum('gender', ['male', 'female']);
             $table->string('phone', 20)->nullable();

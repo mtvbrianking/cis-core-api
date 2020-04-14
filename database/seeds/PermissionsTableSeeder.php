@@ -274,5 +274,32 @@ class PermissionsTableSeeder extends Seeder
                 'name' => 'create',
             ],
         ]);
+
+        Permission::insert([
+            [
+                'module_name' => 'patients',
+                'name' => 'view-any',
+            ],
+            [
+                'module_name' => 'patients',
+                'name' => 'view',
+            ],
+            [
+                'module_name' => 'patients',
+                'name' => 'create',
+            ],
+            [
+                'module_name' => 'patients',
+                'name' => 'update',
+            ],
+            [
+                'module_name' => 'patients',
+                'name' => 'soft-delete',
+            ],
+            [
+                'module_name' => 'patients',
+                'name' => 'restore',
+            ],
+        ]);
     }
 }

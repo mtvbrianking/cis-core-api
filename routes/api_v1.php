@@ -178,3 +178,14 @@ Route::group(['namespace' => '\App\Http\Controllers\Pharmacy', 'prefix' => 'phar
         Route::get('/{purchase}', 'PurchaseController@show');
     });
 });
+
+Route::pattern('patient', $uuid);
+
+Route::group(['prefix' => 'patients'], function () {
+    Route::get('/', 'PatientController@index');
+    Route::get('/{patient}', 'PatientController@show');
+    Route::post('/', 'PatientController@create');
+    Route::put('/{patient}', 'PatientController@update');
+    Route::put('/{patient}/restore', 'PatientController@restore');
+    Route::put('/{patient}/revoke', 'PatientController@revoke');
+});

@@ -40,6 +40,9 @@ class ModulesTableSeeder extends Seeder
             [
                 'name' => 'pharm-purchases',
             ],
+            [
+                'name' => 'patients',
+            ],
         ]);
     }
 }

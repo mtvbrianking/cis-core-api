@@ -29,6 +29,7 @@ tags:
   - name: permission
   - name: role
   - name: user
+  - name: patient
   - name: pharmacy_store
   - name: pharmacy_product
   - name: pharmacy_store_product
@@ -61,6 +62,10 @@ tags:
     x-displayName: User
     description: |
       <SchemaDefinition schemaRef="#/components/schemas/UserModel"/>
+  - name: patient_model
+    x-displayName: Patient
+    description: |
+      <SchemaDefinition schemaRef="#/components/schemas/PatientModel"/>
   - name: pharmacy_store_model
     x-displayName: Pharmacy Store
     description: |
@@ -139,6 +144,7 @@ x-tagGroups:
       - permission
       - role
       - user
+      - patient
   - name: Pharmacy
     tags:
       - pharmacy_store
@@ -156,6 +162,7 @@ x-tagGroups:
       - permission_model
       - role_model
       - user_model
+      - patient_model
       - pharmacy_store_model
       - pharmacy_product_model
       - pharmacy_store_product_model
@@ -2739,6 +2746,226 @@ paths:
                 ]
               }'
 
+  /patients:
+    get:
+      tags:
+        - patient
+      summary: Get patients
+      description: Requires `view-any` permission on `patients` module.
+      operationId: getPatients
+      responses:
+        206:
+          description: Partial Content
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/206PaginationResponse'
+                  - properties:
+                      data:
+                        type: array
+                        description: Patients
+                        items:
+                          $ref: '#/components/schemas/PatientModel'
+                      first_page_url:
+                        example: http://sandbox-api.example.com/v1/patients?page=1
+                      path:
+                        example: http://sandbox-api.example.com/v1/patients
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+              http://sandbox-api.example.com/v1/patients \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}'
+    post:
+      tags:
+        - patient
+      summary: Register patient
+      description: Requires `create` permission on `patients` module.
+      operationId: registerPatient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatientModel'
+      responses:
+        201:
+          description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PatientModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X POST \
+              http://sandbox-api.example.com/v1/patients \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}' \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "first_name": "John",
+                "last_name": "Doe",
+                "date_of_birth": "1970-01-01",
+                "gender": "male"
+              }'
+  /patients/{patient}:
+    get:
+      tags:
+        - patient
+      summary: Get patient
+      description: |-
+        Requires `view` permission on `patients` module to view other user's patients.
+      operationId: getPatient
+      parameters:
+        - name: patient
+          in: path
+          description: <a href="#operation/getPatients">Patient ID</a>
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PatientModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X GET \
+              http://sandbox-api.example.com/v1/patients/{patient} \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}'
+    put:
+      tags:
+        - patient
+      summary: Update patient
+      description: Requires `update` permission on `patients` module.
+      operationId: updatePatient
+      parameters:
+        - name: patient
+          in: path
+          description: <a href="#operation/getPatients">Patient ID</a>
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatientModel'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PatientModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+              http://sandbox-api.example.com/v1/patients/{patient} \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}' \
+              -H 'Content-Type: application/json' \
+              -d '{
+                "first_name": "John",
+                "last_name": "Doe",
+                "date_of_birth": "1970-01-01",
+                "gender": "male"
+              }'
+  /patients/{patient}/revoke:
+    put:
+      tags:
+        - patient
+      summary: Revoke patient
+      description: |-
+        Requires `soft-delete` permission on `patients` module.
+      operationId: revokePatient
+      parameters:
+        - name: patient
+          in: path
+          description: <a href="#operation/getPatients">Patient ID</a>
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PatientModel'
+                  - properties:
+                      deleted_at:
+                        example: '2018-10-05 22:48:06'
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+              'http://sandbox-api.example.com/v1/patients/{patient}/revoke' \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}'
+  /patients/{patient}/restore:
+    put:
+      tags:
+        - patient
+      summary: Restore patient
+      description: |-
+        <strong>Reinstate</strong> previously <strike>revoked</strike> patient.
+
+        Requires `restore` permission on `patients` module.
+
+        See <a href='#operation/revokeUser'>revoke patient</a>.
+      operationId: restorePatient
+      parameters:
+        - name: patient
+          in: path
+          description: <a href="#operation/getPatients">Patient ID</a>
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PatientModel'
+                  - properties:
+                      facility:
+                        $ref: '#/components/schemas/FacilityModel'
+      x-code-samples:
+        - lang: CURL
+          source: |-
+            curl -X PUT \
+              'http://sandbox-api.example.com/v1/patients/{patient}/restore' \
+              -H 'Accept: application/json' \
+              -H 'Authorization: Bearer {access-token}'
+
   /pharmacy/stores:
     get:
       tags:
@@ -3697,7 +3924,7 @@ paths:
         Requires `view` permission on `pharm-sales` module.
       operationId: getPharmacySale
       parameters:
-        - name: purchase
+        - name: sale
           in: path
           description: <a href="#operation/getPharmacyPurchases">Sale ID</a>
           required: true
@@ -3979,6 +4206,117 @@ components:
           readOnly: true
           type: string
           format: date-time
+          nullable: true
+    PatientModel:
+      title: Patient
+      type: object
+      required:
+        - id
+        - facility_id
+        - first_name
+        - last_name
+        - date_of_birth
+        - gender
+      properties:
+        id:
+          readOnly: true
+          type: string
+          format: uuid
+          example: 'f0f95c23-6ba1-4348-b1d9-bfb5e4bb1e3f'
+        facility_id:
+          readOnly: true
+          type: string
+          description: <a href="#tag/facility_model">Facility</a>
+          format: uuid
+          example: '0ac99f1b-482c-4af1-be28-ddace07eff20'
+        first_name:
+          type: string
+          maxLength: 25
+          example: John
+        last_name:
+          type: string
+          maxLength: 25
+          example: Doe
+        date_of_birth:
+          type: string
+          format: date
+          example: '1990-06-24'
+        gender:
+          type: string
+          enum:
+            - male
+            - female
+          example: male
+        phone:
+          maxLength: 25
+          pattern: '^\+(?:[0-9]?){9,16}[0-9]$'
+          type: string
+          format: tel
+          nullable: true
+          example: '+256392741586'
+        email:
+          type: string
+          format: email
+          nullable: true
+          example: jdoe@example.com
+        nin:
+          description: National ID Number
+          type: string
+          maxLength: 14
+          nullable: true
+        weight:
+          description: In kilograms
+          type: number
+          nullable: true
+        height:
+          description: In centimeters
+          type: number
+          nullable: true
+        blood-type:
+          type: string
+          enum:
+            - O+
+            - A+
+            - B+
+            - AB+
+            - O-
+            - A-
+            - B-
+            - AB-
+          nullable: true
+        existing_conditions:
+          type: string
+          maxLength: 255
+          nullable: true
+        allergies:
+          type: string
+          maxLength: 255
+          nullable: true
+        notes:
+          description: Any other information necesary to reveal.
+          type: string
+          format: rich-text
+          nullable: true
+        next_of_kin:
+          description: Person, Relation, Contact(s), ...
+          type: string
+          maxLength: 255
+          nullable: true
+        created_at:
+          readOnly: true
+          type: string
+          format: date-time
+          nullable: true
+        updated_at:
+          readOnly: true
+          type: string
+          format: date-time
+          nullable: true
+        deleted_at:
+          readOnly: true
+          type: string
+          format: date-time
+          example: null
           nullable: true
     PharmacyStoreModel:
       title: Pharmacy Store
