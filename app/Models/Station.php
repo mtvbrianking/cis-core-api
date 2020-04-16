@@ -107,7 +107,9 @@ class Station extends Model
         return $this->belongsToMany(Visit::class, 'station_visit', 'station_id', 'visit_id', 'id')
             ->withPivot([
                 'user_id',
+                'status',
                 'instructions',
+                'starts_at',
                 'accepted_at',
                 'concluded_at',
                 'canceled_at',

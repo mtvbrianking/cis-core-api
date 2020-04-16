@@ -4,8 +4,8 @@ namespace Tests\Unit;
 
 use App\Models\Station;
 use App\Models\User;
-use Illuminate\Support\Arr;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Arr;
 use Tests\TestCase;
 
 /**

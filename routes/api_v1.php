@@ -190,6 +190,17 @@ Route::group(['prefix' => 'patients'], function () {
     Route::put('/{patient}/revoke', 'PatientController@revoke');
 });
 
+Route::pattern('visit', $uuid);
+
+Route::group(['prefix' => 'visits'], function () {
+    Route::get('/', 'VisitController@index');
+    Route::get('/{visit}', 'VisitController@show');
+    Route::post('/', 'VisitController@create');
+    Route::put('/{visit}', 'VisitController@update');
+    Route::put('/{visit}/restore', 'VisitController@restore');
+    Route::put('/{visit}/revoke', 'VisitController@revoke');
+});
+
 Route::pattern('station', $uuid);
 
 Route::group(['prefix' => 'stations'], function () {
@@ -202,4 +213,7 @@ Route::group(['prefix' => 'stations'], function () {
 
     Route::get('/{station}/users/available', 'StationUserController@users');
     Route::put('/{station}/users/available', 'StationUserController@syncUsers');
+
+    // Route::get('/{visit}/visits', 'StationVisitController@users');
+    // Route::put('/{visit}/visits', 'StationVisitController@syncUsers');
 });

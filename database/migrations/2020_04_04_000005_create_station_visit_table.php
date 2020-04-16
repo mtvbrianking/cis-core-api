@@ -16,7 +16,7 @@ class CreateStationVisitTable extends Migration
         Schema::create('station_visit', function (Blueprint $table) {
             $table->uuid('visit_id');
             $table->uuid('station_id');
-            $table->uuid('user_id');
+            $table->uuid('user_id')->nullable();
             $table->enum('status', ['scheduled', 'available', 'accepted', 'concluded', 'canceled'])->default('scheduled');
             $table->text('instructions');
             $table->timestamps();

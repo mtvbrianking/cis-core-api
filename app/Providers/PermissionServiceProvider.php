@@ -37,6 +37,7 @@ class PermissionServiceProvider extends ServiceProvider
 
         'App\Models\Patient' => 'App\Policies\PatientPolicy',
         'App\Models\Station' => 'App\Policies\StationPolicy',
+        'App\Models\Visit' => 'App\Policies\VisitPolicy',
     ];
 
     /**
