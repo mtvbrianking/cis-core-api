@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Models\Patient;
 use App\Models\Station;
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
@@ -14,9 +15,85 @@ class VisitControllerTest extends TestCase
 {
     use DatabaseTransactions;
 
+    public function test_can_make_a_visit_with_an_invalid_station()
+    {
+        $user = $this->getAuthorizedUser('create', 'visits');
+
+        $patient = factory(Patient::class)->create([
+            'facility_id' => $user->facility_id,
+        ]);
+
+        $station = factory(Station::class)->create([
+            // 'facility_id' => $user->facility_id,
+        ]);
+
+        $now = date('Y-m-d H:i:s');
+
+        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/visits', [
+            'patient_id' => $patient->id,
+            'stations' => [
+                [
+                    'id' => $station->id,
+                    'user_id' => null,
+                    'instructions' => 'Lorem ipsum dolor sit amet.',
+                    'status' => 'scheduled',
+                    'starts_at' => $now,
+                ],
+            ],
+        ]);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'stations.0.id',
+            ],
+        ]);
+    }
+
+    public function test_can_make_a_visit_with_an_invalid_staff()
+    {
+        $user = $this->getAuthorizedUser('create', 'visits');
+
+        $patient = factory(Patient::class)->create([
+            'facility_id' => $user->facility_id,
+        ]);
+
+        $station = factory(Station::class)->create([
+            'facility_id' => $user->facility_id,
+        ]);
+
+        $staff = factory(User::class)->create();
+
+        $now = date('Y-m-d H:i:s');
+
+        $response = $this->actingAs($user, 'api')->json('POST', 'api/v1/visits', [
+            'patient_id' => $patient->id,
+            'stations' => [
+                [
+                    'id' => $station->id,
+                    'user_id' => $staff->id,
+                    'instructions' => 'Lorem ipsum dolor sit amet.',
+                    'status' => 'scheduled',
+                    'starts_at' => $now,
+                ],
+            ],
+        ]);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonStructure([
+            'message',
+            'errors' => [
+                'stations.0.user_id',
+            ],
+        ]);
+    }
+
     public function test_can_make_a_visit()
     {
-        $this->withoutExceptionHandling();
+        // $this->withoutExceptionHandling();
 
         $user = $this->getAuthorizedUser('create', 'visits');
 

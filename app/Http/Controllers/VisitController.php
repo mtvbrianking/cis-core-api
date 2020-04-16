@@ -47,7 +47,7 @@ class VisitController extends Controller
             ],
             'stations' => 'required|array',
             'stations.*.id' => 'required|uuid',
-            'stations.*.user_id' => 'sometimes|uuid',
+            'stations.*.user_id' => 'nullable|uuid',
             'stations.*.instructions' => 'required|string',
             'stations.*.status' => 'sometimes|in:scheduled,available',
             'stations.*.starts_at' => 'sometimes|date_format:Y-m-d H:i:s',
